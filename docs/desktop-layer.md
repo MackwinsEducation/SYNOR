@@ -167,6 +167,31 @@ The gutters are grid tracks rather than padding on `main`, so `main` keeps its
 full width and the white-to-cream fade `#MainContent::before` paints under the
 header still runs edge to edge.
 
+### The id that is not the id
+
+The first version placed the two money sections with
+`#shopify-section-sa_bag_bill` and `#shopify-section-sa_bag_pill`, taking the
+keys straight from `templates/cart.json`. Those selectors match **nothing**.
+
+A section inside a JSON template is rendered as
+
+```
+shopify-section-template--<number>__sa_bag_bill
+```
+
+where the number is the theme's own id for that template. So the grid applied,
+the goods column was right, the checkout stopped floating — and the bill and the
+checkout quietly stayed in the goods column, which is exactly what a silent
+selector failure looks like. The bag head kept its 30px phone title for the same
+reason.
+
+They are matched by **what they contain** instead — the bill draws `.m4-bill`,
+the checkout draws `.m4-go` — with an `[id$='__sa_bag_bill']` suffix selector
+beside it for browsers without `:has()`. Sections identified by their schema
+class (`sa-bagtop`, `sa-bagroad`, `sa-bagwrap`) are matched on that. Nothing in
+this layer depends on a section id any more, so re-adding a section in the theme
+editor cannot break it.
+
 ### The sticky pair
 
 Column 3 holds two sections that have to behave as one sticky unit, and there is

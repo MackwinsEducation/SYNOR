@@ -15,6 +15,11 @@
    specificity alone and has to be marked `!important`. The one exception is
    the header: `sa-header.liquid` renders `sa-desktop-nav.liquid`, so that
    snippet can emit an ID-scoped rule of its own and wins there cleanly.
+
+   And never try to write one of those ids here. A section inside a JSON
+   template is rendered as `shopify-section-template--<number>__<key>`, not
+   `shopify-section-<key>` — so a hand-written id selector matches nothing and
+   fails silently. Match the section's schema class, or what it contains.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -856,9 +861,9 @@
       The desktop shape is the one every considered cart uses: the goods on the
       left, the money on the right, and the money follows you down the page.
 
-      No markup moves. Each piece is already a direct child of #MainContent with
-      a known id, so `main[data-template='cart']` becomes a grid and each
-      section is placed into a column:
+      No markup moves. Each piece is already a direct child of #MainContent, so
+      `main[data-template='cart']` becomes a grid and each section is placed
+      into a column:
 
         col 1  flexible gutter
         col 2  road · head · items · ladder · gift wrap     (max 720px)
@@ -880,8 +885,9 @@
       Specificity: `snippets/sa-cart-m4-css.liquid` is scoped by CLASS
       (`.sa-bagwrap .m4`), not by section id, and is emitted inline — so it wins
       on document order at equal weight. Prefixing with `main[data-template]`
-      is enough to outrank it; the few id-scoped rules are matched with the
-      section's own id, which is fixed in templates/cart.json.
+      is enough to outrank it. Where a piece's own sheet IS id-scoped, the
+      override carries `!important`, because the id it uses cannot be written
+      here (see the note at the top of this file).
    -------------------------------------------------------------------------- */
 
 @media screen and (min-width: 900px) {
@@ -911,13 +917,27 @@
     grid-column: 2;
   }
 
-  main[data-template='cart'] > #shopify-section-sa_bag_bill,
-  main[data-template='cart'] > #shopify-section-sa_bag_pill {
+  /* ── which two sections go in the money column ──
+     NOT by id. A section inside a JSON template does not get the id its key
+     suggests: Shopify renders `shopify-section-template--<number>__sa_bag_bill`,
+     where the number is the theme's own id for the template. `#shopify-section-
+     sa_bag_bill` therefore matches nothing, which is exactly how the first
+     version of this section silently left both of them in the goods column.
+
+     They are identified by what they contain instead — the bill draws
+     `.m4-bill`, the checkout draws `.m4-go` — which survives a template id
+     change, a section being re-added in the editor, and a rename. The id-suffix
+     selector is kept beside it for browsers without `:has()`. */
+  main[data-template='cart'] > .shopify-section:has(.m4-bill),
+  main[data-template='cart'] > .shopify-section:has(.m4-go),
+  main[data-template='cart'] > .shopify-section[id$='__sa_bag_bill'],
+  main[data-template='cart'] > .shopify-section[id$='__sa_bag_pill'] {
     grid-column: 3;
     grid-row: 1 / -1;
   }
 
-  main[data-template='cart'] > #shopify-section-sa_bag_bill {
+  main[data-template='cart'] > .shopify-section:has(.m4-bill),
+  main[data-template='cart'] > .shopify-section[id$='__sa_bag_bill'] {
     align-self: start;
     position: sticky;
     /* The desktop header is a two-row bar ~108px tall (see 1.). */
@@ -930,7 +950,8 @@
     margin-bottom: 196px;
   }
 
-  main[data-template='cart'] > #shopify-section-sa_bag_pill {
+  main[data-template='cart'] > .shopify-section:has(.m4-go),
+  main[data-template='cart'] > .shopify-section[id$='__sa_bag_pill'] {
     align-self: end;
     position: sticky;
     bottom: 28px;
@@ -951,21 +972,26 @@
      `snippets/sa-cart-head.liquid` has no width of its own, so today it is the
      one piece that already spans the whole desktop window while everything
      under it sits in a 520px ribbon. In the grid it is the page's title block,
-     and it is sized like one. */
-  main[data-template='cart'] #shopify-section-sa_bag_top .sa-head h1 {
-    font-size: 42px;
+     and it is sized like one.
+
+     Matched on the section's own class from its schema (`sa-bagtop`), for the
+     same reason as above — the id is not what it looks like. That costs the
+     specificity an id would have given, so these carry `!important` to clear
+     the section's own id-scoped sizes. */
+  main[data-template='cart'] .sa-bagtop .sa-head h1 {
+    font-size: 42px !important;
   }
 
-  main[data-template='cart'] #shopify-section-sa_bag_top .sa-head .big {
-    font-size: 30px;
+  main[data-template='cart'] .sa-bagtop .sa-head .big {
+    font-size: 30px !important;
   }
 
-  main[data-template='cart'] #shopify-section-sa_bag_top .sa-head .sub {
-    font-size: 13px;
+  main[data-template='cart'] .sa-bagtop .sa-head .sub {
+    font-size: 13px !important;
   }
 
-  main[data-template='cart'] #shopify-section-sa_bag_top .sa-cells b {
-    font-size: 17px;
+  main[data-template='cart'] .sa-bagtop .sa-cells b {
+    font-size: 17px !important;
   }
 
   /* ── the checkout, no longer a floating bar ──
@@ -1028,8 +1054,7 @@
       minmax(var(--cart-edge), 1fr);
   }
 
-  main[data-template='cart']:has(.m4-empty) > #shopify-section-sa_bag_bill,
-  main[data-template='cart']:has(.m4-empty) > #shopify-section-sa_bag_pill {
+  main[data-template='cart']:has(.m4-empty) > .shopify-section {
     grid-column: 2;
     grid-row: auto;
     position: static;
@@ -1067,6 +1092,15 @@
     --cart-side: 380px;
     --cart-gap: 40px;
     --cart-edge: 32px;
+  }
+}
+
+/* A wide screen can afford a wider page rather than wider margins. */
+@media screen and (min-width: 1600px) {
+  main[data-template='cart'] {
+    --cart-main: 800px;
+    --cart-side: 400px;
+    --cart-gap: 48px;
   }
 }
 
