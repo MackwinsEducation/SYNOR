@@ -36,16 +36,31 @@ originals (md5) before the additions were applied, so nothing else moved.
 
 ### Specificity
 
-Section styles are emitted inline as `#shopify-section-<id> .thing`
-(specificity 0,1,1,0) and appear in the body, after anything in `<head>`. To
-win without `!important`, desktop overrides use
-`body [id^="shopify-section-"] .thing` (0,1,2,0).
+Section styles are emitted inline as `#shopify-section-<id> .thing`. An ID
+selector outranks any number of classes or attribute selectors, so
+`body [id^="shopify-section-"] .thing` from a stylesheet **cannot** win — the
+first version of this layer tried exactly that and silently did nothing.
+Cross-section overrides therefore carry `!important`.
+
+The header is the exception. `sa-header.liquid` renders
+`sa-desktop-nav.liquid`, so that snippet emits its own ID-scoped rule
+(`#shopify-section-{{ sid }} .sh .sh-in { display: none }` — one class deeper
+than the section's own rule, and later in the document) and wins cleanly.
 
 ### Desktop header
 
-The mobile bar (`.sh-in`) is hidden at ≥1000px and `.shd` takes over:
+The mobile bar (`.sh-in`) is hidden at ≥1000px and `.shd` takes over, in two
+rows:
 
-- logo · centred nav · search / account / cart / cashback
+- row 1 — logo left, search / account / cart / cashback right
+- row 2 — the eight nav items, centred under a hairline
+
+Two rows rather than one because the items do not fit beside the logo and the
+actions: eight of them measure ~1125px against ~735px of free space at 1440px,
+and a single row put the logo on top of "Men" and the last links under the cart.
+Below 1280px the note pills ("100% back", "60 seconds") are dropped, which
+brings the row down to ~840px and keeps it on one line at 1024px.
+
 - each collection tab opens a full-width mega panel — banner on the left,
   six products and an "explore all" link on the right
 - hover and keyboard (focus, Escape) both drive it, with open/close delays so
@@ -69,6 +84,22 @@ adding rules to `assets/sa-desktop.css`.
 
 ## Testing
 
-`synorperfume.com` is blocked by this environment's egress policy, so these
-changes were verified by code review and checksum, not in a browser. Preview
-the staging theme before publishing.
+`synorperfume.com` is blocked by this environment's egress policy, so the
+storefront itself could not be opened. Instead the header was rebuilt as a
+static harness (`scratchpad/render/`) from the real section settings, the real
+`sa-desktop.css`/`sa-desktop.js`, and real product titles and prices, then
+driven in headless Chromium at 1440 / 1280 / 1100 / 1024 / 990 / 390px.
+
+That caught three defects that code review had missed:
+
+- the `[id^=...]` overrides never applied, so the phone bar stayed visible at
+  every width
+- the single-row nav overflowed and collided with the logo and the cart
+- `.shd-cb` is a flex container, so the whitespace-only text node between the
+  amount and the word was dropped and it read "₹49Back"
+
+Hover, tab switching, pointer travel into the open panel, `Escape`,
+`aria-expanded` and the cart badge were all exercised and pass with no console
+errors. What the harness cannot cover is the rest of the page — `base.css`, the
+real logo's proportions, and the other sections' styles — so still preview the
+staging theme before publishing.

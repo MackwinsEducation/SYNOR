@@ -7,8 +7,11 @@
    is untouched.
 
    Specificity note: section styles are emitted inline as
-   `#shopify-section-<id> .thing` (0,1,1,0). To override without `!important`
-   these rules use `body [id^="shopify-section-"] .thing` (0,1,2,0).
+   `#shopify-section-<id> .thing`. That ID selector outranks any number of
+   classes or attribute selectors, so an override from this file cannot win on
+   specificity alone and has to be marked `!important`. The one exception is
+   the header: `sa-header.liquid` renders `sa-desktop-nav.liquid`, so that
+   snippet can emit an ID-scoped rule of its own and wins there cleanly.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -20,11 +23,7 @@
 }
 
 @media screen and (min-width: 1000px) {
-  /* Swap the mobile bar for the desktop bar. */
-  body [id^='shopify-section-'] .sh-in {
-    display: none;
-  }
-
+  /* The mobile bar is hidden by an ID-scoped rule in sa-desktop-nav.liquid. */
   .shd {
     display: block;
     position: relative;
@@ -34,19 +33,22 @@
 
   .shd-in {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'logo act'
+      'nav  nav';
     align-items: center;
-    gap: 32px;
+    column-gap: 24px;
     max-width: var(--shd-max, 1440px);
     margin: 0 auto;
-    padding: 14px var(--shd-gutter, 40px);
+    padding: 11px var(--shd-gutter, 40px) 0;
   }
 
   /* ---- Logo ---- */
   .shd-logo {
+    grid-area: logo;
     display: block;
     text-decoration: none;
-    flex: none;
   }
 
   .shd-logo img {
@@ -83,11 +85,15 @@
 
   /* ---- Nav ---- */
   .shd-nav {
+    grid-area: nav;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    min-width: 0;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 9px;
+    padding-top: 5px;
+    border-top: 1px solid var(--shd-line, #e5dfd1);
   }
 
   .shd-item {
@@ -98,7 +104,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 10px 14px;
+    padding: 9px 13px;
     border-radius: 10px;
     text-decoration: none;
     color: var(--shd-ink, #1a1712);
@@ -147,10 +153,11 @@
 
   /* ---- Right-hand actions ---- */
   .shd-act {
+    grid-area: act;
+    justify-self: end;
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: none;
   }
 
   .shd-find {
@@ -289,7 +296,8 @@
 
   .shd-mega-in {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 260px 1fr;
+    align-items: stretch;
     gap: 36px;
     max-width: var(--shd-max, 1440px);
     margin: 0 auto;
@@ -301,7 +309,8 @@
     display: block;
     overflow: hidden;
     border-radius: 14px;
-    aspect-ratio: 3 / 4;
+    height: 100%;
+    min-height: 250px;
     background: var(--shd-find, #f4efe4);
     text-decoration: none;
   }
@@ -485,6 +494,19 @@
   }
 }
 
+/* Under ~1200px the eight nav items plus their note pills no longer fit on one
+   line. Drop the pills first; they are decoration, the labels are the content. */
+@media screen and (min-width: 1000px) and (max-width: 1279px) {
+  .shd-note {
+    display: none;
+  }
+
+  .shd-link {
+    padding: 9px 10px;
+    font-size: 12.5px;
+  }
+}
+
 @media screen and (min-width: 1000px) and (prefers-reduced-motion: reduce) {
   .shd-mega {
     animation: none;
@@ -501,106 +523,93 @@
 
 @media screen and (min-width: 1000px) {
   body [id^='shopify-section-'] .ft .panel {
-    max-width: 1280px;
-    padding-left: 40px;
-    padding-right: 40px;
+    max-width: 1280px !important;
+    padding-left: 40px !important;
+    padding-right: 40px !important;
   }
 
   body [id^='shopify-section-'] .ft .entry {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 56px;
-    padding-bottom: 34px;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 56px !important;
+    padding-bottom: 34px !important;
   }
 
   body [id^='shopify-section-'] .ft a {
-    font-size: 14px;
+    font-size: 14px !important;
   }
 
   body [id^='shopify-section-'] .ft .set h4 {
-    font-size: 21px;
-    margin-bottom: 8px;
+    font-size: 21px !important;
+    margin-bottom: 8px !important;
   }
 
   body [id^='shopify-section-'] .ft .set .said {
-    font-size: 17px;
-    margin-bottom: 20px;
+    font-size: 17px !important;
+    margin-bottom: 20px !important;
   }
 
   body [id^='shopify-section-'] .ft .set ul {
-    gap: 12px;
+    gap: 12px !important;
   }
 
   body [id^='shopify-section-'] .ft .set .row .v {
-    font-size: 11.5px;
+    font-size: 11.5px !important;
   }
 
   body [id^='shopify-section-'] .ft .crest .sub {
-    font-size: 9px;
+    font-size: 9px !important;
   }
 
   body [id^='shopify-section-'] .ft .reach a {
-    padding: 18px 24px;
+    padding: 18px 24px !important;
   }
 
   body [id^='shopify-section-'] .ft .reach svg {
-    width: 19px;
-    height: 19px;
+    width: 19px !important;
+    height: 19px !important;
   }
 
   body [id^='shopify-section-'] .ft .reach b {
-    font-size: 13.5px;
+    font-size: 13.5px !important;
   }
 
   body [id^='shopify-section-'] .ft .reach small {
-    font-size: 11px;
+    font-size: 11px !important;
   }
 
   body [id^='shopify-section-'] .ft .join {
-    padding: 22px 28px;
+    padding: 22px 28px !important;
   }
 
   body [id^='shopify-section-'] .ft .join .why b {
-    font-size: 17px;
+    font-size: 17px !important;
   }
 
   body [id^='shopify-section-'] .ft .join .why small {
-    font-size: 12px;
+    font-size: 12px !important;
   }
 
   body [id^='shopify-section-'] .ft .slot {
-    height: 44px;
-    max-width: 340px;
+    height: 44px !important;
+    max-width: 340px !important;
   }
 
   body [id^='shopify-section-'] .ft .slot input {
-    font-size: 13.5px;
+    font-size: 13.5px !important;
   }
 
   body [id^='shopify-section-'] .ft .slot button {
-    height: 34px;
-    padding: 0 18px;
-    font-size: 10px;
+    height: 34px !important;
+    padding: 0 18px !important;
+    font-size: 10px !important;
   }
 
   body [id^='shopify-section-'] .ft .soc svg {
-    width: 18px;
-    height: 18px;
+    width: 18px !important;
+    height: 18px !important;
   }
 
   body [id^='shopify-section-'] .ft .law {
-    font-size: 11px;
-  }
-}
-
-/* --------------------------------------------------------------------------
-   3. Announcement rail — give it the same gutter as the header.
-   -------------------------------------------------------------------------- */
-
-@media screen and (min-width: 1000px) {
-  body [id^='shopify-section-'] .sa-rail,
-  body [id^='shopify-section-'] .rail-in {
-    max-width: 1440px;
-    padding-left: 40px;
-    padding-right: 40px;
+    font-size: 11px !important;
   }
 }

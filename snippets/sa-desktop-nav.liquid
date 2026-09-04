@@ -26,6 +26,16 @@
     --shd-cb-shadow: {{ s.cb_shadow }};
     --shd-logo-h: {{ shd_logo_h }}px;
   }
+
+  /* Swap the phone bar for the desktop bar. This has to live here rather than
+     in sa-desktop.css: the section styles it competes with are ID-scoped, and
+     an ID outranks any selector a plain stylesheet could write. `.sh .sh-in`
+     carries one more class than the section's own `.sh-in` rule, so it wins. */
+  @media screen and (min-width: 1000px) {
+    #shopify-section-{{ sid }} .sh .sh-in {
+      display: none;
+    }
+  }
 </style>
 
 <div class="shd" data-shd>
@@ -36,8 +46,9 @@
         <img src="{{ s.logo | image_url: width: 520 }}" alt="{{ shop.name | escape }}" width="260" height="60">
       {%- else -%}
         <span class="shd-word">{{ s.wordmark | replace: '|', '<i>' | replace: '~', '</i>' }}</span>
+        {%- comment -%} Only with the wordmark — a logo image already carries the brand. {%- endcomment -%}
+        {%- if s.tagline != blank -%}<span class="shd-tag">{{ s.tagline }}</span>{%- endif -%}
       {%- endif -%}
-      {%- if s.tagline != blank -%}<span class="shd-tag">{{ s.tagline }}</span>{%- endif -%}
     </a>
 
     <nav class="shd-nav" aria-label="Primary">
@@ -88,8 +99,11 @@
       </a>
 
       {%- if s.show_cashback -%}
+        {%- comment -%} The span matters: .shd-cb is a flex container, and a
+          whitespace-only text node between flex items is dropped, which would
+          glue the amount to the word. {%- endcomment -%}
         <a class="shd-cb" href="{{ s.cashback_link | default: '#' }}">
-          {{ s.cashback_prefix }}<b>{{ s.cashback_amount }}</b> {{ s.cashback_word }}
+          <span>{{ s.cashback_prefix }}<b>{{ s.cashback_amount }}</b> {{ s.cashback_word }}</span>
         </a>
       {%- endif -%}
     </div>
