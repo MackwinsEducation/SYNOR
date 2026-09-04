@@ -1,0 +1,171 @@
+{%- comment -%}
+  SYNOR — Desktop navigation bar + mega menu.
+
+  Rendered by sections/sa-header.liquid. Hidden below the desktop breakpoint
+  (see assets/sa-desktop.css) so the existing mobile drawer is untouched.
+
+  Expects: s (section.settings), sid (section.id), tabs, links, socials
+{%- endcomment -%}
+
+{%- comment -%} Feed the section's colour settings to assets/sa-desktop.css {%- endcomment -%}
+{%- assign shd_logo_h = s.logo_h | default: 43 | times: 1.15 | round -%}
+<style>
+  #shopify-section-{{ sid }} {
+    --shd-bg: {{ s.bg }};
+    --shd-draw: {{ s.draw_bg }};
+    --shd-tile: {{ s.tile_bg }};
+    --shd-find: {{ s.find_bg }};
+    --shd-line: {{ s.line }};
+    --shd-ink: {{ s.ink }};
+    --shd-soft: {{ s.soft }};
+    --shd-gold: {{ s.gold }};
+    --shd-gold2: {{ s.gold2 }};
+    --shd-btn: {{ s.btn_bg }};
+    --shd-cb-bg: {{ s.cb_bg }};
+    --shd-cb-ink: {{ s.cb_ink }};
+    --shd-cb-shadow: {{ s.cb_shadow }};
+    --shd-logo-h: {{ shd_logo_h }}px;
+  }
+</style>
+
+<div class="shd" data-shd>
+  <div class="shd-in">
+
+    <a class="shd-logo" href="{{ routes.root_url }}">
+      {%- if s.logo != blank -%}
+        <img src="{{ s.logo | image_url: width: 520 }}" alt="{{ shop.name | escape }}" width="260" height="60">
+      {%- else -%}
+        <span class="shd-word">{{ s.wordmark | replace: '|', '<i>' | replace: '~', '</i>' }}</span>
+      {%- endif -%}
+      {%- if s.tagline != blank -%}<span class="shd-tag">{{ s.tagline }}</span>{%- endif -%}
+    </a>
+
+    <nav class="shd-nav" aria-label="Primary">
+      {%- for b in tabs -%}
+        {%- assign c = collections[b.settings.collection] -%}
+        <div class="shd-item" data-mega="{{ forloop.index }}">
+          <a class="shd-link" href="{{ c.url | default: '#' }}" aria-haspopup="true" aria-expanded="false">
+            <span>{{ b.settings.label }}</span>
+            <svg class="shd-caret" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+              <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+      {%- endfor -%}
+
+      {%- for b in links limit: 3 -%}
+        <div class="shd-item">
+          <a class="shd-link shd-plain" href="{{ b.settings.link | default: '#' }}">
+            <span>{{ b.settings.label }}</span>
+            {%- if b.settings.note != blank -%}<em class="shd-note">{{ b.settings.note }}</em>{%- endif -%}
+          </a>
+        </div>
+      {%- endfor -%}
+    </nav>
+
+    <div class="shd-act">
+      <form class="shd-find" action="{{ routes.search_url }}" method="get" role="search">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <input type="search" name="q" placeholder="{{ s.search_hint | default: 'Search' }}" aria-label="Search">
+      </form>
+
+      <a class="shd-ic" href="{{ routes.account_url }}" aria-label="Account">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4.8 20c.7-3.9 3.6-6 7.2-6s6.5 2.1 7.2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+
+      <a class="shd-ic shd-bag" href="{{ routes.cart_url }}" aria-label="Cart">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 8h12l-1 12H7L6 8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M9 8V6.5a3 3 0 016 0V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <i class="shd-count" data-shd-count{% if cart.item_count == 0 %} hidden{% endif %}>{{ cart.item_count }}</i>
+      </a>
+
+      {%- if s.show_cashback -%}
+        <a class="shd-cb" href="{{ s.cashback_link | default: '#' }}">
+          {{ s.cashback_prefix }}<b>{{ s.cashback_amount }}</b> {{ s.cashback_word }}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- for b in tabs -%}
+    {%- assign c = collections[b.settings.collection] -%}
+    <div class="shd-mega" data-megapane="{{ forloop.index }}" hidden>
+      <div class="shd-mega-in">
+
+        <div class="shd-mega-aside">
+          {%- if b.settings.banner != blank -%}
+            <a class="shd-ban" href="{{ c.url | default: '#' }}">
+              <img src="{{ b.settings.banner | image_url: width: 900 }}" alt="{{ b.settings.label | escape }}"
+                loading="lazy" decoding="async">
+              <span class="shd-cap">
+                {%- if b.settings.caption != blank -%}<b>{{ b.settings.caption }}</b>{%- endif -%}
+                <i>{{ b.settings.cta | default: 'Explore' }} &rarr;</i>
+              </span>
+            </a>
+          {%- else -%}
+            <div class="shd-blurb">
+              <b>{{ b.settings.label }}</b>
+              {%- if b.settings.caption != blank -%}<p>{{ b.settings.caption }}</p>{%- endif -%}
+              <a href="{{ c.url | default: '#' }}">{{ b.settings.cta | default: 'Explore' }} &rarr;</a>
+            </div>
+          {%- endif -%}
+        </div>
+
+        <div class="shd-mega-main">
+          {%- if c == blank or c.products_count == 0 -%}
+            <p class="shd-none">{{ s.empty_note }}</p>
+          {%- else -%}
+            <div class="shd-ph">
+              <span>{{ b.settings.heading | default: 'Most loved' }}</span>
+              <a href="{{ c.url }}">{{ b.settings.all_label | default: 'Explore all' }} &rarr;</a>
+            </div>
+
+            <div class="shd-grid">
+              {%- for p in c.products limit: 6 -%}
+                {%- liquid
+                  assign famkey = ''
+                  for t in p.tags
+                    assign low = t | downcase
+                    if low contains 'family-'
+                      assign famkey = low | remove: 'family-'
+                    endif
+                  endfor
+                  assign dot = s.d_default
+                  if famkey contains 'fresh' or famkey contains 'aquatic'
+                    assign dot = s.d_fresh
+                  elsif famkey contains 'floral' or famkey contains 'fruity'
+                    assign dot = s.d_floral
+                  elsif famkey contains 'woody' or famkey contains 'oud'
+                    assign dot = s.d_woody
+                  elsif famkey contains 'amber' or famkey contains 'sweet'
+                    assign dot = s.d_amber
+                  endif
+                -%}
+                <a class="shd-tile" href="{{ p.url }}">
+                  <span class="shd-shot">
+                    {%- if p.featured_image -%}
+                      <img src="{{ p.featured_image | image_url: width: 320 }}" alt="{{ p.title | escape }}"
+                        loading="lazy" decoding="async">
+                    {%- endif -%}
+                    <i class="shd-dot" style="background:{{ dot }}" aria-hidden="true"></i>
+                  </span>
+                  <b>{{ p.title | remove: 'SYNOR ' }}</b>
+                  <small>{{ p.price_min | money_without_trailing_zeros }}{% if p.price_max > p.price_min %} &ndash; {{ p.price_max | money_without_trailing_zeros }}{% endif %}</small>
+                </a>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+        </div>
+
+      </div>
+    </div>
+  {%- endfor -%}
+</div>

@@ -1,0 +1,567 @@
+{%- comment -%} SYNOR — Header with a tabbed drawer. {%- endcomment -%}
+{%- assign s = section.settings -%}
+{%- assign sid = section.id -%}
+{%- assign tabs = section.blocks | where: 'type', 'tab' -%}
+{%- assign links = section.blocks | where: 'type', 'link' -%}
+{%- assign socials = section.blocks | where: 'type', 'social' -%}
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<header class="sh" data-sh>
+  <div class="sh-in">
+    <div class="sh-left">
+      <button class="sh-menu" type="button" data-open aria-label="Open menu" aria-expanded="false">
+        {%- if s.icon_menu != blank -%}
+          <img src="{{ s.icon_menu | image_url: width: 60 }}" alt="" aria-hidden="true">
+        {%- else -%}
+          <span class="sh-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        {%- endif -%}
+        {%- if s.menu_label != blank -%}<span class="sh-mlbl">{{ s.menu_label }}</span>{%- endif -%}
+      </button>
+
+      <a class="sh-logo" href="{{ routes.root_url }}">
+        {%- if s.logo != blank -%}
+          <img src="{{ s.logo | image_url: width: 400 }}" alt="{{ shop.name | escape }}" style="height:{{ s.logo_h }}px">
+        {%- else -%}
+          <span class="sh-word">{{ s.wordmark | replace: '|', '<i>' | replace: '~', '</i>' }}</span>
+          {%- if s.tagline != blank -%}<span class="sh-tag">{{ s.tagline }}</span>{%- endif -%}
+        {%- endif -%}
+      </a>
+    </div>
+
+    <div class="sh-right">
+      <a class="sh-ic" href="{{ routes.search_url }}" aria-label="Search">
+        {%- if s.icon_search != blank -%}
+          <img src="{{ s.icon_search | image_url: width: 60 }}" alt="" aria-hidden="true">
+        {%- else -%}
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        {%- endif -%}
+      </a>
+      {%- if s.show_cashback -%}
+        <a class="sh-cb" href="{{ s.cashback_link | default: '#' }}">
+          <span>{{ s.cashback_prefix }}<b>{{ s.cashback_amount }}</b> {{ s.cashback_word }}</span>
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} Desktop bar + mega menu. Hidden below 1000px by sa-desktop.css. {%- endcomment -%}
+  {% render 'sa-desktop-nav', s: s, sid: sid, tabs: tabs, links: links, socials: socials %}
+</header>
+
+<div class="sh-veil" data-veil></div>
+
+<nav class="sh-draw" data-draw aria-label="Main menu">
+  <div class="sh-dtop">
+    <span class="sh-dword">{{ s.wordmark | replace: '|', '<i>' | replace: '~', '</i>' }}</span>
+    <button class="sh-close" type="button" data-close aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <div class="sh-scroll">
+    {%- if s.show_search -%}
+      <form class="sh-find" action="{{ routes.search_url }}" method="get" role="search">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <input type="search" name="q" placeholder="{{ s.search_hint }}" aria-label="Search">
+      </form>
+    {%- endif -%}
+
+    {%- if s.show_account -%}
+      {% render 'sa-account', s: s, sid: sid %}
+    {%- endif -%}
+
+    {%- if tabs.size > 0 -%}
+      <div class="sh-tabwrap">
+        <div class="sh-tabs" role="tablist">
+          {%- for b in tabs -%}
+            <button class="sh-tab{% if forloop.first %} on{% endif %}" type="button"
+              data-tab="{{ forloop.index }}" {{ b.shopify_attributes }}>{{ b.settings.label }}</button>
+          {%- endfor -%}
+          <span class="sh-ink" data-ink aria-hidden="true"></span>
+        </div>
+      </div>
+
+      {%- for b in tabs -%}
+        {%- assign c = collections[b.settings.collection] -%}
+        <section class="sh-pane{% if forloop.first %} on{% endif %}" data-pane="{{ forloop.index }}">
+
+          {%- if b.settings.banner != blank -%}
+            <a class="sh-ban" href="{{ c.url | default: '#' }}">
+              <img src="{{ b.settings.banner | image_url: width: 900 }}" alt="{{ b.settings.label | escape }}"
+                loading="lazy" decoding="async">
+              {%- if b.settings.caption != blank -%}
+                <span class="sh-cap"><b>{{ b.settings.caption }}</b><i>{{ b.settings.cta }} →</i></span>
+              {%- endif -%}
+            </a>
+          {%- endif -%}
+
+          {%- if c == blank -%}
+            <p class="sh-none">{{ s.empty_note }}</p>
+          {%- elsif c.products_count == 0 -%}
+            <p class="sh-none">{{ s.empty_note }}</p>
+          {%- else -%}
+            {%- if b.settings.heading != blank -%}
+              <div class="sh-ph"><span>{{ b.settings.heading }}</span><i>{{ c.products_count }}</i></div>
+            {%- endif -%}
+
+            <div class="sh-grid">
+              {%- for p in c.products limit: s.per_tab -%}
+                {%- liquid
+                  assign famkey = ''
+                  for t in p.tags
+                    assign low = t | downcase
+                    if low contains 'family-'
+                      assign famkey = low | remove: 'family-'
+                    endif
+                  endfor
+                  assign dot = s.d_default
+                  if famkey contains 'fresh' or famkey contains 'aquatic'
+                    assign dot = s.d_fresh
+                  elsif famkey contains 'floral' or famkey contains 'fruity'
+                    assign dot = s.d_floral
+                  elsif famkey contains 'woody' or famkey contains 'oud'
+                    assign dot = s.d_woody
+                  elsif famkey contains 'amber' or famkey contains 'sweet'
+                    assign dot = s.d_amber
+                  endif
+                -%}
+                <a class="sh-tile" href="{{ p.url }}">
+                  <span class="sh-shot">
+                    {%- if p.featured_image -%}
+                      <img src="{{ p.featured_image | image_url: width: 260 }}" alt="{{ p.title | escape }}"
+                        loading="lazy" decoding="async">
+                    {%- endif -%}
+                    <i class="sh-dot" style="background:{{ dot }}" aria-hidden="true"></i>
+                  </span>
+                  <b>{{ p.title | remove: 'SYNOR ' }}</b>
+                  <small>{{ p.price_min | money_without_trailing_zeros }} – {{ p.price_max | money_without_trailing_zeros }}</small>
+                </a>
+              {%- endfor -%}
+            </div>
+
+            <a class="sh-more" href="{{ c.url }}">
+              <span>{{ b.settings.all_label | default: 'Explore all' }}</span>
+              <i aria-hidden="true">›</i>
+            </a>
+          {%- endif -%}
+        </section>
+      {%- endfor -%}
+    {%- endif -%}
+
+    {%- if links.size > 0 -%}
+      <ul class="sh-links">
+        {%- for b in links -%}
+          <li {{ b.shopify_attributes }}>
+            <a href="{{ b.settings.link | default: '#' }}">
+              <span>{{ b.settings.label }}</span>
+              {%- if b.settings.note != blank -%}<small>{{ b.settings.note }}</small>{%- endif -%}
+              <i aria-hidden="true">→</i>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {%- if socials.size > 0 -%}
+      {% render 'sa-social', sid: sid, blocks: section.blocks, style: s.soc_style, size: s.soc_size, radius: s.soc_radius, gap: s.soc_gap, ring: s.soc_ring, ring_col: s.soc_ring_col, lift: s.soc_lift, mono_bg: s.soc_mono_bg, mono_ink: s.soc_mono_ink %}
+    {%- endif -%}
+
+    {%- if s.foot_title != blank -%}
+      <a class="sh-pin" href="{{ s.foot_link | default: '#' }}">
+        <span>
+          <b>{{ s.foot_title }}</b>
+          {%- if s.foot_text != blank -%}<small>{{ s.foot_text }}</small>{%- endif -%}
+        </span>
+        <i aria-hidden="true">→</i>
+      </a>
+    {%- endif -%}
+  </div>
+</nav>
+
+<script>
+(function(){
+  var root=document.getElementById('shopify-section-{{ sid }}'); if(!root) return;
+  var btn=root.querySelector('[data-open]'),
+      draw=root.querySelector('[data-draw]'),
+      veil=root.querySelector('[data-veil]'),
+      close=root.querySelector('[data-close]'),
+      scroll=root.querySelector('.sh-scroll'),
+      bar=root.querySelector('[data-sh]');
+
+  function open(){ draw.classList.add('on'); veil.classList.add('on');
+    btn.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden' }
+  function shut(){ draw.classList.remove('on'); veil.classList.remove('on');
+    btn.setAttribute('aria-expanded','false'); document.body.style.overflow='' }
+
+  btn.addEventListener('click',open);
+  close.addEventListener('click',shut);
+  veil.addEventListener('click',shut);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') shut() });
+
+  var tabs=[].slice.call(root.querySelectorAll('[data-tab]')),
+      panes=[].slice.call(root.querySelectorAll('[data-pane]')),
+      ink=root.querySelector('[data-ink]');
+
+  function move(t){
+    if(!ink||!t) return;
+    ink.style.width=t.offsetWidth+'px';
+    ink.style.transform='translateX('+t.offsetLeft+'px)';
+  }
+  tabs.forEach(function(t){
+    t.addEventListener('click',function(){
+      tabs.forEach(function(x){ x.classList.toggle('on',x===t) });
+      panes.forEach(function(p){ p.classList.toggle('on',p.dataset.pane===t.dataset.tab) });
+      move(t);
+      t.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+      if(scroll) scroll.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+  if(tabs.length){
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ move(tabs[0]) }) });
+    window.addEventListener('resize',function(){
+      var on=root.querySelector('.sh-tab.on'); move(on);
+    });
+  }
+
+  {%- if s.sticky -%}
+  window.addEventListener('scroll',function(){
+    bar.classList.toggle('lifted',(window.scrollY||0)>8);
+  },{passive:true});
+  {%- endif -%}
+})();
+</script>
+
+<style>
+#shopify-section-{{ sid }}{ {% if s.sticky %}position:sticky;top:0;z-index:40;{% endif %} }
+#shopify-section-{{ sid }} .sh{background:{{ s.bg }};font-family:"Space Grotesk",system-ui,sans-serif;
+  border-bottom:1px solid transparent;transition:box-shadow .35s,border-color .35s}
+#shopify-section-{{ sid }} .sh.lifted{border-bottom-color:{{ s.line }};box-shadow:0 8px 22px -18px rgba(26,23,18,.5)}
+#shopify-section-{{ sid }} .sh *,#shopify-section-{{ sid }} .sh-draw *{box-sizing:border-box}
+#shopify-section-{{ sid }} .sh-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;padding:{{ s.pad_y }}px {{ s.gutter }}px;min-height:{{ s.height }}px}
+
+#shopify-section-{{ sid }} .sh-left{display:flex;align-items:center;gap:{{ s.left_gap }}px;min-width:0}
+#shopify-section-{{ sid }} .sh-menu{display:inline-flex;align-items:center;gap:8px;flex:none;
+  height:{{ s.btn }}px;padding:0 {{ s.menu_label_pad }}px;border-radius:{{ s.btn_radius }}px;
+  border:1px solid {{ s.line }};background:{{ s.btn_bg }};cursor:pointer;color:{{ s.ink }};
+  font-family:inherit;transition:.28s}
+#shopify-section-{{ sid }} .sh-menu:hover{border-color:{{ s.gold }}}
+#shopify-section-{{ sid }} .sh-menu:active{transform:scale(.96)}
+#shopify-section-{{ sid }} .sh-menu img{height:{{ s.btn | times: 0.4 | round }}px;width:auto;display:block}
+#shopify-section-{{ sid }} .sh-bars{display:flex;flex-direction:column;justify-content:center;gap:4px;width:16px;flex:none}
+#shopify-section-{{ sid }} .sh-bars i{display:block;height:1.5px;border-radius:2px;background:{{ s.ink }};transition:.28s}
+#shopify-section-{{ sid }} .sh-bars i:nth-child(2){width:70%}
+#shopify-section-{{ sid }} .sh-menu:hover .sh-bars i:nth-child(2){width:100%}
+#shopify-section-{{ sid }} .sh-mlbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  font-weight:600;color:{{ s.soft }}}
+
+#shopify-section-{{ sid }} .sh-logo{text-decoration:none;display:block;min-width:0}
+#shopify-section-{{ sid }} .sh-logo img{display:block;width:auto}
+#shopify-section-{{ sid }} .sh-word,#shopify-section-{{ sid }} .sh-dword{display:block;
+  font-family:"Fraunces",Georgia,serif;font-size:{{ s.word_size }}px;font-weight:{{ s.word_weight }};
+  letter-spacing:.{{ s.word_track }}em;color:{{ s.ink }};line-height:1;white-space:nowrap}
+#shopify-section-{{ sid }} .sh-word i,#shopify-section-{{ sid }} .sh-dword i{font-style:normal;color:{{ s.gold }}}
+#shopify-section-{{ sid }} .sh-tag{display:block;font-size:{{ s.tag_size }}px;letter-spacing:.3em;
+  text-transform:uppercase;color:{{ s.soft }};margin-top:3px;white-space:nowrap}
+
+#shopify-section-{{ sid }} .sh-right{display:flex;align-items:center;gap:{{ s.right_gap }}px;flex:none}
+#shopify-section-{{ sid }} .sh-ic{width:{{ s.btn }}px;height:{{ s.btn }}px;border-radius:50%;
+  display:grid;place-items:center;border:1px solid {{ s.line }};background:{{ s.btn_bg }};
+  color:{{ s.ink }};text-decoration:none;transition:.28s;flex:none}
+#shopify-section-{{ sid }} .sh-ic svg{width:{{ s.btn | times: 0.46 | round }}px;height:{{ s.btn | times: 0.46 | round }}px}
+#shopify-section-{{ sid }} .sh-ic img{height:{{ s.btn | times: 0.44 | round }}px;width:auto;display:block}
+#shopify-section-{{ sid }} .sh-ic:hover{border-color:{{ s.gold }}}
+#shopify-section-{{ sid }} .sh-cb{display:inline-flex;align-items:center;flex:none;height:{{ s.btn }}px;
+  padding:0 {{ s.cb_pad }}px;border-radius:100px;background:{{ s.cb_bg }};color:{{ s.cb_ink }};
+  text-decoration:none;font-size:{{ s.cb_size }}px;font-weight:600;white-space:nowrap;transition:.28s;
+  box-shadow:0 8px 18px -10px {{ s.cb_shadow }}}
+#shopify-section-{{ sid }} .sh-cb b{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:{{ s.cb_size | plus: 2 }}px}
+
+#shopify-section-{{ sid }} .sh-veil{position:fixed;inset:0;z-index:60;background:rgba(26,23,18,.45);
+  backdrop-filter:blur(3px);opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .4s,visibility .4s}
+#shopify-section-{{ sid }} .sh-veil.on{opacity:1;visibility:visible;pointer-events:auto}
+
+#shopify-section-{{ sid }} .sh-draw{position:fixed;top:0;bottom:0;left:0;z-index:61;
+  width:min({{ s.draw_w }}px,92vw);background:{{ s.draw_bg }};
+  transform:translateX(-102%);visibility:hidden;
+  transition:transform .45s cubic-bezier(.16,1,.3,1),visibility .45s;
+  display:flex;flex-direction:column;overflow:hidden;
+  font-family:"Space Grotesk",system-ui,sans-serif;
+  box-shadow:14px 0 44px -26px rgba(26,23,18,.55)}
+#shopify-section-{{ sid }} .sh-draw.on{transform:none;visibility:visible}
+#shopify-section-{{ sid }} .sh-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding-bottom:calc({{ s.foot_space }}px + env(safe-area-inset-bottom))}
+
+#shopify-section-{{ sid }} .sh-dtop{flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:15px {{ s.dpad }}px 12px;border-bottom:1px solid {{ s.line }};background:{{ s.draw_bg }}}
+#shopify-section-{{ sid }} .sh-close{width:32px;height:32px;border-radius:50%;border:1px solid {{ s.line }};
+  background:transparent;color:{{ s.ink }};display:grid;place-items:center;cursor:pointer;transition:.25s}
+#shopify-section-{{ sid }} .sh-close svg{width:15px;height:15px}
+#shopify-section-{{ sid }} .sh-close:hover{border-color:{{ s.gold }};color:{{ s.gold }}}
+
+#shopify-section-{{ sid }} .sh-find{display:flex;align-items:center;gap:9px;margin:14px {{ s.dpad }}px 0;
+  padding:0 13px;height:40px;border-radius:100px;background:{{ s.find_bg }};border:1px solid {{ s.line }}}
+#shopify-section-{{ sid }} .sh-find svg{width:15px;height:15px;flex:none;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .sh-find input{flex:1;min-width:0;border:0;background:none;outline:none;
+  font-family:inherit;font-size:13px;color:{{ s.ink }}}
+
+#shopify-section-{{ sid }} .sh-tabwrap{margin:18px 0 0;border-bottom:1px solid {{ s.line }}}
+#shopify-section-{{ sid }} .sh-tabs{position:relative;display:flex;gap:{{ s.tab_gap }}px;
+  padding:0 {{ s.dpad }}px 10px;overflow-x:auto;scrollbar-width:none}
+#shopify-section-{{ sid }} .sh-tabs::-webkit-scrollbar{display:none}
+#shopify-section-{{ sid }} .sh-tabs::after{content:"";flex:none;width:{{ s.dpad }}px}
+#shopify-section-{{ sid }} .sh-tab{background:none;border:0;padding:0;cursor:pointer;flex:none;
+  font-family:inherit;font-size:{{ s.tab_size }}px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:{{ s.soft }};white-space:nowrap;transition:color .25s}
+#shopify-section-{{ sid }} .sh-tab.on{color:{{ s.ink }}}
+#shopify-section-{{ sid }} .sh-ink{position:absolute;left:0;bottom:0;height:2px;width:0;
+  background:{{ s.gold }};border-radius:2px;pointer-events:none;
+  transition:transform .4s cubic-bezier(.16,1,.3,1),width .4s cubic-bezier(.16,1,.3,1)}
+
+#shopify-section-{{ sid }} .sh-pane{display:none;padding:0 {{ s.dpad }}px}
+#shopify-section-{{ sid }} .sh-pane.on{display:block;animation:shFade{{ sid }} .35s ease}
+@keyframes shFade{{ sid }}{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+#shopify-section-{{ sid }} .sh-none{font-size:12px;color:{{ s.soft }};margin:18px 0 4px;line-height:1.6}
+
+#shopify-section-{{ sid }} .sh-ban{position:relative;display:block;margin-top:16px;overflow:hidden;
+  border-radius:{{ s.radius }}px;aspect-ratio:{{ s.ban_ratio }};background:{{ s.find_bg }};text-decoration:none}
+#shopify-section-{{ sid }} .sh-ban img{width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .8s cubic-bezier(.16,1,.3,1)}
+#shopify-section-{{ sid }} .sh-ban:hover img{transform:scale(1.04)}
+#shopify-section-{{ sid }} .sh-cap{position:absolute;left:0;right:0;bottom:0;padding:24px 14px 12px;
+  background:linear-gradient(transparent,rgba(0,0,0,.66));color:#fff}
+#shopify-section-{{ sid }} .sh-cap b{display:block;font-family:"Fraunces",Georgia,serif;font-size:17px;
+  font-weight:500;line-height:1.15}
+#shopify-section-{{ sid }} .sh-cap i{font-style:normal;font-size:9.5px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:{{ s.gold2 }};display:block;margin-top:4px}
+
+#shopify-section-{{ sid }} .sh-ph{display:flex;align-items:center;gap:9px;margin:18px 0 10px}
+#shopify-section-{{ sid }} .sh-ph span{font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:{{ s.soft }};font-weight:700}
+#shopify-section-{{ sid }} .sh-ph i{font-style:normal;font-size:8.5px;font-weight:700;color:{{ s.gold }};
+  border:1px solid {{ s.line }};border-radius:100px;padding:2px 7px}
+#shopify-section-{{ sid }} .sh-ph::after{content:"";flex:1;height:1px;background:{{ s.line }}}
+
+#shopify-section-{{ sid }} .sh-grid{display:grid;grid-template-columns:repeat({{ s.cols }},1fr);
+  gap:{{ s.tile_gap }}px}
+#shopify-section-{{ sid }} .sh-tile{text-decoration:none;display:flex;flex-direction:column}
+#shopify-section-{{ sid }} .sh-shot{position:relative;display:grid;place-items:center;overflow:hidden;
+  aspect-ratio:1;border-radius:{{ s.radius | minus: 4 }}px;background:{{ s.tile_bg }};
+  border:1px solid {{ s.line }};transition:border-color .25s}
+#shopify-section-{{ sid }} .sh-tile:hover .sh-shot{border-color:{{ s.gold }}}
+#shopify-section-{{ sid }} .sh-shot img{width:78%;height:78%;object-fit:contain;
+  mix-blend-mode:multiply;transition:transform .45s cubic-bezier(.16,1,.3,1)}
+#shopify-section-{{ sid }} .sh-tile:hover .sh-shot img{transform:scale(1.06)}
+#shopify-section-{{ sid }} .sh-dot{position:absolute;top:7px;left:7px;width:6px;height:6px;
+  border-radius:50%;display:block}
+#shopify-section-{{ sid }} .sh-tile b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;font-family:"Fraunces",Georgia,serif;font-size:12px;font-weight:500;
+  color:{{ s.ink }};line-height:1.2;margin-top:7px;min-height:calc(2 * 1.2em)}
+#shopify-section-{{ sid }} .sh-tile small{display:block;font-size:9.5px;color:{{ s.soft }};
+  font-weight:600;margin-top:2px}
+
+#shopify-section-{{ sid }} .sh-more{display:flex;align-items:center;justify-content:space-between;
+  margin-top:16px;padding:13px 0;text-decoration:none;color:{{ s.ink }};
+  font-size:13px;font-weight:600;border-top:1px solid {{ s.line }};border-bottom:1px solid {{ s.line }}}
+#shopify-section-{{ sid }} .sh-more i{font-style:normal;color:{{ s.gold }};font-size:17px;transition:transform .25s}
+#shopify-section-{{ sid }} .sh-more:hover i{transform:translateX(4px)}
+
+#shopify-section-{{ sid }} .sh-links{list-style:none;margin:18px 0 0;padding:0 {{ s.dpad }}px}
+#shopify-section-{{ sid }} .sh-links li + li{border-top:1px solid {{ s.line }}}
+#shopify-section-{{ sid }} .sh-links a{display:flex;align-items:center;gap:10px;padding:13px 0;
+  text-decoration:none;color:{{ s.ink }};font-size:14px;font-weight:600}
+#shopify-section-{{ sid }} .sh-links small{font-size:9.5px;color:{{ s.soft }};font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase}
+#shopify-section-{{ sid }} .sh-links i{margin-left:auto;font-style:normal;color:{{ s.gold }};
+  opacity:0;transform:translateX(-5px);transition:.3s}
+#shopify-section-{{ sid }} .sh-links a:hover i{opacity:1;transform:none}
+
+#shopify-section-{{ sid }} .sasoc{padding:18px {{ s.dpad }}px 0}
+
+#shopify-section-{{ sid }} .sh-pin{display:flex;align-items:center;gap:10px;
+  margin:20px {{ s.dpad }}px 0;padding:13px 15px;border-radius:14px;text-decoration:none;
+  background:{{ s.pin_bg }};color:{{ s.pin_ink }}}
+#shopify-section-{{ sid }} .sh-pin b{font-size:12.5px;font-weight:700;display:block}
+#shopify-section-{{ sid }} .sh-pin small{font-size:10px;opacity:.8;display:block;margin-top:2px;line-height:1.4}
+#shopify-section-{{ sid }} .sh-pin i{margin-left:auto;font-style:normal;font-size:15px;flex:none;transition:transform .25s}
+#shopify-section-{{ sid }} .sh-pin:hover i{transform:translateX(4px)}
+
+@media(max-width:430px){
+  #shopify-section-{{ sid }} .sh-mlbl{display:none}
+  #shopify-section-{{ sid }} .sh-menu{padding:0;width:{{ s.btn }}px;justify-content:center}
+}
+@media(min-width:900px){
+  #shopify-section-{{ sid }} .sh-in{padding:{{ s.pad_y | plus: 4 }}px 40px}
+  #shopify-section-{{ sid }} .sh-word{font-size:{{ s.word_size | plus: 4 }}px}
+}
+@media (prefers-reduced-motion: reduce){
+  #shopify-section-{{ sid }} .sh-draw{transition:none}
+  #shopify-section-{{ sid }} .sh-pane.on{animation:none}
+}
+</style>
+
+{% schema %}
+{
+  "name": "Header — SYNOR",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Logo" },
+    { "type": "image_picker", "id": "logo", "label": "Logo image" },
+    { "type": "range", "id": "logo_h", "min": 16, "max": 60, "step": 1, "unit": "px", "label": "Logo height", "default": 30 },
+    { "type": "text", "id": "wordmark", "label": "Wordmark", "info": "Wrap a letter in | ~ to make it gold.", "default": "SY|N~OR" },
+    { "type": "text", "id": "tagline", "label": "Tagline", "default": "Fragrance Atelier" },
+    { "type": "range", "id": "word_size", "min": 14, "max": 34, "step": 1, "unit": "px", "label": "Wordmark size", "default": 22 },
+    { "type": "range", "id": "word_weight", "min": 400, "max": 700, "step": 100, "label": "Wordmark weight", "default": 500 },
+    { "type": "range", "id": "word_track", "min": 0, "max": 30, "step": 2, "label": "Wordmark letter spacing", "default": 14 },
+    { "type": "range", "id": "tag_size", "min": 6, "max": 12, "step": 1, "unit": "px", "label": "Tagline size", "default": 7 },
+
+    { "type": "header", "content": "Menu button" },
+    { "type": "text", "id": "menu_label", "label": "Label", "default": "Menu" },
+    { "type": "image_picker", "id": "icon_menu", "label": "Your own menu icon" },
+    { "type": "range", "id": "menu_label_pad", "min": 8, "max": 20, "step": 1, "unit": "px", "label": "Button padding", "default": 12 },
+
+    { "type": "header", "content": "Right side" },
+    { "type": "image_picker", "id": "icon_search", "label": "Your own search icon" },
+    { "type": "checkbox", "id": "show_cashback", "label": "Show the cashback pill", "default": true },
+    { "type": "text", "id": "cashback_prefix", "label": "Before the amount", "default": "₹" },
+    { "type": "text", "id": "cashback_amount", "label": "Amount", "default": "0" },
+    { "type": "text", "id": "cashback_word", "label": "After the amount", "default": "Cashback" },
+    { "type": "url", "id": "cashback_link", "label": "Pill link" },
+    { "type": "range", "id": "cb_size", "min": 10, "max": 16, "step": 1, "unit": "px", "label": "Pill text size", "default": 12 },
+    { "type": "range", "id": "cb_pad", "min": 10, "max": 24, "step": 1, "unit": "px", "label": "Pill width", "default": 14 },
+
+    { "type": "header", "content": "Account" },
+    { "type": "checkbox", "id": "show_account", "label": "Show the account card in the drawer", "default": true },
+    { "type": "text", "id": "acc_login", "label": "Logged out — title", "default": "Log in" },
+    { "type": "text", "id": "acc_note_out", "label": "Logged out — small line", "default": "Track your orders and save your details" },
+    { "type": "text", "id": "acc_hello", "label": "Logged in — greeting", "default": "Hello" },
+    { "type": "text", "id": "acc_note_in", "label": "Logged in — small line", "default": "Orders, addresses and more" },
+    { "type": "text", "id": "acc_logout", "label": "Log out label", "default": "Log out" },
+
+    { "type": "header", "content": "Drawer" },
+    { "type": "checkbox", "id": "show_search", "label": "Search box at the top", "default": true },
+    { "type": "text", "id": "search_hint", "label": "Search placeholder", "default": "Search a scent, a mood, a note" },
+    { "type": "text", "id": "empty_note", "label": "Shown when a tab has no collection", "default": "Nothing here yet. Pick a collection for this tab in the theme editor." },
+    { "type": "range", "id": "per_tab", "min": 2, "max": 12, "step": 1, "label": "Products per tab", "default": 6 },
+    { "type": "range", "id": "cols", "min": 2, "max": 4, "step": 1, "label": "Columns", "default": 3 },
+    { "type": "range", "id": "draw_w", "min": 280, "max": 520, "step": 10, "unit": "px", "label": "Drawer width", "default": 380 },
+    { "type": "range", "id": "dpad", "min": 12, "max": 32, "step": 2, "unit": "px", "label": "Drawer padding", "default": 18 },
+    { "type": "range", "id": "foot_space", "min": 20, "max": 140, "step": 4, "unit": "px", "label": "Space at the very bottom", "info": "Keeps the last item clear of the tab bar.", "default": 84 },
+    { "type": "range", "id": "tab_size", "min": 10, "max": 16, "step": 1, "unit": "px", "label": "Tab text size", "default": 11 },
+    { "type": "range", "id": "tab_gap", "min": 10, "max": 32, "step": 2, "unit": "px", "label": "Gap between tabs", "default": 16 },
+    { "type": "range", "id": "tile_gap", "min": 6, "max": 20, "step": 1, "unit": "px", "label": "Gap between products", "default": 10 },
+    { "type": "select", "id": "ban_ratio", "label": "Banner shape", "default": "16/9",
+      "options": [ { "value": "21/9", "label": "Wide" }, { "value": "16/9", "label": "Landscape" }, { "value": "4/3", "label": "Tall" } ] },
+    { "type": "range", "id": "radius", "min": 4, "max": 26, "step": 1, "unit": "px", "label": "Corner roundness", "default": 14 },
+
+    { "type": "header", "content": "Pinned at the bottom" },
+    { "type": "text", "id": "foot_title", "label": "Heading", "default": "Try any scent for ₹49" },
+    { "type": "text", "id": "foot_text", "label": "Text", "default": "Every rupee comes back as cashback" },
+    { "type": "url", "id": "foot_link", "label": "Link" },
+
+    { "type": "header", "content": "Header size" },
+    { "type": "checkbox", "id": "sticky", "label": "Stay at the top when scrolling", "default": true },
+    { "type": "range", "id": "height", "min": 44, "max": 90, "step": 1, "unit": "px", "label": "Header height", "default": 58 },
+    { "type": "range", "id": "btn", "min": 30, "max": 48, "step": 1, "unit": "px", "label": "Button size", "default": 36 },
+    { "type": "range", "id": "btn_radius", "min": 6, "max": 24, "step": 1, "unit": "px", "label": "Menu button roundness", "default": 12 },
+    { "type": "range", "id": "gutter", "min": 10, "max": 30, "step": 1, "unit": "px", "label": "Side margin", "default": 16 },
+    { "type": "range", "id": "pad_y", "min": 4, "max": 20, "step": 1, "unit": "px", "label": "Vertical padding", "default": 9 },
+    { "type": "range", "id": "left_gap", "min": 6, "max": 24, "step": 1, "unit": "px", "label": "Gap after the menu button", "default": 11 },
+    { "type": "range", "id": "right_gap", "min": 4, "max": 18, "step": 1, "unit": "px", "label": "Gap on the right", "default": 8 },
+
+    { "type": "header", "content": "Family dots" },
+    { "type": "color", "id": "d_fresh", "label": "Fresh and aquatic", "default": "#5E93AB" },
+    { "type": "color", "id": "d_floral", "label": "Floral and fruity", "default": "#B4707C" },
+    { "type": "color", "id": "d_woody", "label": "Woody and oud", "default": "#8A5F2E" },
+    { "type": "color", "id": "d_amber", "label": "Amber and sweet", "default": "#C08A46" },
+    { "type": "color", "id": "d_default", "label": "Anything else", "default": "#9A9080" },
+
+    { "type": "header", "content": "Colours" },
+    { "type": "color", "id": "bg", "label": "Header background", "default": "#FFFDF9" },
+    { "type": "color", "id": "draw_bg", "label": "Drawer background", "default": "#FFFDF9" },
+    { "type": "color", "id": "tile_bg", "label": "Product tile", "default": "#FFFFFF" },
+    { "type": "color", "id": "find_bg", "label": "Search box", "default": "#F4EFE4" },
+    { "type": "color", "id": "line", "label": "Lines", "default": "#E5DFD1" },
+    { "type": "color", "id": "ink", "label": "Text", "default": "#1A1712" },
+    { "type": "color", "id": "soft", "label": "Muted text", "default": "#6E6656" },
+    { "type": "color", "id": "gold", "label": "Gold", "default": "#BE9A54" },
+    { "type": "color", "id": "gold2", "label": "Gold light", "default": "#E4CE9E" },
+    { "type": "color", "id": "btn_bg", "label": "Header buttons", "default": "#FFFFFF" },
+    { "type": "color", "id": "cb_bg", "label": "Cashback pill", "default": "#BE9A54" },
+    { "type": "color", "id": "cb_ink", "label": "Cashback pill text", "default": "#382A0F" },
+    { "type": "color_background", "id": "cb_shadow", "label": "Cashback pill shadow", "default": "rgba(190,154,84,0.55)" },
+    { "type": "color", "id": "pin_bg", "label": "Pinned strip", "default": "#1A1712" },
+    { "type": "color", "id": "pin_ink", "label": "Pinned strip text", "default": "#EDE5D4" },
+    { "type": "header", "content": "Social icons" },
+    { "type": "select", "id": "soc_style", "label": "Style", "default": "colour",
+      "options": [
+        { "value": "colour", "label": "Brand colours" },
+        { "value": "gold", "label": "One SYNOR tone" },
+        { "value": "outline", "label": "Outline only" }
+      ] },
+    { "type": "range", "id": "soc_size", "min": 26, "max": 56, "step": 2, "unit": "px", "label": "Tile size", "default": 36 },
+    { "type": "range", "id": "soc_radius", "min": 0, "max": 28, "step": 1, "unit": "px", "label": "Tile roundness", "default": 11 },
+    { "type": "range", "id": "soc_gap", "min": 4, "max": 24, "step": 1, "unit": "px", "label": "Gap between icons", "default": 8 },
+    { "type": "range", "id": "soc_lift", "min": 0, "max": 6, "step": 1, "unit": "px", "label": "Lift on hover", "default": 2 },
+    { "type": "checkbox", "id": "soc_ring", "label": "Gold hairline around each tile", "default": true },
+    { "type": "color", "id": "soc_ring_col", "label": "Hairline colour", "default": "#BE9A54" },
+    { "type": "color", "id": "soc_mono_bg", "label": "One-tone: tile colour", "default": "#1A1712" },
+    { "type": "color", "id": "soc_mono_ink", "label": "One-tone: icon colour", "default": "#F7F3EA" }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab",
+      "limit": 6,
+      "settings": [
+        { "type": "text", "id": "label", "label": "Tab name", "default": "Men" },
+        { "type": "collection", "id": "collection", "label": "Collection" },
+        { "type": "image_picker", "id": "banner", "label": "Banner image" },
+        { "type": "text", "id": "caption", "label": "Words on the banner" },
+        { "type": "text", "id": "cta", "label": "Small line under it", "default": "Explore" },
+        { "type": "text", "id": "heading", "label": "Heading above the products", "default": "Most loved" },
+        { "type": "text", "id": "all_label", "label": "Explore all label", "default": "Explore all" }
+      ]
+    },
+    {
+      "type": "link",
+      "name": "Link",
+      "limit": 10,
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Track order" },
+        { "type": "text", "id": "note", "label": "Small note beside it" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    },
+    {
+      "type": "social",
+      "name": "Social",
+      "limit": 8,
+      "settings": [
+        { "type": "select", "id": "kind", "label": "Which one", "default": "instagram",
+          "options": [
+            { "value": "instagram", "label": "Instagram" },
+            { "value": "facebook", "label": "Facebook" },
+            { "value": "youtube", "label": "YouTube" },
+            { "value": "whatsapp", "label": "WhatsApp" },
+            { "value": "x", "label": "X" },
+            { "value": "other", "label": "Other" }
+          ] },
+        { "type": "text", "id": "label", "label": "Name", "default": "Instagram" },
+        { "type": "image_picker", "id": "icon", "label": "Your own icon" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Header — SYNOR" }]
+}
+{% endschema %}

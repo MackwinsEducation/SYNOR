@@ -1,0 +1,606 @@
+/* ==========================================================================
+   SYNOR — Desktop layer
+   --------------------------------------------------------------------------
+   The storefront was designed mobile-first: type, controls and containers are
+   all sized for a ~390px viewport, and navigation lives entirely in a drawer.
+   Everything here is scoped to `min-width: 1000px` so the mobile experience
+   is untouched.
+
+   Specificity note: section styles are emitted inline as
+   `#shopify-section-<id> .thing` (0,1,1,0). To override without `!important`
+   these rules use `body [id^="shopify-section-"] .thing` (0,1,2,0).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Desktop header — hidden by default, shown at the desktop breakpoint
+   -------------------------------------------------------------------------- */
+
+.shd {
+  display: none;
+}
+
+@media screen and (min-width: 1000px) {
+  /* Swap the mobile bar for the desktop bar. */
+  body [id^='shopify-section-'] .sh-in {
+    display: none;
+  }
+
+  .shd {
+    display: block;
+    position: relative;
+    background: var(--shd-bg, #fffdf9);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  .shd-in {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 32px;
+    max-width: var(--shd-max, 1440px);
+    margin: 0 auto;
+    padding: 14px var(--shd-gutter, 40px);
+  }
+
+  /* ---- Logo ---- */
+  .shd-logo {
+    display: block;
+    text-decoration: none;
+    flex: none;
+  }
+
+  .shd-logo img {
+    display: block;
+    width: auto;
+    height: var(--shd-logo-h, 46px);
+  }
+
+  .shd-word {
+    display: block;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 27px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    line-height: 1;
+    color: var(--shd-ink, #1a1712);
+    white-space: nowrap;
+  }
+
+  .shd-word i {
+    font-style: normal;
+    color: var(--shd-gold, #be9a54);
+  }
+
+  .shd-tag {
+    display: block;
+    margin-top: 4px;
+    font-size: 8.5px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--shd-soft, #6e6656);
+    white-space: nowrap;
+  }
+
+  /* ---- Nav ---- */
+  .shd-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .shd-item {
+    position: static;
+  }
+
+  .shd-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--shd-ink, #1a1712);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition: background 0.22s, color 0.22s;
+  }
+
+  .shd-link:hover,
+  .shd-item.on .shd-link {
+    background: var(--shd-find, #f4efe4);
+    color: var(--shd-ink, #1a1712);
+  }
+
+  .shd-caret {
+    width: 9px;
+    height: 6px;
+    flex: none;
+    opacity: 0.5;
+    transition: transform 0.25s, opacity 0.25s;
+  }
+
+  .shd-item.on .shd-caret {
+    transform: rotate(180deg);
+    opacity: 1;
+  }
+
+  .shd-plain {
+    color: var(--shd-soft, #6e6656);
+    font-weight: 500;
+  }
+
+  .shd-note {
+    font-style: normal;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--shd-gold, #be9a54);
+    background: color-mix(in srgb, var(--shd-gold, #be9a54) 12%, transparent);
+    border-radius: 100px;
+    padding: 2px 6px;
+  }
+
+  /* ---- Right-hand actions ---- */
+  .shd-act {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+  }
+
+  .shd-find {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 190px;
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 100px;
+    background: var(--shd-find, #f4efe4);
+    border: 1px solid var(--shd-line, #e5dfd1);
+    transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s;
+  }
+
+  .shd-find:focus-within {
+    width: 260px;
+    border-color: var(--shd-gold, #be9a54);
+  }
+
+  .shd-find svg {
+    width: 15px;
+    height: 15px;
+    flex: none;
+    color: var(--shd-soft, #6e6656);
+  }
+
+  .shd-find input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--shd-ink, #1a1712);
+  }
+
+  .shd-ic {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    flex: none;
+    border: 1px solid var(--shd-line, #e5dfd1);
+    background: var(--shd-btn, #fff);
+    color: var(--shd-ink, #1a1712);
+    text-decoration: none;
+    transition: border-color 0.25s, color 0.25s;
+  }
+
+  .shd-ic:hover {
+    border-color: var(--shd-gold, #be9a54);
+    color: var(--shd-gold, #be9a54);
+  }
+
+  .shd-ic svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .shd-count {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 100px;
+    background: var(--shd-gold, #be9a54);
+    color: var(--shd-cb-ink, #382a0f);
+    font-style: normal;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 17px;
+    text-align: center;
+  }
+
+  .shd-cb {
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    padding: 0 18px;
+    border-radius: 100px;
+    background: var(--shd-cb-bg, #be9a54);
+    color: var(--shd-cb-ink, #382a0f);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 8px 18px -10px var(--shd-cb-shadow, rgba(190, 154, 84, 0.55));
+    transition: transform 0.22s, box-shadow 0.22s;
+  }
+
+  .shd-cb:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 22px -10px var(--shd-cb-shadow, rgba(190, 154, 84, 0.55));
+  }
+
+  .shd-cb b {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: 15px;
+    margin: 0 1px;
+  }
+
+  /* ---- Mega menu ---- */
+  .shd-mega {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 50;
+    background: var(--shd-draw, #fffdf9);
+    border-top: 1px solid var(--shd-line, #e5dfd1);
+    box-shadow: 0 26px 40px -28px rgba(26, 23, 18, 0.55);
+    animation: shdDrop 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .shd-mega[hidden] {
+    display: none;
+  }
+
+  @keyframes shdDrop {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .shd-mega-in {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 36px;
+    max-width: var(--shd-max, 1440px);
+    margin: 0 auto;
+    padding: 28px var(--shd-gutter, 40px) 32px;
+  }
+
+  .shd-ban {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 14px;
+    aspect-ratio: 3 / 4;
+    background: var(--shd-find, #f4efe4);
+    text-decoration: none;
+  }
+
+  .shd-ban img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .shd-ban:hover img {
+    transform: scale(1.05);
+  }
+
+  .shd-cap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 34px 18px 16px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    color: #fff;
+  }
+
+  .shd-cap b {
+    display: block;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 19px;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .shd-cap i {
+    display: block;
+    margin-top: 6px;
+    font-style: normal;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--shd-gold2, #e4ce9e);
+  }
+
+  .shd-blurb {
+    padding: 22px;
+    border-radius: 14px;
+    background: var(--shd-find, #f4efe4);
+    height: 100%;
+  }
+
+  .shd-blurb b {
+    display: block;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--shd-ink, #1a1712);
+  }
+
+  .shd-blurb p {
+    margin: 8px 0 16px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--shd-soft, #6e6656);
+  }
+
+  .shd-blurb a {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--shd-gold, #be9a54);
+    text-decoration: none;
+  }
+
+  .shd-ph {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--shd-line, #e5dfd1);
+  }
+
+  .shd-ph span {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--shd-soft, #6e6656);
+  }
+
+  .shd-ph a {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--shd-gold, #be9a54);
+    text-decoration: none;
+  }
+
+  .shd-ph a:hover {
+    text-decoration: underline;
+  }
+
+  .shd-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+  }
+
+  .shd-tile {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .shd-shot {
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    background: var(--shd-tile, #fff);
+    border: 1px solid var(--shd-line, #e5dfd1);
+    transition: border-color 0.25s;
+  }
+
+  .shd-tile:hover .shd-shot {
+    border-color: var(--shd-gold, #be9a54);
+  }
+
+  .shd-shot img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .shd-tile:hover .shd-shot img {
+    transform: scale(1.07);
+  }
+
+  .shd-dot {
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: block;
+  }
+
+  .shd-tile b {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 10px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--shd-ink, #1a1712);
+  }
+
+  .shd-tile small {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--shd-soft, #6e6656);
+  }
+
+  .shd-none {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--shd-soft, #6e6656);
+  }
+}
+
+@media screen and (min-width: 1000px) and (prefers-reduced-motion: reduce) {
+  .shd-mega {
+    animation: none;
+  }
+  .shd-find {
+    transition: border-color 0.25s;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. Footer — the layout is already 3-column at desktop, but every type size
+      was tuned for a phone. Scale it back up.
+   -------------------------------------------------------------------------- */
+
+@media screen and (min-width: 1000px) {
+  body [id^='shopify-section-'] .ft .panel {
+    max-width: 1280px;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  body [id^='shopify-section-'] .ft .entry {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 56px;
+    padding-bottom: 34px;
+  }
+
+  body [id^='shopify-section-'] .ft a {
+    font-size: 14px;
+  }
+
+  body [id^='shopify-section-'] .ft .set h4 {
+    font-size: 21px;
+    margin-bottom: 8px;
+  }
+
+  body [id^='shopify-section-'] .ft .set .said {
+    font-size: 17px;
+    margin-bottom: 20px;
+  }
+
+  body [id^='shopify-section-'] .ft .set ul {
+    gap: 12px;
+  }
+
+  body [id^='shopify-section-'] .ft .set .row .v {
+    font-size: 11.5px;
+  }
+
+  body [id^='shopify-section-'] .ft .crest .sub {
+    font-size: 9px;
+  }
+
+  body [id^='shopify-section-'] .ft .reach a {
+    padding: 18px 24px;
+  }
+
+  body [id^='shopify-section-'] .ft .reach svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  body [id^='shopify-section-'] .ft .reach b {
+    font-size: 13.5px;
+  }
+
+  body [id^='shopify-section-'] .ft .reach small {
+    font-size: 11px;
+  }
+
+  body [id^='shopify-section-'] .ft .join {
+    padding: 22px 28px;
+  }
+
+  body [id^='shopify-section-'] .ft .join .why b {
+    font-size: 17px;
+  }
+
+  body [id^='shopify-section-'] .ft .join .why small {
+    font-size: 12px;
+  }
+
+  body [id^='shopify-section-'] .ft .slot {
+    height: 44px;
+    max-width: 340px;
+  }
+
+  body [id^='shopify-section-'] .ft .slot input {
+    font-size: 13.5px;
+  }
+
+  body [id^='shopify-section-'] .ft .slot button {
+    height: 34px;
+    padding: 0 18px;
+    font-size: 10px;
+  }
+
+  body [id^='shopify-section-'] .ft .soc svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  body [id^='shopify-section-'] .ft .law {
+    font-size: 11px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Announcement rail — give it the same gutter as the header.
+   -------------------------------------------------------------------------- */
+
+@media screen and (min-width: 1000px) {
+  body [id^='shopify-section-'] .sa-rail,
+  body [id^='shopify-section-'] .rail-in {
+    max-width: 1440px;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
