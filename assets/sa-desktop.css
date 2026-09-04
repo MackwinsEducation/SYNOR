@@ -616,15 +616,51 @@
 
 /* --------------------------------------------------------------------------
    3. Product rows (sa-row) — "Best Sellers" and "Founder's picks"
-      The section's own desktop block raises the photo box to 175px but never
-      overrides `.rw-card { width: <card_w>px }`, so cards stay at their 116px
-      phone width: narrow, oddly tall, and leaving ~220px of the shelf empty.
-      Card text is on the phone scale too.
+
+      The shelf is a horizontal swipe scroller. That is a phone gesture: on a
+      desktop there is nothing to swipe, no scrollbar is drawn, and the cards
+      sat at their 116px phone width under a 175px photo box, filling about
+      900px of the 1120px row. So it read as a half-empty strip that gave no
+      hint the rest existed.
+
+      At desktop it becomes a grid instead. The section's JS survives the
+      change: the scroll listener simply stops firing once there is nothing to
+      scroll, and the `scrollTo` on card click becomes a no-op, so clicking a
+      card still promotes it into the big slot above.
    -------------------------------------------------------------------------- */
 
 @media screen and (min-width: 1000px) {
+  body [id^='shopify-section-'] .rw-shelf {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 26px 20px !important;
+    overflow: visible !important;
+    padding-bottom: 8px !important;
+  }
+
+  /* The shelf's trailing spacer would become a fifth grid item. */
+  body [id^='shopify-section-'] .rw-shelf::after {
+    display: none !important;
+  }
+
   body [id^='shopify-section-'] .rw-card {
-    width: 170px !important;
+    width: auto !important;
+  }
+
+  /* Fixed photo heights no longer suit a card that is now ~265px wide, so the
+     box follows the column and the bottle follows the box. */
+  body [id^='shopify-section-'] .rw-pic {
+    height: auto !important;
+    aspect-ratio: 1 / 1.12;
+  }
+
+  body [id^='shopify-section-'] .rw-pic img {
+    height: 80% !important;
+    max-width: 86% !important;
+  }
+
+  body [id^='shopify-section-'] .rw-info {
+    padding-top: 11px !important;
   }
 
   body [id^='shopify-section-'] .rw-eye {
@@ -636,26 +672,95 @@
   }
 
   body [id^='shopify-section-'] .rw-fam {
-    font-size: 9px !important;
+    font-size: 9.5px !important;
   }
 
   body [id^='shopify-section-'] .rw-nm {
-    font-size: 15.5px !important;
+    font-size: 17px !important;
   }
 
   body [id^='shopify-section-'] .rw-pr {
-    font-size: 11.5px !important;
+    font-size: 12px !important;
+    margin-top: 3px !important;
   }
 
   body [id^='shopify-section-'] .rw-pr b {
-    font-size: 14px !important;
+    font-size: 15px !important;
   }
 
   body [id^='shopify-section-'] .rw-no {
-    font-size: 13px !important;
+    font-size: 14px !important;
+    top: 10px !important;
+    left: 12px !important;
   }
 
   body [id^='shopify-section-'] .rw-off {
-    font-size: 10.5px !important;
+    font-size: 11px !important;
+    top: 11px !important;
+    right: 12px !important;
+  }
+}
+
+/* Four across, not five: the two rows on this page carry 7 and 8 products, so
+   four fills them as 4+3 and 4+4 instead of stranding two on the last row. */
+
+/* --------------------------------------------------------------------------
+   4. New Drops (sa-drops) — same shape of problem as the product row.
+
+      `.pk-deck` is a horizontal swipe deck. At desktop the section widens the
+      cards to 210px but leaves the deck scrolling, so eight cards need
+      ~1790px inside a 1120px container: most of the row is off-screen behind
+      a scrollbar the browser does not draw.
+
+      A grid instead. Click-to-flip still works — the section already swaps
+      its hint to "Click any card to turn it over" at this width.
+   -------------------------------------------------------------------------- */
+
+@media screen and (min-width: 1000px) {
+  body [id^='shopify-section-'] .pk-deck {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 24px 22px !important;
+    overflow: visible !important;
+  }
+
+  body [id^='shopify-section-'] .pk-deck::after {
+    display: none !important;
+  }
+
+  body [id^='shopify-section-'] .pk-slot {
+    width: auto !important;
+  }
+
+  /* The bottle was a fixed 175px inside what is now a ~368px tall card. */
+  body [id^='shopify-section-'] .pk-front img {
+    height: 56% !important;
+    max-width: 78% !important;
+  }
+
+  body [id^='shopify-section-'] .pk-eye {
+    font-size: 10px !important;
+  }
+
+  body [id^='shopify-section-'] .pk-all {
+    font-size: 13.5px !important;
+  }
+
+  body [id^='shopify-section-'] .pk-foot {
+    padding-bottom: 15px !important;
+  }
+
+  body [id^='shopify-section-'] .pk-foot small {
+    font-size: 11px !important;
+  }
+
+  body [id^='shopify-section-'] .pk-buy {
+    height: 38px !important;
+    font-size: 12px !important;
+  }
+
+  body [id^='shopify-section-'] .pk-go {
+    font-size: 11px !important;
+    margin-top: 8px !important;
   }
 }

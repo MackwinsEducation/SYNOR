@@ -78,24 +78,36 @@ widened to 1280px.
 
 ## Homepage sections
 
-The homepage runs 15 live sections. Most of them already carry desktop
-settings (`h_size_d`, `pad_top_d`, `card_w_d`, `height_d` …) and a
-`@media(min-width:900px)` block, so they are **not** uniformly broken and
-blanket overrides would do more harm than good. Each one is checked against
-its own Liquid before anything is written.
+The homepage runs 15 live sections. Most carry desktop settings (`h_size_d`,
+`card_w_d`, `height_d` …) and a `@media(min-width:900px)` block — but that
+block usually only scales type and padding. Scaling a phone layout up is not
+the same as designing for a desktop, so the test applied to each section is
+**"is this pattern right for a mouse and a wide screen?"**, not "is it
+responsive?".
 
-Checked so far:
+The pattern that keeps failing that test is the **horizontal swipe rail**.
+It is a thumb gesture. On a desktop there is nothing to swipe, and these
+sections all hide the scrollbar (`scrollbar-width: none`), so the overflow is
+not merely awkward — it is invisible.
 
 | Section | Verdict |
 | --- | --- |
-| `sa-row` (Best Sellers, Founder's picks) | **Fixed.** Its desktop block raises the photo box to 175px but never overrides `.rw-card { width: <card_w>px }`, so cards stayed 116px wide — narrow, oddly tall, and leaving ~220px of the 1120px shelf empty. Cards are now 170px and the card text is off the phone scale. |
+| `sa-row` (Best Sellers, Founder's picks) | **Rebuilt as a grid.** The shelf scrolled horizontally and the cards were never given a desktop width, so they stayed 116px under a 175px photo box and filled ~900px of the 1120px row. Now 4 across (4+3 and 4+4 for the two rows' 7 and 8 products) at ~265px, with the photo box on an aspect ratio so it follows the column. The section's JS survives: its scroll listener stops firing and `scrollTo` becomes a no-op, so clicking a card still promotes it into the big slot. |
+| `sa-drops` (New Drops) | **Rebuilt as a grid.** Worst case found so far: eight cards needed ~1790px inside 1120px, so **692px sat off-screen** behind a scrollbar the browser never draws. Now 4×2. Click-to-flip is unaffected — the section already switches its hint to "Click any card to turn it over" at this width. |
+| `sa-story-rings` | No change needed. Seven circles need ~704px of 1120px, so nothing overflows. It sits left-aligned by the merchant's own "Desktop alignment" setting. |
 | `sa-faq-home` | No change needed. Desktop block scales padding, title (+8px), question (+2px) and answer; the 820px cap is a deliberate reading measure. |
-| `sa-voices` (reviews) | No change needed. Desktop turns the scroller into a `repeat(auto-fit, minmax(220px, 1fr))` grid. Judge.me has 58 reviews at 4.76, so the section does render. |
+| `sa-voices` (reviews) | No change needed. Already turns its scroller into a `repeat(auto-fit, minmax(220px, 1fr))` grid at desktop. Judge.me has 58 reviews at 4.76, so it does render. |
 
-Still to check: `sa-story-rings`, `sa-hero-card`, `marquee-slider`,
-`sa-founder`, `sa-drops`, `sa-calc`, `sa-standard`, `sa-scent-worlds`,
-`sa-occasion`, `sa-gift`, `sa-golden-pass` — then product, collection, cart
-and the content pages.
+Still to check: `sa-hero-card`, `marquee-slider`, `sa-founder`, `sa-calc`,
+`sa-standard`, `sa-scent-worlds`, `sa-occasion`, `sa-gift`,
+`sa-golden-pass` — then product, collection, cart and the content pages.
+
+### A stray file
+
+`assets/sa-desktop-sections.css` was created by mistake while considering
+splitting this layer in two. Nothing links to it, so it has no effect. The
+Admin API refuses to delete theme files, so it carries a comment saying as
+much; remove it from Shopify admin if you want the theme tidy.
 
 ## Testing
 
