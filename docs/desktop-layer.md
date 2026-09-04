@@ -107,8 +107,34 @@ not merely awkward — it is invisible.
 | `sa-faq-home` | No change. Desktop scales padding, title, question and answer; the 820px cap is a deliberate reading measure. |
 | `sa-golden-pass` | No change. Desktop makes the benefits a multi-column grid and the button inline. |
 
-Three of fifteen needed work. The homepage is done; product, collection,
-cart and the content pages are next.
+Three of fifteen needed work.
+
+## Breakpoint
+
+The layer originally switched at 1000px, which was an arbitrary choice. The
+theme's own breakpoint is **900px** — `sa-desktop`'s `dk_break`, and the
+`@media(min-width:900px)` block in nearly every section — so between 900 and
+999px the page went desktop while the header stayed a phone bar. The layer now
+switches at 900px too, with an extra tier at 900–1023px that tightens the nav
+(smaller padding and label size, narrower search) so the eight items still sit
+on one line: they measure ~764px against ~852px of row.
+
+## Product page
+
+`sections/sa-desktop.liquid` is a full desktop layout for the product page,
+written by the theme author: it restructures the DOM into a sticky gallery
+beside the info column (56/44, max 1620px), moves the thumbnails to a vertical
+strip, makes the buy pill sticky, and gives every section below its own
+desktop grid — urgency 2-up, journey 1.15/.85, notes 1.05/.95, combo 3-up,
+reviews .62/1.38, FAQ .7/1.3 with a two-column list, twins auto-fit. There is
+also a tablet tier. Nothing there needs redesigning.
+
+One thing did need fixing, and it was caused by this work: its "Photos stick
+this far from the top" setting is 92px, measured against the old 58px phone
+bar. The new desktop header is a two-row bar about 108px tall, so the gallery
+would have slid under it. The layer pins the sticky offset to 124px instead.
+
+Collection, cart and the content pages are next.
 
 ### A stray file
 

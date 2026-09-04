@@ -3,8 +3,11 @@
    --------------------------------------------------------------------------
    The storefront was designed mobile-first: type, controls and containers are
    all sized for a ~390px viewport, and navigation lives entirely in a drawer.
-   Everything here is scoped to `min-width: 1000px` so the mobile experience
-   is untouched.
+   Everything here is scoped to `min-width: 900px` — the breakpoint the theme
+   already uses everywhere (`sa-desktop`'s `dk_break`, and the
+   `@media(min-width:900px)` block in nearly every section) — so the mobile
+   experience is untouched and the header switches at the same width as the
+   page beneath it.
 
    Specificity note: section styles are emitted inline as
    `#shopify-section-<id> .thing`. That ID selector outranks any number of
@@ -22,7 +25,7 @@
   display: none;
 }
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 900px) {
   /* The mobile bar is hidden by an ID-scoped rule in sa-desktop-nav.liquid. */
   .shd {
     display: block;
@@ -494,9 +497,9 @@
   }
 }
 
-/* Under ~1200px the eight nav items plus their note pills no longer fit on one
+/* Under ~1280px the eight nav items plus their note pills no longer fit on one
    line. Drop the pills first; they are decoration, the labels are the content. */
-@media screen and (min-width: 1000px) and (max-width: 1279px) {
+@media screen and (min-width: 900px) and (max-width: 1279px) {
   .shd-note {
     display: none;
   }
@@ -507,7 +510,25 @@
   }
 }
 
-@media screen and (min-width: 1000px) and (prefers-reduced-motion: reduce) {
+/* At 900px the row has ~820px for labels that still want ~825px. Tighten once
+   more rather than letting the nav wrap to two lines. */
+@media screen and (min-width: 900px) and (max-width: 1023px) {
+  .shd-in {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .shd-link {
+    padding: 9px 7px;
+    font-size: 12px;
+  }
+
+  .shd-find {
+    width: 150px;
+  }
+}
+
+@media screen and (min-width: 900px) and (prefers-reduced-motion: reduce) {
   .shd-mega {
     animation: none;
   }
@@ -521,7 +542,7 @@
       was tuned for a phone. Scale it back up.
    -------------------------------------------------------------------------- */
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 900px) {
   body [id^='shopify-section-'] .ft .panel {
     max-width: 1280px !important;
     padding-left: 40px !important;
@@ -629,7 +650,7 @@
       card still promotes it into the big slot above.
    -------------------------------------------------------------------------- */
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 900px) {
   body [id^='shopify-section-'] .rw-shelf {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
@@ -716,7 +737,7 @@
       its hint to "Click any card to turn it over" at this width.
    -------------------------------------------------------------------------- */
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 900px) {
   body [id^='shopify-section-'] .pk-deck {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
@@ -779,7 +800,7 @@
       Card height stays the merchant's own "Card height · desktop" setting.
    -------------------------------------------------------------------------- */
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 900px) {
   body [id^='shopify-section-'] .hc-tx {
     max-width: 780px;
     margin-left: auto !important;
@@ -795,5 +816,25 @@
 
   body [id^='shopify-section-'] .hc-acts {
     justify-content: center;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. Product page — the sticky offset follows the header, and the header grew.
+
+      `sections/sa-desktop.liquid` already lays the product page out properly
+      for a desktop: a sticky gallery beside the info column, vertical
+      thumbnails, and a grid for every section below. Nothing there needs
+      redesigning.
+
+      But its "Photos stick this far from the top" setting is 92px, measured
+      against the old 58px phone bar. The desktop header is a two-row bar about
+      108px tall, so the gallery would slide under it. This pins the offset to
+      the header's real height instead.
+   -------------------------------------------------------------------------- */
+
+@media screen and (min-width: 900px) {
+  html.sy-pdp .syd-top > .syd-gal {
+    top: 124px !important;
   }
 }
