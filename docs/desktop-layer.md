@@ -101,6 +101,34 @@ The same result can be had in the theme editor by setting "Twine max width" to
 around 620px, which would also leave the phone alone. This does it without
 touching the setting.
 
+### A rope that runs the whole width
+
+Capping the rope keeps it in proportion, but it does not make it cross the
+window, and a ribbon that stops short of both edges is not what the design
+wants. A 3.9:1 photo cannot do that: crossing 1920px also makes it 410px tall.
+A rope that runs the whole width has to be *drawn* long and thin.
+
+So `sections/sa-footer.liquid` gains two settings — **Twine photo · desktop**
+and **Twine height · desktop** — and, when the photo is set, emits its own
+desktop rule. Nothing changes for anyone who leaves it empty, and nothing in it
+runs below 900px, so the phone keeps its own photo either way.
+
+The desktop photo is painted as a `background-image` rather than a second
+`<img>`, because that lets the box be `100vw` wide at a **fixed height** with
+`background-size: cover`. `cover` sizes the artwork by whichever axis needs
+more, which here is the height — so the rope keeps one thickness and the bow
+one size at every window width, and only the flat rope at the two ends is
+cropped away. A plain `<img>` sized by width would go back to growing taller
+as the window widens, which is the bug this whole section is about.
+
+The footer's head-room and the note's are then computed from that height
+(`calc(<height>/2 + …)`) rather than guessed, since the rope is centred on the
+tear and half of it always sits above the paper.
+
+What the photo has to be: about **15:1** (4800×320 works well), transparent
+PNG, bow centred, and flat uniform rope running right to both edges — the ends
+are what gets cropped, so they must be plain rope.
+
 ## Homepage sections
 
 The homepage runs 15 live sections. Most carry desktop settings (`h_size_d`,
