@@ -1,7 +1,7 @@
 /* SYNOR — desktop mega-menu behaviour.
    Only ever runs at the desktop breakpoint; the mobile drawer is left alone. */
 (function () {
-  var DESKTOP = '(min-width: 1000px)';
+  var DESKTOP = '(min-width: 900px)';
   var OPEN_DELAY = 90;
   var CLOSE_DELAY = 180;
 

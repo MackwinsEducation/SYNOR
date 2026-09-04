@@ -17,7 +17,7 @@ narrow mobile page stretched across a wide screen. Three things cause that:
 
 ## Approach
 
-Everything desktop lives behind `@media (min-width: 1000px)` in one
+Everything desktop lives behind `@media (min-width: 900px)` in one
 stylesheet, so the mobile experience is byte-for-byte unchanged. Liquid was
 touched in only two places; the rest is CSS.
 
@@ -49,7 +49,7 @@ than the section's own rule, and later in the document) and wins cleanly.
 
 ### Desktop header
 
-The mobile bar (`.sh-in`) is hidden at ≥1000px and `.shd` takes over, in two
+The mobile bar (`.sh-in`) is hidden at ≥900px and `.shd` takes over, in two
 rows:
 
 - row 1 — logo left, search / account / cart / cashback right
@@ -65,7 +65,7 @@ brings the row down to ~840px and keeps it on one line at 1024px.
   six products and an "explore all" link on the right
 - hover and keyboard (focus, Escape) both drive it, with open/close delays so
   it does not flicker when the pointer crosses between items
-- the mobile drawer, tabs and JS are untouched and still run below 1000px
+- the mobile drawer, tabs and JS are untouched and still run below 900px
 
 The nav reads the **same** header blocks as the drawer, so a tab added in the
 theme editor appears in both. There is no second menu to maintain.
@@ -134,7 +134,82 @@ this far from the top" setting is 92px, measured against the old 58px phone
 bar. The new desktop header is a two-row bar about 108px tall, so the gallery
 would have slid under it. The layer pins the sticky offset to 124px instead.
 
-Collection, cart and the content pages are next.
+## Collection
+
+`sections/sa-collection.liquid` already steps the grid 2 → 3 at 750px → 4 at
+1100px inside a 1240px container. Nothing to do.
+
+## Cart
+
+The cart had no desktop design at all, and it was the worst page on the site.
+It is seven separate top-level sections stacked vertically — delivery road, bag
+head, the items, the savings ladder, gift wrap, the bill, the checkout pill —
+every one of them capped at `max-width: 520px` and centred, except the bag head
+and the delivery road, which have no width of their own and so spanned the whole
+1440px window. The checkout pill was `position: fixed` across the full width,
+floating over the middle of the page and covering the gift block.
+
+The desktop shape is the one every considered cart uses: **the goods on the
+left, the money on the right, and the money follows you down the page.**
+
+No markup moves. Each piece is already a direct child of `#MainContent` with a
+known id from `templates/cart.json`, so `main[data-template='cart']` becomes a
+four-track grid and each section is placed:
+
+| Track | Contents |
+| --- | --- |
+| 1 | flexible gutter (min 32px) |
+| 2 | road · head · items · ladder · gift wrap — max 720px |
+| 3 | the bill, and the checkout — 380px |
+| 4 | flexible gutter |
+
+The gutters are grid tracks rather than padding on `main`, so `main` keeps its
+full width and the white-to-cream fade `#MainContent::before` paints under the
+header still runs edge to edge.
+
+### The sticky pair
+
+Column 3 holds two sections that have to behave as one sticky unit, and there is
+no element wrapping them that could be made sticky. Both are therefore given the
+**same** full-height grid area (`grid-row: 1 / -1`) and pinned to opposite ends
+of it: the bill `align-self: start` + `top: 124px`, the checkout
+`align-self: end` + `bottom: 28px`. One area, two ends — the total stays under
+the header and the button stays at the foot of the window, with no fixed bar
+covering the page.
+
+Both come to rest on the area's bottom edge at the end of the page, which put
+the checkout on top of the total in the last screenful. Sticky is clamped by the
+element's **margin** box, so `margin-bottom: 196px` on the bill is what holds
+them apart. Measured: the gap never falls below 46px at any scroll position.
+
+### The checkout
+
+`.m4-go` is `position: fixed` with its `bottom` written **inline** by the
+section's own JS, and it carries `.down` to ride the phone tab bar. Setting it
+`position: static` makes both inert — an inline `bottom` has nothing to act on
+— so no JS had to be fought or unbound. Inside a 380px column the pill becomes
+a card: what you pay, what comes back, then a full-width button.
+
+### The rest
+
+- the phone's `max-width: 520px` cap is lifted on `.m4` under any bag section —
+  the pieces carry four different section classes (`sa-bagwrap`, `sa-bagtop`,
+  `sa-bagroad`, `sa-bagladder`) but all wrap their content in the same `.m4`
+- the bag head is now the page's title block: 30px → 42px
+- from 1280px the line item is scaled up — a 104px bottle, a 19px name, wider
+  figure columns. Not below that: at 1100px the goods column is ~510px and the
+  larger tracks take more from the name than the size gives back. `.m4-row`
+  animates itself away on remove by collapsing `max-height: 120px`, so that cap
+  is raised to 190px or every row would be cropped
+- an empty bag has no bill and no checkout, so a reserved 380px column would
+  strand the message off to the left. `:has(.m4-empty)` collapses the page to
+  one centred 640px column
+
+Measured at 1440 / 1280 / 1200 / 1100 / 1024 / 900 / 390px: no horizontal
+overflow, no truncated product name, no clipped row, and the mobile page is
+byte-for-byte what it was.
+
+The content pages, search and the account pages are next.
 
 ### A stray file
 
@@ -149,7 +224,9 @@ much; remove it from Shopify admin if you want the theme tidy.
 storefront itself could not be opened. Instead the header was rebuilt as a
 static harness (`scratchpad/render/`) from the real section settings, the real
 `sa-desktop.css`/`sa-desktop.js`, and real product titles and prices, then
-driven in headless Chromium at 1440 / 1280 / 1100 / 1024 / 990 / 390px.
+driven in headless Chromium at 1440 / 1280 / 1100 / 1024 / 990 / 390px. The
+cart was tested the same way, from the real `templates/cart.json` settings and
+the real compiled `sa-cart-m4-css.liquid`.
 
 That caught three defects that code review had missed:
 
@@ -164,3 +241,12 @@ Hover, tab switching, pointer travel into the open panel, `Escape`,
 errors. What the harness cannot cover is the rest of the page — `base.css`, the
 real logo's proportions, and the other sections' styles — so still preview the
 staging theme before publishing.
+
+## One divergence to know about
+
+`sections/sa-header.liquid` in this repository differs from the staging theme by
+a single line: a code comment that still said "Hidden below 1000px" after the
+breakpoint moved to 900px. It is inside `{%- comment -%}`, so it renders
+nothing. The file is 34KB and the Admin API has to be sent the whole of it, so
+the fix rides along with the next real change to that file rather than costing a
+34KB push of its own. Everything else is byte-identical (verified by md5).
