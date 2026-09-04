@@ -641,6 +641,49 @@
 }
 
 /* --------------------------------------------------------------------------
+   2b. Footer — the twine
+
+      The rope tied across the torn paper edge is an image, sized by the
+      merchant's "Twine max width" setting:
+
+          .twine { width: min(1600px, 100vw) }
+
+      1600px was chosen while looking at a phone, where `100vw` wins and the
+      rope is a slim ~390px ribbon. On a desktop the first value wins instead
+      and the artwork is drawn at 1600px across. It is about 3.9:1, so it
+      becomes ~410px tall — and because it is centred on the tear line
+      (`translate(-50%, -50%)`), half of that hangs down over the handwritten
+      note and half reaches up out of the footer into the page above it.
+
+      The rope is a ribbon on a parcel, not a banner. It is given a measure of
+      its own here — growing with the window but stopping well before the page
+      does — and the note is given the head-room the tails need, since the
+      section's own top padding was measured against a phone-sized rope.
+
+      (The same thing can be had in the theme editor by setting "Twine max
+      width" to around 620px; it would not change the phone, where `100vw` is
+      still the smaller of the two. This does it without touching the setting.)
+   -------------------------------------------------------------------------- */
+
+@media screen and (min-width: 900px) {
+  body [id^='shopify-section-'] .ft .twine {
+    width: clamp(420px, 42vw, 700px) !important;
+  }
+
+  body [id^='shopify-section-'] .ft .note {
+    padding-top: clamp(44px, 5vw, 76px) !important;
+  }
+
+  /* The rope is centred ON the tear, so its top half always reaches up past
+     the paper. The footer's own 40px of head-room was enough for a phone-sized
+     rope and is not for this one, so it grows with it — otherwise the rope
+     would be drawn over whatever section happens to end the page. */
+  body [id^='shopify-section-'] .ft {
+    padding-top: clamp(56px, 6vw, 104px) !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
    3. Product rows (sa-row) — "Best Sellers" and "Founder's picks"
 
       The shelf is a horizontal swipe scroller. That is a phone gesture: on a

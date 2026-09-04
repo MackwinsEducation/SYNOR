@@ -76,6 +76,31 @@ Layout was already three-column at desktop; only the type scale was lifted
 (links 12.5→14px, contact rows, newsletter field, legal line) and the panel
 widened to 1280px.
 
+### The twine
+
+The rope tied across the torn paper edge is an image sized by the merchant's
+"Twine max width" setting, which renders as
+
+```css
+.twine { width: min(1600px, 100vw) }
+```
+
+1600px was picked while looking at a phone, where `100vw` is the smaller of the
+two and the rope is a ~390px ribbon. On a desktop the other value wins: the
+artwork is drawn 1600px across, and at about 3.9:1 that makes it ~410px tall.
+It is centred on the tear line, so half of it hung over the handwritten note
+and half reached up out of the footer into the page above. Measured at 1920px:
+the rope overlapped the note by 138px and escaped 166px above the footer.
+
+It now takes a measure of its own — `clamp(420px, 42vw, 700px)` — and the note
+and the footer's own head-room grow with it. Measured after: the tails clear the
+first line of the note by 44–54px at every width from 900 to 1920, and the rope
+no longer leaves the footer. The phone is untouched: `100vw` still wins there.
+
+The same result can be had in the theme editor by setting "Twine max width" to
+around 620px, which would also leave the phone alone. This does it without
+touching the setting.
+
 ## Homepage sections
 
 The homepage runs 15 live sections. Most carry desktop settings (`h_size_d`,
