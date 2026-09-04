@@ -613,3 +613,49 @@
     font-size: 11px !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   3. Product rows (sa-row) — "Best Sellers" and "Founder's picks"
+      The section's own desktop block raises the photo box to 175px but never
+      overrides `.rw-card { width: <card_w>px }`, so cards stay at their 116px
+      phone width: narrow, oddly tall, and leaving ~220px of the shelf empty.
+      Card text is on the phone scale too.
+   -------------------------------------------------------------------------- */
+
+@media screen and (min-width: 1000px) {
+  body [id^='shopify-section-'] .rw-card {
+    width: 170px !important;
+  }
+
+  body [id^='shopify-section-'] .rw-eye {
+    font-size: 10px !important;
+  }
+
+  body [id^='shopify-section-'] .rw-all {
+    font-size: 13.5px !important;
+  }
+
+  body [id^='shopify-section-'] .rw-fam {
+    font-size: 9px !important;
+  }
+
+  body [id^='shopify-section-'] .rw-nm {
+    font-size: 15.5px !important;
+  }
+
+  body [id^='shopify-section-'] .rw-pr {
+    font-size: 11.5px !important;
+  }
+
+  body [id^='shopify-section-'] .rw-pr b {
+    font-size: 14px !important;
+  }
+
+  body [id^='shopify-section-'] .rw-no {
+    font-size: 13px !important;
+  }
+
+  body [id^='shopify-section-'] .rw-off {
+    font-size: 10.5px !important;
+  }
+}

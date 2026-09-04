@@ -76,11 +76,26 @@ Layout was already three-column at desktop; only the type scale was lifted
 (links 12.5→14px, contact rows, newsletter field, legal line) and the panel
 widened to 1280px.
 
-## Not done yet
+## Homepage sections
 
-The homepage, product, collection, cart and content-page sections still use
-their mobile scale at desktop width. They are the next pass — same mechanism,
-adding rules to `assets/sa-desktop.css`.
+The homepage runs 15 live sections. Most of them already carry desktop
+settings (`h_size_d`, `pad_top_d`, `card_w_d`, `height_d` …) and a
+`@media(min-width:900px)` block, so they are **not** uniformly broken and
+blanket overrides would do more harm than good. Each one is checked against
+its own Liquid before anything is written.
+
+Checked so far:
+
+| Section | Verdict |
+| --- | --- |
+| `sa-row` (Best Sellers, Founder's picks) | **Fixed.** Its desktop block raises the photo box to 175px but never overrides `.rw-card { width: <card_w>px }`, so cards stayed 116px wide — narrow, oddly tall, and leaving ~220px of the 1120px shelf empty. Cards are now 170px and the card text is off the phone scale. |
+| `sa-faq-home` | No change needed. Desktop block scales padding, title (+8px), question (+2px) and answer; the 820px cap is a deliberate reading measure. |
+| `sa-voices` (reviews) | No change needed. Desktop turns the scroller into a `repeat(auto-fit, minmax(220px, 1fr))` grid. Judge.me has 58 reviews at 4.76, so the section does render. |
+
+Still to check: `sa-story-rings`, `sa-hero-card`, `marquee-slider`,
+`sa-founder`, `sa-drops`, `sa-calc`, `sa-standard`, `sa-scent-worlds`,
+`sa-occasion`, `sa-gift`, `sa-golden-pass` — then product, collection, cart
+and the content pages.
 
 ## Testing
 
