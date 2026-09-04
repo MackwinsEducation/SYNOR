@@ -764,3 +764,36 @@
     margin-top: 8px !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   5. Hero card (sa-hero-card)
+
+      The hero is a text-only card — no image is set — laid out for a phone:
+      the copy is left-aligned and capped at 36ch. On a phone the card is
+      narrow, so that fills it. At 1440px the same card is ~1104px wide and
+      the text hugs the left third, leaving most of the hero empty.
+
+      Centring the block and letting the sentence run to a proper measure
+      makes it read as a wide hero rather than a stretched phone card.
+
+      Card height stays the merchant's own "Card height · desktop" setting.
+   -------------------------------------------------------------------------- */
+
+@media screen and (min-width: 1000px) {
+  body [id^='shopify-section-'] .hc-tx {
+    max-width: 780px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center;
+  }
+
+  body [id^='shopify-section-'] .hc-say {
+    max-width: 54ch !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  body [id^='shopify-section-'] .hc-acts {
+    justify-content: center;
+  }
+}

@@ -92,15 +92,23 @@ not merely awkward — it is invisible.
 
 | Section | Verdict |
 | --- | --- |
-| `sa-row` (Best Sellers, Founder's picks) | **Rebuilt as a grid.** The shelf scrolled horizontally and the cards were never given a desktop width, so they stayed 116px under a 175px photo box and filled ~900px of the 1120px row. Now 4 across (4+3 and 4+4 for the two rows' 7 and 8 products) at ~265px, with the photo box on an aspect ratio so it follows the column. The section's JS survives: its scroll listener stops firing and `scrollTo` becomes a no-op, so clicking a card still promotes it into the big slot. |
-| `sa-drops` (New Drops) | **Rebuilt as a grid.** Worst case found so far: eight cards needed ~1790px inside 1120px, so **692px sat off-screen** behind a scrollbar the browser never draws. Now 4×2. Click-to-flip is unaffected — the section already switches its hint to "Click any card to turn it over" at this width. |
-| `sa-story-rings` | No change needed. Seven circles need ~704px of 1120px, so nothing overflows. It sits left-aligned by the merchant's own "Desktop alignment" setting. |
-| `sa-faq-home` | No change needed. Desktop block scales padding, title (+8px), question (+2px) and answer; the 820px cap is a deliberate reading measure. |
-| `sa-voices` (reviews) | No change needed. Already turns its scroller into a `repeat(auto-fit, minmax(220px, 1fr))` grid at desktop. Judge.me has 58 reviews at 4.76, so it does render. |
+| `sa-row` (Best Sellers, Founder's picks) | **Rebuilt as a grid.** The shelf scrolled horizontally and the cards were never given a desktop width, so they stayed 116px under a 175px photo box and filled ~900px of the 1120px row. Now 4 across at ~265px, with the photo box on an aspect ratio so it follows the column. The section's JS survives: its scroll listener stops firing and `scrollTo` becomes a no-op, so clicking a card still promotes it into the big slot. |
+| `sa-drops` (New Drops) | **Rebuilt as a grid.** Eight cards needed ~1790px inside 1120px, so **692px sat off-screen** behind a scrollbar the browser never draws. Now 4×2. Click-to-flip is unaffected. |
+| `sa-hero-card` | **Centred at desktop.** A text-only hero (no image is set) with copy left-aligned at 36ch. On a phone that fills the card; at 1440px the card is ~1104px and the text hugged the left third, leaving roughly 700px of empty gradient. The block is now centred at a 780px measure and the sentence runs to 54ch, so it fits one line. Height is left to the merchant's "Card height · desktop" setting — raising it from 250px would give the hero more presence. |
+| `sa-story-rings` | No change. Seven circles need ~704px of 1120px; nothing overflows. Left alignment is the merchant's "Desktop alignment" setting. |
+| `marquee-slider` | No change. Full-width ticker with its own `height_d` and `font_size_d`. |
+| `sa-founder` | No change. Desktop puts the portrait left and the text right (`.8fr 1.2fr`, 48px gap). |
+| `sa-calc` | No change. Desktop turns the card into a grid: shelf and slider left, the big return panel right. |
+| `sa-standard` | No change. Desktop lays each rung out as percentage / text / bar in three columns. |
+| `sa-scent-worlds` | No change. `arrange: quad` gives four full-bleed panels edge to edge at desktop. |
+| `sa-occasion` | No change. An expanding accordion is a legitimate desktop pattern and the day bar already handles mouse drag. Panels open on click rather than hover — a possible enhancement, not a defect. |
+| `sa-gift` | No change. `layout_d: split` puts the words beside the box (540px, 72px gap). |
+| `sa-voices` (reviews) | No change. Already becomes a `repeat(auto-fit, minmax(220px, 1fr))` grid. Judge.me has 58 reviews at 4.76, so it renders. |
+| `sa-faq-home` | No change. Desktop scales padding, title, question and answer; the 820px cap is a deliberate reading measure. |
+| `sa-golden-pass` | No change. Desktop makes the benefits a multi-column grid and the button inline. |
 
-Still to check: `sa-hero-card`, `marquee-slider`, `sa-founder`, `sa-calc`,
-`sa-standard`, `sa-scent-worlds`, `sa-occasion`, `sa-gift`,
-`sa-golden-pass` — then product, collection, cart and the content pages.
+Three of fifteen needed work. The homepage is done; product, collection,
+cart and the content pages are next.
 
 ### A stray file
 
