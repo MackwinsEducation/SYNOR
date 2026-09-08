@@ -835,28 +835,73 @@
 }
 
 /* --------------------------------------------------------------------------
-   5. Hero card (sa-hero-card)
+   5. Hero card (sa-hero-card) and the story rings above it
 
-      The hero is a text-only card — no image is set — laid out for a phone:
-      the copy is left-aligned and capped at 36ch. On a phone the card is
-      narrow, so that fills it. At 1440px the same card is ~1104px wide and
-      the text hugs the left third, leaving most of the hero empty.
+      On a phone the hero is a rounded card floating in the page with three
+      stat pills under it, and the rings above it sit left, the way a swipe
+      rail starts. On a desktop the merchant wanted the top of the page to
+      read as one wide band: rings centred over it, then the hero and its
+      three stats joined edge to edge across the whole window, with nothing
+      floating.
 
-      Centring the block and letting the sentence run to a proper measure
-      makes it read as a wide hero rather than a stretched phone card.
-
-      Card height stays the merchant's own "Card height · desktop" setting.
+      So at desktop the card sheds its container, margins, radius and side
+      borders and runs the full width; the stat strip loses its gap and
+      radius and becomes the band's foot; and the copy, which the section
+      left-aligns at a 36ch measure, is centred at a proper one. The band gets
+      a hero's height. The rings simply centre — the section has a "Desktop
+      alignment" setting for this, left at its phone value.
    -------------------------------------------------------------------------- */
 
 @media screen and (min-width: 900px) {
+  /* ── the rings ── */
+  body [id^='shopify-section-'] .sr-rail {
+    justify-content: center !important;
+  }
+
+  /* ── the band ── */
+  body [id^='shopify-section-'] .hc {
+    max-width: none !important;
+  }
+
+  body [id^='shopify-section-'] .hc-wrap {
+    margin: 0 !important;
+  }
+
+  body [id^='shopify-section-'] .hc-card {
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    min-height: 440px !important;
+    padding: 64px 48px !important;
+    box-shadow: none !important;
+  }
+
+  /* The animated border ring is drawn 2px outside the card; with the card
+     at full width its sides are off-screen, so only the top edge shows. */
+  body [id^='shopify-section-'] .hc-out {
+    border-radius: 0 !important;
+    /* Its 2px of side overhang would put a horizontal scrollbar on the page. */
+    left: 0 !important;
+    right: 0 !important;
+  }
+
   body [id^='shopify-section-'] .hc-tx {
-    max-width: 780px;
+    max-width: 820px;
     margin-left: auto !important;
     margin-right: auto !important;
     text-align: center;
   }
 
+  body [id^='shopify-section-'] .hc-kick {
+    justify-content: center;
+  }
+
+  body [id^='shopify-section-'] .hc-h {
+    font-size: 64px !important;
+  }
+
   body [id^='shopify-section-'] .hc-say {
+    font-size: 17px !important;
     max-width: 54ch !important;
     margin-left: auto !important;
     margin-right: auto !important;
@@ -864,6 +909,40 @@
 
   body [id^='shopify-section-'] .hc-acts {
     justify-content: center;
+  }
+
+  /* ── the stats, joined to the card ── */
+  body [id^='shopify-section-'] .hc-strip,
+  body [id^='shopify-section-'] .hc-strip.is-bleed {
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border-top: 1px solid var(--hc-line, #e5dfd1);
+  }
+
+  body [id^='shopify-section-'] .hc-t {
+    border-radius: 0 !important;
+    padding-top: 22px !important;
+    padding-bottom: 20px !important;
+  }
+
+  body [id^='shopify-section-'] .hc-t::after {
+    border-radius: 0 !important;
+  }
+
+  body [id^='shopify-section-'] .hc-t b {
+    font-size: 28px !important;
+  }
+
+  body [id^='shopify-section-'] .hc-t small {
+    font-size: 12.5px !important;
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  body [id^='shopify-section-'] .hc-card {
+    min-height: 500px !important;
   }
 }
 
