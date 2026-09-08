@@ -393,3 +393,31 @@ only ever set in the old staging theme's `sections/footer-group.json`. Pick the
 image in the work copy's theme editor once a correctly-shaped (~15:1) rope
 image exists. The stray `assets/sa-desktop-sections.css` note above applies
 only to the old staging theme; the work copy never received that file.
+
+## Collection page, finalised (section 9 of the CSS)
+
+The grid, heading band and foot were already right. What was still
+phone-shaped:
+
+- **Filter / "In the spirit of" / Sort each opened as a full-width bottom
+  sheet** sliding up from the bottom edge, with a grab handle and
+  drag-to-dismiss. At ≥900px the same markup is repositioned as a centred
+  620px modal dialog (the scrim, Escape and outside-click behaviour already
+  existed and are untouched); the grab handle is hidden, which also disarms
+  the touch-drag handlers. Verified in a harness at 1440 and 1920 (dialog
+  centred both axes, closed state invisible and non-interactive) and at 390
+  (bottom sheet byte-identical to before).
+- **The product cards ignored the mouse.** Under `(hover:hover)` they now
+  lift 4px with a soft drop-shadow (a filter, so the card's box-shadow
+  border ring is preserved) and the photo zooms slightly. Reduced-motion
+  turns all of it off.
+
+From here on the **work copy (188601794855) is the canonical theme**: this
+change was uploaded only there, so the old staging theme's sa-desktop.css
+is now one section behind.
+
+One mishap worth recording: a careless upsert briefly replaced the work
+copy's sa-desktop.css with an 8-byte placeholder. The md5-after-upload
+check caught it immediately and the full file was re-uploaded and verified
+(55580 bytes). The lesson stands: never send a themeFilesUpsert whose body
+you have not literally written out, and always compare checksums after.

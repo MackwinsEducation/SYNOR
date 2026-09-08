@@ -1916,3 +1916,95 @@
     max-width: 1200px !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   9. COLLECTION PAGE (sa-collection / sa-collbar)
+
+   The grid itself already steps 2 → 3 → 4 columns inside a 1240px
+   container, and the heading band has its own 900px tier. Two things
+   were still phone-shaped:
+
+   — Filter, "In the spirit of" and Sort all open as full-width bottom
+     sheets that slide up from the bottom edge (.sacb-sheet, .sasx-sheet,
+     with a grab handle and drag-to-dismiss). On a 1920px screen that is
+     the single clearest giveaway of a phone design. The same markup is
+     repositioned as a centred modal dialog: the scrim already darkens
+     and blurs the page, Escape and outside-click already close it, so
+     only the geometry changes.
+
+   — The product cards did nothing on hover.
+
+   The sheet styles are inline <style> blocks rendered in the body after
+   this stylesheet, so the contested properties carry !important. The
+   drag-to-dismiss handlers live on the grab handle, which is hidden
+   here, so the touch code never fights the new geometry.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media screen and (min-width: 900px) {
+  body .sacb-sheet,
+  body .sasx-sheet {
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    top: 50% !important;
+    width: 620px !important;
+    max-width: calc(100vw - 96px) !important;
+    max-height: min(72vh, 680px) !important;
+    border-radius: 18px !important;
+    transform: translate(-50%, -46%) scale(0.97) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: transform 0.22s cubic-bezier(0.22, 0.9, 0.3, 1), opacity 0.18s ease !important;
+  }
+
+  body .sacb-sheet.open,
+  body .sasx-sheet.open {
+    transform: translate(-50%, -50%) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* the grab handle is a touch affordance */
+  body .sacb-grab,
+  body .sasx-grab {
+    display: none !important;
+  }
+}
+
+/* the cards answer the mouse — hover-capable screens only, so an iPad
+   in landscape keeps its plain touch cards */
+@media screen and (min-width: 900px) and (hover: hover) {
+  body [id^='shopify-section-'] .sacard {
+    transition: transform 0.25s ease, filter 0.25s ease;
+  }
+
+  body [id^='shopify-section-'] .sacard:hover {
+    transform: translateY(-4px);
+    filter: drop-shadow(0 16px 18px rgba(26, 23, 18, 0.13));
+  }
+
+  body [id^='shopify-section-'] .sapic img {
+    transition: transform 0.5s ease;
+  }
+
+  body [id^='shopify-section-'] .sacard:hover .sapic img {
+    transform: scale(1.045);
+  }
+}
+
+@media screen and (min-width: 900px) and (prefers-reduced-motion: reduce) {
+  body .sacb-sheet,
+  body .sasx-sheet,
+  body [id^='shopify-section-'] .sacard,
+  body [id^='shopify-section-'] .sapic img {
+    transition: none !important;
+  }
+
+  body [id^='shopify-section-'] .sacard:hover {
+    transform: none;
+  }
+
+  body [id^='shopify-section-'] .sacard:hover .sapic img {
+    transform: none;
+  }
+}
