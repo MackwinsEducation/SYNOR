@@ -1,0 +1,371 @@
+{%- comment -%} SYNOR — New drops. Each product is a card you can turn. {%- endcomment -%}
+{%- assign s = section.settings -%}
+{%- assign sid = section.id -%}
+{%- assign coll = collections[s.collection] -%}
+
+{%- if coll and coll.products_count > 0 -%}
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="pk">
+  <div class="pk-head">
+    <div>
+      {%- if s.eyebrow != blank -%}
+        <span class="pk-eye"><i class="pk-blip" aria-hidden="true"></i>{{ s.eyebrow }}</span>
+      {%- endif -%}
+      <h2>{{ s.title }}</h2>
+    </div>
+    {%- if s.show_view_all -%}<a class="pk-all" href="{{ coll.url }}">{{ s.view_all_label }} <i>→</i></a>{%- endif -%}
+  </div>
+
+  {%- if s.hint != blank -%}<p class="pk-hint"><span class="pk-hm">{{ s.hint }}</span><span class="pk-hd">{{ s.hint_d | default: s.hint }}</span></p>{%- endif -%}
+
+  <div class="pk-deck">
+    {%- for p in coll.products limit: s.count -%}
+      {%- liquid
+        assign famkey = ''
+        assign fam = ''
+        assign gender = ''
+        assign mood = ''
+        assign occ = ''
+        assign muse = ''
+
+        for t in p.tags
+          assign low = t | downcase
+          if low contains 'family-'
+            assign famkey = low | remove: 'family-'
+            assign fam = famkey | replace: '-', ' & '
+          elsif low contains 'gender-'
+            assign gender = low | remove: 'gender-'
+          elsif low contains 'mood-' and mood == ''
+            assign mood = low | remove: 'mood-'
+          elsif low contains 'occasion-' and occ == ''
+            assign occ = low | remove: 'occasion-'
+          endif
+        endfor
+
+        for t in p.tags
+          assign low = t | downcase
+          unless low contains 'family-' or low contains 'gender-' or low contains 'mood-' or low contains 'occasion-' or low == 'bestseller' or low == 'new-arrival' or low == 'video-ready' or low == 'combo' or low == 'byobsuite' or low == 'cashback-excluded'
+            assign words = t | split: ' '
+            if words.size > 1 and muse == ''
+              assign w1 = words | first
+              assign w1up = w1 | upcase
+              if w1 == w1up
+                assign muse = t
+              endif
+            endif
+          endunless
+        endfor
+
+        assign tint = s.t_default
+        assign glyph = s.gl_default
+        if famkey contains 'fresh' or famkey contains 'aquatic'
+          assign tint = s.t_fresh
+          assign glyph = s.gl_fresh
+        elsif famkey contains 'floral' or famkey contains 'fruity'
+          assign tint = s.t_floral
+          assign glyph = s.gl_floral
+        elsif famkey contains 'woody' or famkey contains 'oud'
+          assign tint = s.t_woody
+          assign glyph = s.gl_woody
+        elsif famkey contains 'amber' or famkey contains 'sweet'
+          assign tint = s.t_amber
+          assign glyph = s.gl_amber
+        endif
+
+        assign gword = ''
+        if gender == 'him'
+          assign gword = s.word_him
+        elsif gender == 'her'
+          assign gword = s.word_her
+        elsif gender == 'unisex'
+          assign gword = s.word_uni
+        endif
+
+        assign tester = null
+        for v in p.variants
+          if v.title contains '3ml' or v.title contains '3 ml'
+            assign tester = v
+          endif
+        endfor
+
+        assign short = p.title | remove: 'SYNOR '
+        assign mark = short | slice: 0, 1 | upcase
+      -%}
+
+      <div class="pk-slot" style="--tint:{{ tint }}">
+        <div class="pk-card" data-card>
+
+          <div class="pk-face pk-front">
+            <span class="pk-corner pk-tl" aria-hidden="true"><b>{{ mark }}</b><i>{{ glyph }}</i></span>
+            <span class="pk-corner pk-br" aria-hidden="true"><b>{{ mark }}</b><i>{{ glyph }}</i></span>
+            <span class="pk-wash" aria-hidden="true"></span>
+            {%- if p.featured_image -%}
+              <img src="{{ p.featured_image | image_url: width: 500 }}" alt="{{ p.title | escape }}"
+                loading="lazy" decoding="async">
+            {%- endif -%}
+            <span class="pk-foot">
+              <b>{{ short }}</b>
+              <small>{{ p.price_min | money_without_trailing_zeros }} – {{ p.price_max | money_without_trailing_zeros }}</small>
+            </span>
+            {%- unless p.available -%}<span class="pk-sold">Sold out</span>{%- endunless -%}
+            <span class="pk-turn" aria-hidden="true"></span>
+          </div>
+
+          <div class="pk-face pk-back">
+            <span class="pk-bmark" aria-hidden="true">{{ glyph }}</span>
+            <b class="pk-bnm">{{ short }}</b>
+
+            <dl class="pk-list">
+              {%- if fam != blank -%}<div><dt>{{ s.lbl_family }}</dt><dd>{{ fam }}</dd></div>{%- endif -%}
+              {%- if gword != blank -%}<div><dt>{{ s.lbl_who }}</dt><dd>{{ gword }}</dd></div>{%- endif -%}
+              {%- if mood != blank -%}<div><dt>{{ s.lbl_mood }}</dt><dd>{{ mood }}</dd></div>{%- endif -%}
+              {%- if occ != blank -%}<div><dt>{{ s.lbl_wear }}</dt><dd>{{ occ }}</dd></div>{%- endif -%}
+              {%- if muse != blank -%}<div><dt>{{ s.lbl_like }}</dt><dd>{{ muse }}</dd></div>{%- endif -%}
+            </dl>
+
+            <div class="pk-acts">
+              {%- if tester and tester.available -%}
+                <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data">
+                  <input type="hidden" name="id" value="{{ tester.id }}">
+                  <input type="hidden" name="quantity" value="1">
+                  <button type="submit" class="pk-buy">{{ s.buy_label }} · {{ tester.price | money_without_trailing_zeros }}</button>
+                </form>
+              {%- endif -%}
+              <a class="pk-go" href="{{ p.url }}">{{ s.open_label }} <em>→</em></a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+</div>
+
+<script>
+(function(){
+  var root=document.getElementById('shopify-section-{{ sid }}'); if(!root) return;
+  root.querySelectorAll('[data-card]').forEach(function(c){
+    c.addEventListener('click',function(e){
+      if(e.target.closest('a,button')) return;
+      c.classList.toggle('flip');
+    });
+  });
+})();
+</script>
+
+<style>
+#shopify-section-{{ sid }}{background:{{ s.bg }}}
+#shopify-section-{{ sid }} .pk{font-family:"Space Grotesk",system-ui,sans-serif;max-width:1200px;margin:0 auto;
+  padding:{{ s.pad_top }}px 0 {{ s.pad_bottom }}px}
+#shopify-section-{{ sid }} .pk *{box-sizing:border-box}
+
+#shopify-section-{{ sid }} .pk-head{display:flex;align-items:flex-end;justify-content:space-between;
+  gap:12px;margin:0 {{ s.gutter }}px 4px}
+#shopify-section-{{ sid }} .pk-eye{display:inline-flex;align-items:center;gap:7px;font-size:9px;
+  letter-spacing:.22em;text-transform:uppercase;color:{{ s.gold }};font-weight:700;margin-bottom:3px}
+#shopify-section-{{ sid }} .pk-blip{width:6px;height:6px;border-radius:50%;background:{{ s.gold }};
+  display:block;flex:none;animation:pkBlip{{ sid }} 2.4s ease-in-out infinite}
+@keyframes pkBlip{{ sid }}{50%{opacity:.3;transform:scale(.8)}}
+#shopify-section-{{ sid }} .pk-head h2{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h_size }}px;
+  font-weight:600;letter-spacing:-.02em;line-height:1;color:{{ s.ink }};margin:0}
+#shopify-section-{{ sid }} .pk-all{color:{{ s.link }};font-size:12px;text-decoration:none;font-weight:600;
+  white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px}
+#shopify-section-{{ sid }} .pk-hint{font-size:10px;color:{{ s.soft }};margin:0 {{ s.gutter }}px {{ s.head_gap }}px;
+  letter-spacing:.04em}
+#shopify-section-{{ sid }} .pk-hint .pk-hd{display:none}
+
+#shopify-section-{{ sid }} .pk-deck{display:flex;gap:{{ s.gap }}px;overflow-x:auto;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  padding:2px {{ s.gutter }}px {{ s.deck_bottom }}px;scroll-snap-type:x mandatory}
+#shopify-section-{{ sid }} .pk-deck::-webkit-scrollbar{display:none}
+#shopify-section-{{ sid }} .pk-deck::after{content:"";flex:none;width:{{ s.gutter | minus: 12 | at_least: 2 }}px}
+
+#shopify-section-{{ sid }} .pk-slot{flex:none;width:{{ s.card_w }}px;aspect-ratio:{{ s.ratio }};
+  scroll-snap-align:start;perspective:1100px}
+#shopify-section-{{ sid }} .pk-card{position:relative;width:100%;height:100%;cursor:pointer;
+  transform-style:preserve-3d;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+#shopify-section-{{ sid }} .pk-card.flip{transform:rotateY(180deg)}
+
+{%- comment -%}
+  Only the face you can see takes clicks.
+
+  The two faces sit on exactly the same plane (both `inset: 0`, no depth
+  between them), so `backface-visibility: hidden` stopped the turned-away
+  face being DRAWN but not being CLICKED: it still won the hit test and
+  swallowed everything aimed at the face in view. With the card turned, the
+  front's price line sat exactly over "{{ s.open_label }}", so that link
+  never fired, and on a phone it covered "{{ s.buy_label }}" too, so the
+  tester could not be added to the bag either.
+
+  Suppressing pointer events on the hidden face fixes it without moving
+  anything: the class that drives the turn is the same class that drives
+  this, so the two can never disagree. Nothing here changes what is drawn.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .pk-back{pointer-events:none}
+#shopify-section-{{ sid }} .pk-card.flip .pk-back{pointer-events:auto}
+#shopify-section-{{ sid }} .pk-card.flip .pk-front{pointer-events:none}
+
+#shopify-section-{{ sid }} .pk-face{position:absolute;inset:0;border-radius:{{ s.radius }}px;
+  overflow:hidden;-webkit-backface-visibility:hidden;backface-visibility:hidden;
+  border:1px solid {{ s.line }};box-shadow:0 10px 24px -18px rgba(26,23,18,.4)}
+
+#shopify-section-{{ sid }} .pk-front{background:{{ s.card }};display:grid;place-items:center}
+#shopify-section-{{ sid }} .pk-wash{position:absolute;left:0;right:0;bottom:0;height:62%;
+  background:linear-gradient(180deg,transparent,color-mix(in oklab, var(--tint) {{ s.wash }}%, transparent));
+  pointer-events:none}
+#shopify-section-{{ sid }} .pk-front img{position:relative;z-index:2;height:{{ s.img_h }}px;width:auto;
+  max-width:80%;object-fit:contain;mix-blend-mode:multiply;
+  transition:transform .5s cubic-bezier(.16,1,.3,1)}
+#shopify-section-{{ sid }} .pk-card:hover .pk-front img{transform:translateY(-3px) scale(1.03)}
+
+#shopify-section-{{ sid }} .pk-corner{position:absolute;z-index:3;display:flex;flex-direction:column;
+  align-items:center;gap:1px;line-height:1;color:var(--tint)}
+#shopify-section-{{ sid }} .pk-corner b{font-family:"Fraunces",Georgia,serif;font-size:{{ s.mark }}px;
+  font-weight:700}
+#shopify-section-{{ sid }} .pk-corner i{font-style:normal;font-size:{{ s.mark | times: 0.7 | round }}px}
+#shopify-section-{{ sid }} .pk-tl{top:9px;left:10px}
+#shopify-section-{{ sid }} .pk-br{bottom:9px;right:10px;transform:rotate(180deg)}
+
+#shopify-section-{{ sid }} .pk-foot{position:absolute;left:0;right:0;bottom:0;z-index:3;
+  padding:0 {{ s.mark | plus: 14 }}px 11px;text-align:center}
+#shopify-section-{{ sid }} .pk-foot b{display:block;font-family:"Fraunces",Georgia,serif;
+  font-size:{{ s.name }}px;font-weight:500;color:{{ s.ink }};line-height:1.12;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#shopify-section-{{ sid }} .pk-foot small{display:block;font-size:9px;color:{{ s.soft }};margin-top:2px;
+  font-weight:600;letter-spacing:.02em}
+#shopify-section-{{ sid }} .pk-turn{position:absolute;top:50%;right:9px;z-index:3;
+  width:5px;height:5px;border-radius:50%;background:var(--tint);opacity:.45}
+#shopify-section-{{ sid }} .pk-sold{position:absolute;inset:0;z-index:5;display:grid;place-items:center;
+  background:rgba(255,253,248,.8);color:{{ s.ink }};font-size:10px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase}
+
+#shopify-section-{{ sid }} .pk-back{transform:rotateY(180deg);
+  background:color-mix(in oklab, var(--tint) {{ s.back_tint }}%, {{ s.card }});
+  display:flex;flex-direction:column;padding:{{ s.pad_back }}px}
+#shopify-section-{{ sid }} .pk-bmark{position:absolute;right:-6px;bottom:-10px;z-index:0;
+  font-size:{{ s.card_w | times: 0.6 | round }}px;line-height:1;opacity:.1;pointer-events:none}
+#shopify-section-{{ sid }} .pk-bnm{position:relative;z-index:2;font-family:"Fraunces",Georgia,serif;
+  font-size:{{ s.name | plus: 1 }}px;font-weight:600;color:{{ s.ink }};line-height:1.1;
+  padding-bottom:7px;border-bottom:1px solid color-mix(in oklab, var(--tint) 34%, transparent)}
+
+#shopify-section-{{ sid }} .pk-list{position:relative;z-index:2;margin:8px 0 0;padding:0;flex:1;
+  display:flex;flex-direction:column;gap:{{ s.row_gap }}px}
+#shopify-section-{{ sid }} .pk-list div{display:flex;align-items:baseline;gap:6px;min-width:0}
+#shopify-section-{{ sid }} .pk-list dt{flex:none;width:{{ s.lbl_w }}px;margin:0;
+  font-size:7px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .pk-list dd{margin:0;min-width:0;font-size:10px;font-weight:600;
+  color:{{ s.ink }};text-transform:capitalize;line-height:1.25;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+#shopify-section-{{ sid }} .pk-acts{position:relative;z-index:2;margin-top:8px}
+#shopify-section-{{ sid }} .pk-acts form{margin:0}
+#shopify-section-{{ sid }} .pk-buy{width:100%;height:30px;border-radius:100px;cursor:pointer;border:0;
+  background:{{ s.ink }};color:{{ s.card }};font-family:inherit;font-size:9.5px;font-weight:700;
+  letter-spacing:.02em;white-space:nowrap;transition:.25s}
+#shopify-section-{{ sid }} .pk-buy:active{transform:scale(.97)}
+#shopify-section-{{ sid }} .pk-go{display:block;text-align:center;margin-top:6px;
+  font-size:9px;font-weight:600;color:{{ s.ink }};text-decoration:none;opacity:.7}
+#shopify-section-{{ sid }} .pk-go em{font-style:normal}
+
+@media(min-width:900px){
+  #shopify-section-{{ sid }} .pk-head{margin:0 40px 4px}
+  #shopify-section-{{ sid }} .pk-head h2{font-size:{{ s.h_size | plus: 7 }}px}
+  #shopify-section-{{ sid }} .pk-hint{margin:0 40px {{ s.head_gap }}px}
+  #shopify-section-{{ sid }} .pk-deck{padding:2px 40px {{ s.deck_bottom }}px;gap:16px}
+  #shopify-section-{{ sid }} .pk-slot{width:{{ s.card_w_d }}px}
+  #shopify-section-{{ sid }} .pk-front img{height:{{ s.img_h_d }}px}
+  #shopify-section-{{ sid }} .pk-foot b{font-size:{{ s.name | plus: 3 }}px}
+  #shopify-section-{{ sid }} .pk-list dd{font-size:11.5px}
+  #shopify-section-{{ sid }} .pk-list dt{font-size:7.5px}
+  #shopify-section-{{ sid }} .pk-buy{height:34px;font-size:11px}
+  #shopify-section-{{ sid }} .pk-hint{font-size:11px}
+  #shopify-section-{{ sid }} .pk-hint .pk-hm{display:none}
+  #shopify-section-{{ sid }} .pk-hint .pk-hd{display:inline}
+}
+@media(hover:hover) and (min-width:900px){
+  #shopify-section-{{ sid }} .pk-face{transition:box-shadow .35s}
+  #shopify-section-{{ sid }} .pk-card:hover .pk-face{box-shadow:0 18px 34px -18px rgba(26,23,18,.5)}
+  #shopify-section-{{ sid }} .pk-all:hover i{transform:translateX(3px)}
+  #shopify-section-{{ sid }} .pk-all i{font-style:normal;display:inline-block;transition:transform .25s}
+}
+@media (prefers-reduced-motion: reduce){
+  #shopify-section-{{ sid }} .pk-card{transition:none}
+  #shopify-section-{{ sid }} .pk-blip{animation:none}
+}
+</style>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "New drops — SYNOR",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Just landed" },
+    { "type": "text", "id": "title", "label": "Title", "default": "New Drops" },
+    { "type": "text", "id": "hint", "label": "Line under the heading", "default": "Tap any card to turn it over." },
+    { "type": "text", "id": "hint_d", "label": "Line under the heading · desktop", "default": "Click any card to turn it over." },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "count", "min": 2, "max": 12, "step": 1, "label": "Products to show", "default": 8 },
+    { "type": "checkbox", "id": "show_view_all", "label": "Show the link", "default": true },
+    { "type": "text", "id": "view_all_label", "label": "Link label", "default": "See all" },
+
+    { "type": "header", "content": "The back of the card" },
+    { "type": "text", "id": "lbl_family", "label": "Family label", "default": "Family" },
+    { "type": "text", "id": "lbl_who", "label": "Who label", "default": "Made for" },
+    { "type": "text", "id": "lbl_mood", "label": "Mood label", "default": "Mood" },
+    { "type": "text", "id": "lbl_wear", "label": "Occasion label", "default": "Wear it" },
+    { "type": "text", "id": "lbl_like", "label": "Inspiration label", "default": "Close to" },
+    { "type": "text", "id": "word_him", "label": "Word for him", "default": "Him" },
+    { "type": "text", "id": "word_her", "label": "Word for her", "default": "Her" },
+    { "type": "text", "id": "word_uni", "label": "Word for unisex", "default": "Anyone" },
+    { "type": "text", "id": "buy_label", "label": "Tester button", "default": "Try 3ml" },
+    { "type": "text", "id": "open_label", "label": "Link under it", "default": "Full page" },
+    { "type": "range", "id": "lbl_w", "min": 40, "max": 80, "step": 2, "unit": "px", "label": "Label column width", "default": 52 },
+    { "type": "range", "id": "row_gap", "min": 2, "max": 12, "step": 1, "unit": "px", "label": "Gap between rows", "default": 6 },
+    { "type": "range", "id": "pad_back", "min": 8, "max": 24, "step": 1, "unit": "px", "label": "Padding on the back", "default": 13 },
+    { "type": "range", "id": "back_tint", "min": 4, "max": 40, "step": 2, "unit": "%", "label": "Colour strength on the back", "default": 14 },
+
+    { "type": "header", "content": "Family colours and marks" },
+    { "type": "color", "id": "t_fresh", "label": "Fresh and aquatic", "default": "#5E93AB" },
+    { "type": "text", "id": "gl_fresh", "label": "Fresh mark", "default": "◈" },
+    { "type": "color", "id": "t_floral", "label": "Floral and fruity", "default": "#B4707C" },
+    { "type": "text", "id": "gl_floral", "label": "Floral mark", "default": "❀" },
+    { "type": "color", "id": "t_woody", "label": "Woody and oud", "default": "#8A5F2E" },
+    { "type": "text", "id": "gl_woody", "label": "Woody mark", "default": "▲" },
+    { "type": "color", "id": "t_amber", "label": "Amber and sweet", "default": "#C08A46" },
+    { "type": "text", "id": "gl_amber", "label": "Amber mark", "default": "●" },
+    { "type": "color", "id": "t_default", "label": "Anything else", "default": "#9A9080" },
+    { "type": "text", "id": "gl_default", "label": "Default mark", "default": "◆" },
+    { "type": "range", "id": "mark", "min": 9, "max": 20, "step": 1, "unit": "px", "label": "Corner mark size", "default": 13 },
+
+    { "type": "header", "content": "Size and spacing" },
+    { "type": "select", "id": "ratio", "label": "Card shape", "default": "5/7",
+      "options": [ { "value": "2/3", "label": "Tall" }, { "value": "5/7", "label": "Playing card" }, { "value": "4/5", "label": "Softer" } ] },
+    { "type": "range", "id": "card_w", "min": 110, "max": 220, "step": 2, "unit": "px", "label": "Card width · mobile", "default": 150 },
+    { "type": "range", "id": "card_w_d", "min": 150, "max": 300, "step": 5, "unit": "px", "label": "Card width · desktop", "default": 210 },
+    { "type": "range", "id": "img_h", "min": 70, "max": 200, "step": 2, "unit": "px", "label": "Bottle height · mobile", "default": 126 },
+    { "type": "range", "id": "img_h_d", "min": 100, "max": 280, "step": 5, "unit": "px", "label": "Bottle height · desktop", "default": 175 },
+    { "type": "range", "id": "name", "min": 11, "max": 22, "step": 1, "unit": "px", "label": "Name size", "default": 14 },
+    { "type": "range", "id": "wash", "min": 0, "max": 40, "step": 2, "unit": "%", "label": "Colour behind the bottle", "default": 16 },
+    { "type": "range", "id": "radius", "min": 4, "max": 26, "step": 1, "unit": "px", "label": "Corner roundness", "default": 14 },
+    { "type": "range", "id": "gutter", "min": 8, "max": 40, "step": 2, "unit": "px", "label": "Side margin · mobile", "default": 16 },
+    { "type": "range", "id": "gap", "min": 6, "max": 32, "step": 2, "unit": "px", "label": "Gap between cards", "default": 10 },
+    { "type": "range", "id": "pad_top", "min": 0, "max": 70, "step": 2, "unit": "px", "label": "Top", "default": 22 },
+    { "type": "range", "id": "pad_bottom", "min": 0, "max": 70, "step": 2, "unit": "px", "label": "Bottom", "default": 12 },
+    { "type": "range", "id": "head_gap", "min": 4, "max": 30, "step": 1, "unit": "px", "label": "Space below heading", "default": 10 },
+    { "type": "range", "id": "deck_bottom", "min": 0, "max": 40, "step": 2, "unit": "px", "label": "Space below the deck", "default": 8 },
+    { "type": "range", "id": "h_size", "min": 16, "max": 40, "step": 1, "unit": "px", "label": "Heading size", "default": 22 },
+
+    { "type": "header", "content": "Colours" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#FFFFFF" },
+    { "type": "color", "id": "card", "label": "Card face", "default": "#FDFBF6" },
+    { "type": "color", "id": "line", "label": "Card border", "default": "#E5DFD1" },
+    { "type": "color", "id": "ink", "label": "Text", "default": "#1A1712" },
+    { "type": "color", "id": "soft", "label": "Muted text", "default": "#6E6656" },
+    { "type": "color", "id": "gold", "label": "Gold", "default": "#BE9A54" },
+    { "type": "color", "id": "link", "label": "Links", "default": "#A8873F" }
+  ],
+  "presets": [{ "name": "New drops — SYNOR" }]
+}
+{% endschema %}

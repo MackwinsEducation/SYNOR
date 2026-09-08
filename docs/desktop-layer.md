@@ -479,3 +479,48 @@ Audited and left alone: sa-promise (moves itself inside the info block),
 sa-trust, sa-urgency, sa-cert, sa-combo, sa-twins, sa-reviews, sa-indian-heat
 (the layout section handles each; §8's `.ht` was already scoped away from
 this page).
+
+## A real bug found on the way: New Drops cards swallowed their own clicks
+
+Reported as "New Drops — clicking Full page does nothing". It reproduced in
+a harness at **1440 and at 390**, so it was never a desktop-layer problem;
+`sections/sa-drops.liquid` had shipped this way.
+
+`.pk-front` and `.pk-back` are both `position:absolute; inset:0` inside a
+`transform-style: preserve-3d` card, with no depth between them — exactly
+coplanar. `backface-visibility: hidden` stops the turned-away face being
+**painted**, but it still won the **hit test**. `document.elementFromPoint`
+over the "Full page" link returned the FRONT face's `<small>` (the price
+line), which sits at the same height as the link on the back.
+
+Consequences, both confirmed by clicking in the harness:
+
+| | 1440 | 390 |
+| --- | --- | --- |
+| "Full page" link | dead | dead |
+| "Try 3ml" (add to cart) | worked | **dead** |
+
+So on phones the tester could not be added to the bag from this section at
+all. Two fixes were tested; both worked at both widths:
+
+- `translateZ(1px)` on each face — fixes the root cause by separating the
+  planes, but relies on 3D sorting, which is where engines differ most
+  (Safari/iOS especially).
+- **`pointer-events` on the hidden face** — chosen. Engine-independent, and
+  it moves nothing: the class that drives the turn (`.flip`) is the same
+  class that drives the hit-testing, so the two can never disagree.
+
+```css
+.pk-back{pointer-events:none}
+.pk-card.flip .pk-back{pointer-events:auto}
+.pk-card.flip .pk-front{pointer-events:none}
+```
+
+Also verified after the fix: clicking the front still turns the card, and
+clicking a neutral part of the back still turns it back.
+
+This is the first change in this branch that is **not** scoped to desktop —
+it is a bug fix in the section itself and had to reach phones too. It
+changes no pixel at any width. The edit was proven byte-safe the usual way
+(strip the addition, md5 back to the server's original 452deb77…), and the
+upload verified at 21631 / 063fab3b….
