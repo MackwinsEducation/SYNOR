@@ -421,3 +421,33 @@ copy's sa-desktop.css with an 8-byte placeholder. The md5-after-upload
 check caught it immediately and the full file was re-uploaded and verified
 (55580 bytes). The lesson stands: never send a themeFilesUpsert whose body
 you have not literally written out, and always compare checksums after.
+
+## The twine, resolved
+
+The merchant generated a rope-with-bow image from the prompt in this session.
+It was 1536×1024 (1.5:1) with the rope+bow occupying a 4.7:1 band — good
+artwork, wrong shape for the `cover` box, which needs the source to be wider
+than the box (≈11:1 at 1920×170) or it scales by width and the rope turns
+fat. Verified by rendering: `cover` gave a 50px rope with a cropped bow;
+`contain` kept the bow but did not reach the edges.
+
+So the wide source was built from the merchant's own image with Pillow: the
+bow region (x 452–1006) was kept pixel-for-pixel and centred on a 4800×326
+canvas, and the straight rope on either side was stretched horizontally to
+the edges. Result: 14.7:1, rope 38px thick in source → ~20px on screen at
+twine_d_h 170, bow intact. Rendered in the cover harness at 1440 and 1920:
+edge-to-edge rope, bow on the tear line, tails just over the paper; the
+§2b end-fade mask still applies on top and softens the two ends.
+
+It was uploaded to the store's Files through the Admin API
+(`stagedUploadsCreate` → POST to the staged target → `fileCreate`) as
+`SYNOR-twine-desktop.png` (MediaImage 45518046298407, 4800×326), and the
+work copy's `sections/footer-group.json` was upserted with
+`twine_d: shopify://shop_images/SYNOR-twine-desktop.png` and
+`twine_d_h: 170` (it had been pointing at the old 1536×1024 image at 80px).
+Verified by re-fetching: md5 b5573e0c22c62cc876bb841564a0ee06.
+
+Note on `size` for JSON theme files: Shopify stores section-group JSON
+compactly and returns it pretty-printed, so the reported size (5811) does
+not match the body it returns (~9.3KB). Do not use size/md5 to verify a
+transcription of a JSON template; verify the parsed values after upload.
