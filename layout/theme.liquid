@@ -21,6 +21,38 @@
     }
   }, true);
 </script>
+{% if customer %}
+<script>
+  /* SYNOR: live credit balance */
+  (function () {
+    var EP = 'https://script.google.com/macros/s/AKfycbyApNipsfqe6AKoLIkLxuxJO666Krx18nxe2ctX6CvopNCKCaOzROCXy_Ecu2M38xPC/exec';
+    var id  = '{{ customer.id }}';
+    var sig = '{{ customer.id | append: "synor-bal-9c41" | md5 }}';
+    var cb  = 'synorBal' + Date.now();
+
+    function paint(amt) {
+      var pill = document.querySelector('.sh-cb span');
+      if (pill) pill.innerHTML = '₹<b>' + amt + '</b> credit';
+      var slots = document.querySelectorAll('[data-synor-credit]');
+      for (var i = 0; i < slots.length; i++) slots[i].textContent = '₹' + amt;
+    }
+
+    window[cb] = function (d) {
+      if (!d || !d.ok || !(d.balance > 0)) return;
+      var amt = Math.round(d.balance * 100) / 100;
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { paint(amt); });
+      } else {
+        paint(amt);
+      }
+    };
+
+    var s = document.createElement('script');
+    s.src = EP + '?bal=' + encodeURIComponent(id) + '&sig=' + sig + '&cb=' + cb;
+    document.head.appendChild(s);
+  })();
+</script>
+{% endif %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -299,7 +331,7 @@
     {% endstyle %}
 
     {{ 'base.css' | asset_url | stylesheet_tag }}
-    {%- comment -%} SYNOR desktop layer — everything inside is scoped to min-width:1000px {%- endcomment -%}
+    {%- comment -%} SYNOR desktop layer — everything inside is scoped to min-width:900px {%- endcomment -%}
     {{ 'sa-desktop.css' | asset_url | stylesheet_tag }}
     <script src="{{ 'sa-desktop.js' | asset_url }}" defer="defer"></script>
     <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
@@ -343,7 +375,6 @@
       }
     </script>
   
-{% include 'store-credit-launcher' %}
 </head>
 
   <body class="gradient{% if settings.animations_hover_elements != 'none' %} animate--hover-{{ settings.animations_hover_elements }}{% endif %}">

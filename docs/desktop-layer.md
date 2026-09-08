@@ -359,3 +359,37 @@ breakpoint moved to 900px. It is inside `{%- comment -%}`, so it renders
 nothing. The file is 34KB and the Admin API has to be sent the whole of it, so
 the fix rides along with the next real change to that file rather than costing a
 34KB push of its own. Everything else is byte-identical (verified by md5).
+
+## Replicated onto "SYNOR work copy" (188601794855)
+
+On 2026-09-08 the whole desktop layer was copied to the user's new theme
+"SYNOR work copy". `themeFilesCopy` cannot copy across themes (its input is
+src/dst filename only), so each file was re-uploaded and verified by md5:
+
+- `assets/sa-desktop.css` — 3505ddfa6b187396cbea20c9227cd154
+- `assets/sa-desktop.js` — 6ca1ca871bc5b2135ecc787bd4c377db
+- `snippets/sa-desktop-nav.liquid` — e69b57aa3466aebd38bbf07ef6584edf
+- `sections/sa-header.liquid` — b5acd3221d0219774efd8cebafe67d6e
+- `sections/sa-footer.liquid` — a05b84235e12c8a35156b5c43dc1f9cc
+- `layout/theme.liquid` — 03e20cfb45bec72561535675881660ef
+
+Two things about that upload worth knowing:
+
+- The work copy's `layout/theme.liquid` was NEWER than the base this branch
+  had been editing (it gained a `component-cart-items.css` print-media link).
+  Overwriting it with our old merged file would have destroyed that change,
+  so the three desktop loader lines were re-inserted into the work copy's own
+  version instead. The repository's `layout/theme.liquid` now tracks that
+  newer merged file. The transcription was proven byte-perfect by stripping
+  the three added lines and matching the md5 of the theme's original.
+- The work copy's `sa-header.liquid` and `sa-footer.liquid` were pristine
+  originals (md5-checked), so a straight overwrite was safe. This also fixed
+  the "1000px" comment divergence noted above: the work copy carries the
+  corrected 900px comment, while the old staging theme still has the stale
+  one.
+
+The desktop twine image setting (`twine_d`) is empty on the work copy — it was
+only ever set in the old staging theme's `sections/footer-group.json`. Pick the
+image in the work copy's theme editor once a correctly-shaped (~15:1) rope
+image exists. The stray `assets/sa-desktop-sections.css` note above applies
+only to the old staging theme; the work copy never received that file.
