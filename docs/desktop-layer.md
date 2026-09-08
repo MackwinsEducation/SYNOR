@@ -451,3 +451,31 @@ Note on `size` for JSON theme files: Shopify stores section-group JSON
 compactly and returns it pretty-printed, so the reported size (5811) does
 not match the body it returns (~9.3KB). Do not use size/md5 to verify a
 transcription of a JSON template; verify the parsed values after upload.
+
+## Product page, finalised (section 10 of the CSS)
+
+`sections/sa-desktop.liquid` already lays the whole page out for a desktop:
+sticky gallery with vertical thumbnails beside the info column, then every
+lower section at a 1400px measure with its own grid (urgency 2-up, journey
+stage-beside-timeline, composition list-beside-description, trust row,
+combo 3-up, reviews summary-beside-list, FAQ 2-column, heat, twins
+auto-fit). Two things were wrong around it:
+
+- **The drawers hid the desktop layouts.** `sa-drawers` pulls the journey,
+  the composition and the certificate into a 560px accordion that the
+  layout section never sizes, so each of those grids opened inside ~524px
+  and collapsed. §10 gives the drawer box the page's 1400px measure and
+  desktop-sized rows (16px titles, 40px icon tiles). Verified in a harness:
+  at 1440 the journey's stage and timeline sit side by side inside the open
+  drawer; at 390 the box is the phone's 560px/12.5px unchanged.
+- **§8's FAQ rules leaked onto the product page.** The same `faq` section is
+  used on content pages (a 430px column, which §8 widens to 760px) and on
+  the product page (which the layout section already makes a 2-column grid
+  at 1400px). `body [id^='fq-']` outranked `html.sy-pdp .fq-in` and would
+  have squeezed the product FAQ to 760px, so the §8 FAQ rules are now scoped
+  `html:not(.sy-pdp)`.
+
+Audited and left alone: sa-promise (moves itself inside the info block),
+sa-trust, sa-urgency, sa-cert, sa-combo, sa-twins, sa-reviews, sa-indian-heat
+(the layout section handles each; §8's `.ht` was already scoped away from
+this page).

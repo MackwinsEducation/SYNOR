@@ -1762,21 +1762,24 @@
     font-size: 13px !important;
   }
 
-  /* ── FAQ (faq): a 430px phone column, given a reading measure ── */
-  body [id^='fq-'] .fq-in {
+  /* ── FAQ (faq): a 430px phone column, given a reading measure ──
+     Not on the product page: there `sections/sa-desktop.liquid` already lays
+     the same section out as a two-column grid at 1400px (`html.sy-pdp .fq-in`),
+     and these would outrank it and squeeze that grid into 760px. */
+  html:not(.sy-pdp) body [id^='fq-'] .fq-in {
     max-width: 760px !important;
   }
 
-  body [id^='fq-'] .fq-ttl {
+  html:not(.sy-pdp) body [id^='fq-'] .fq-ttl {
     font-size: 36px !important;
     margin-bottom: 18px !important;
   }
 
-  body [id^='fq-'] .fq-q {
+  html:not(.sy-pdp) body [id^='fq-'] .fq-q {
     font-size: 19px !important;
   }
 
-  body [id^='fq-'] .fq-hd {
+  html:not(.sy-pdp) body [id^='fq-'] .fq-hd {
     padding-left: 16px !important;
     padding-right: 16px !important;
   }
@@ -2013,5 +2016,77 @@
 
   body [id^='shopify-section-'] .sacard:hover .sapic img {
     transform: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   10. PRODUCT PAGE — the drawers (sa-drawers)
+
+   `sections/sa-desktop.liquid` lays the product page out for a desktop and
+   gives every lower section a 1400px measure and a grid: the scent journey
+   is stage-beside-timeline, the composition is list-beside-description,
+   the certificate has its own 860px card. But on this page those three
+   sections are pulled INTO the drawers section ("Ingredient poetry", "The
+   composition", "Certificate of composition") by its JS, and the drawer box
+   is a 560px phone accordion that the layout section never touches. So on
+   a desktop each of those grids opens inside ~524px and collapses to one
+   squeezed column — the desktop layout exists but never gets room.
+
+   The drawer keeps its job (a short page, one thing open at a time) and is
+   simply given the page's content width, with rows sized for the distance
+   a desktop reader sits at. The drawer's own sheet is id-scoped
+   (`#dw-<id>`), hence !important. Scoped to `html.sy-pdp`, which the layout
+   section sets only on the product page at desktop.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media screen and (min-width: 900px) {
+  html.sy-pdp .dw {
+    max-width: 1400px !important;
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+  }
+
+  html.sy-pdp .dw-lab span {
+    font-size: 11px !important;
+  }
+
+  html.sy-pdp .dw-lab em {
+    font-size: 10px !important;
+  }
+
+  html.sy-pdp .dw-hd {
+    padding: 18px 26px !important;
+    gap: 16px !important;
+  }
+
+  html.sy-pdp .dw-ic {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 12px !important;
+  }
+
+  html.sy-pdp .dw-ic svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  html.sy-pdp .dw-tx b {
+    font-size: 16px !important;
+  }
+
+  html.sy-pdp .dw-tx em {
+    font-size: 12.5px !important;
+  }
+
+  html.sy-pdp .dw-ar {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  /* The sections inside already carry the page's 40px gutters from the
+     layout section; inside a bordered box that reads as the box's own
+     padding, so nothing more is added here. */
+  html.sy-pdp .dw-pad {
+    padding-bottom: 8px !important;
   }
 }
