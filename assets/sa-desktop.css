@@ -1239,3 +1239,601 @@
     padding: 10px 12px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   8. The content pages
+
+      Try-before-you-buy, Golden Scent Pass, the scent quiz, Contact, the
+      404 and the collections hub. Audited section by section; the verdicts
+      are in docs/desktop-layer.md. Most of them (sa-hero, sa-promises,
+      sa-story, the about-* set, the collections hub, search) already carry a
+      desktop layout and are left alone.
+
+      The ones below do not. They come in two kinds:
+
+      - a 560px phone card with no media query at all — the two calculators,
+        the price-gap chart, the quiz stage, the closing block. On a desktop
+        they sit as a narrow strip down the middle of the screen.
+      - a 430–640px column that steps to two columns at 750px and stops
+        there — the four scent families, the four "try first" steps, the FAQ,
+        the heat comparison, Contact. Four short cards in a 2×2 inside 640px,
+        on a 1440px screen, is a phone layout with more margin.
+
+      Each gets the shape a desktop wants: side-by-side where there are two
+      things (a stepper and its result; a chart and its legend; a message and
+      a form), four across where there are four, and a proper reading measure
+      where there is text.
+
+      Everything is `!important`: every one of these sheets is emitted inline
+      after this file, and most are id-scoped (see the note at the top).
+      Sections that could plausibly appear on the homepage are matched on
+      their own class alone; `.ht` is scoped to page templates because the
+      product page's desktop layout uses the same class for something else.
+   -------------------------------------------------------------------------- */
+
+@media screen and (min-width: 900px) {
+  /* ── Price gap (sa-price-gap): the chart and its legend, side by side ── */
+  body .sa-gap__in {
+    max-width: 960px !important;
+    display: grid !important;
+    grid-template-columns: 320px minmax(0, 1fr);
+    column-gap: 56px;
+    align-items: center;
+  }
+
+  body .sa-gap__head {
+    grid-column: 1 / -1;
+    max-width: 640px;
+    margin: 0 auto 36px !important;
+  }
+
+  body .sa-gap__sub {
+    font-size: 16px !important;
+  }
+
+  body .sa-gap__donut-wrap {
+    grid-column: 1;
+    margin: 0 !important;
+  }
+
+  body .sa-gap__donut {
+    width: 300px !important;
+    height: 300px !important;
+  }
+
+  body .sa-gap__hole {
+    inset: 56px !important;
+  }
+
+  body .sa-gap__hole b {
+    font-size: 60px !important;
+  }
+
+  body .sa-gap__hole small {
+    font-size: 11px !important;
+  }
+
+  body .sa-gap__legend {
+    grid-column: 2;
+    margin: 0 !important;
+    gap: 14px !important;
+  }
+
+  body .sa-gap__row {
+    font-size: 15.5px !important;
+    gap: 14px !important;
+  }
+
+  body .sa-gap__row i {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  body .sa-gap__row b {
+    font-size: 20px !important;
+  }
+
+  body .sa-gap__quote {
+    grid-column: 1 / -1;
+    margin: 44px 0 20px !important;
+    font-size: 26px !important;
+    max-width: 34ch;
+    padding-left: 26px !important;
+  }
+
+  body .sa-gap__closing {
+    grid-column: 1 / -1;
+    font-size: 16px !important;
+    max-width: 62ch;
+  }
+
+  body .sa-gap__btn {
+    grid-column: 1 / -1;
+    justify-self: start;
+    padding: 16px 36px !important;
+  }
+
+  /* ── Tester calculator (sa-tester-calc): the stepper beside its answer ── */
+  body [id^='shopify-section-'] .tcc__in {
+    max-width: 920px !important;
+  }
+
+  body [id^='shopify-section-'] .tcc__head {
+    max-width: 640px;
+    margin: 0 auto 30px !important;
+  }
+
+  body [id^='shopify-section-'] .tcc__sub {
+    font-size: 16px !important;
+    max-width: 46ch !important;
+  }
+
+  body [id^='shopify-section-'] .tcc__card {
+    display: grid !important;
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+
+  body [id^='shopify-section-'] .tcc__top {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 36px 26px !important;
+    border-bottom: 0 !important;
+    border-right: 1px solid rgba(42, 38, 32, 0.08);
+  }
+
+  body [id^='shopify-section-'] .tcc__val b {
+    font-size: 58px !important;
+  }
+
+  body [id^='shopify-section-'] .tcc__flow {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 26px 26px 6px !important;
+    gap: 10px !important;
+  }
+
+  body [id^='shopify-section-'] .tcc__f {
+    padding: 16px 18px !important;
+  }
+
+  body [id^='shopify-section-'] .tcc__ft b {
+    font-size: 15px !important;
+  }
+
+  body [id^='shopify-section-'] .tcc__ft small {
+    font-size: 13px !important;
+  }
+
+  body [id^='shopify-section-'] .tcc__punch {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 10px 26px 26px !important;
+  }
+
+  /* ── Golden Pass calculator (sa-pass-calc): same shape ── */
+  body [id^='shopify-section-'] .gpc__in {
+    max-width: 920px !important;
+  }
+
+  body [id^='shopify-section-'] .gpc__head {
+    max-width: 640px;
+    margin: 0 auto 30px !important;
+  }
+
+  body [id^='shopify-section-'] .gpc__sub {
+    font-size: 16px !important;
+    max-width: 46ch !important;
+  }
+
+  body [id^='shopify-section-'] .gpc__card {
+    display: grid !important;
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+
+  body [id^='shopify-section-'] .gpc__top {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 36px 26px !important;
+    border-bottom: 0 !important;
+    border-right: 1px solid rgba(42, 38, 32, 0.08);
+  }
+
+  /* "₹1,500" at this size is wider than the phone's 110px slot and ran into
+     the + button. */
+  body [id^='shopify-section-'] .gpc__val {
+    min-width: 176px !important;
+  }
+
+  body [id^='shopify-section-'] .gpc__val b {
+    font-size: 44px !important;
+  }
+
+  body [id^='shopify-section-'] .gpc__rows {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 22px 28px 6px !important;
+  }
+
+  body [id^='shopify-section-'] .gpc__row {
+    font-size: 14.5px !important;
+  }
+
+  body [id^='shopify-section-'] .gpc__row b {
+    font-size: 22px !important;
+  }
+
+  body [id^='shopify-section-'] .gpc__verdict {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 12px 28px 0 !important;
+  }
+
+  body [id^='shopify-section-'] .gpc__verdict span {
+    font-size: 13px !important;
+    max-width: 24ch !important;
+  }
+
+  body [id^='shopify-section-'] .gpc__note {
+    grid-column: 2;
+    grid-row: 3;
+    padding: 16px 28px 24px !important;
+  }
+
+  /* ── The scent quiz (sa-quiz): a wider stage, answers two-up ── */
+  body [id^='shopify-section-'] .sq__stage {
+    max-width: 780px !important;
+    padding: 88px 32px 96px !important;
+  }
+
+  body [id^='shopify-section-'] .sq__h1 {
+    font-size: 54px !important;
+  }
+
+  body [id^='shopify-section-'] .sq__q {
+    font-size: 40px !important;
+    margin-bottom: 30px !important;
+  }
+
+  body [id^='shopify-section-'] .sq__lead {
+    font-size: 17px !important;
+    max-width: 44ch !important;
+  }
+
+  body [id^='shopify-section-'] .sq__opts {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 14px !important;
+  }
+
+  body [id^='shopify-section-'] .sq__opt {
+    padding: 22px 24px !important;
+    font-size: 16px !important;
+    min-height: 88px;
+  }
+
+  body [id^='shopify-section-'] .sq__note {
+    font-size: 13px !important;
+  }
+
+  /* ── Closing (sa-closing): the community card beside the newsletter ── */
+  body [id^='shopify-section-'] .sy-close__in {
+    max-width: 1040px !important;
+    display: grid !important;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 36px;
+    align-items: stretch;
+  }
+
+  body [id^='shopify-section-'] .sy-close__gift {
+    grid-column: 1 / -1;
+    margin-bottom: 0 !important;
+    min-height: 320px !important;
+  }
+
+  body [id^='shopify-section-'] .sy-close__comm {
+    margin-bottom: 0 !important;
+    padding: 52px 44px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  body [id^='shopify-section-'] .sy-close__comm h2 {
+    font-size: 36px !important;
+  }
+
+  body [id^='shopify-section-'] .sy-close__comm p {
+    font-size: 15px !important;
+    max-width: 36ch !important;
+  }
+
+  body [id^='shopify-section-'] .sy-close__news {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 24px 12px !important;
+  }
+
+  body [id^='shopify-section-'] .sy-close__news h3 {
+    font-size: 34px !important;
+  }
+
+  body [id^='shopify-section-'] .sy-close__news p {
+    font-size: 15px !important;
+  }
+
+  body [id^='shopify-section-'] .sy-close__form {
+    max-width: 440px !important;
+  }
+
+  /* ── Try first (sa-try-first): four steps in a row ── */
+  body .sa-tryfirst__inner {
+    max-width: 1080px !important;
+  }
+
+  body .sa-tryfirst__head {
+    max-width: 640px;
+    margin: 0 auto 30px !important;
+  }
+
+  body .sa-tryfirst__sub {
+    font-size: 16px !important;
+  }
+
+  body .sa-tryfirst__steps {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+    margin-bottom: 30px !important;
+  }
+
+  body .sa-tryfirst__step {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    padding: 24px 22px !important;
+  }
+
+  body .sa-tryfirst__num {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 14px !important;
+  }
+
+  body .sa-tryfirst__tx b {
+    font-size: 16.5px !important;
+  }
+
+  body .sa-tryfirst__tx small {
+    font-size: 13.5px !important;
+  }
+
+  body .sa-tryfirst__amt {
+    font-size: 22px !important;
+    margin-top: auto;
+  }
+
+  body .sa-tryfirst__punch {
+    font-size: 22px !important;
+  }
+
+  body .sa-tryfirst__form {
+    text-align: center;
+  }
+
+  body .sa-tryfirst__btn {
+    display: inline-block !important;
+    width: auto !important;
+    padding: 16px 40px !important;
+  }
+
+  /* ── Scent families (sa-scent-families): four across ── */
+  body .sa-fam__in {
+    max-width: 1080px !important;
+  }
+
+  body .sa-fam__head {
+    max-width: 640px;
+    margin: 0 auto 30px !important;
+  }
+
+  body .sa-fam__sub {
+    font-size: 16px !important;
+  }
+
+  body .sa-fam__grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  body .sa-fam__card {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    padding: 24px 22px !important;
+  }
+
+  body .sa-fam__swatch {
+    width: 54px !important;
+    height: 54px !important;
+    border-radius: 16px !important;
+  }
+
+  body .sa-fam__tx b {
+    font-size: 19px !important;
+  }
+
+  body .sa-fam__tx small {
+    font-size: 13.5px !important;
+  }
+
+  body .sa-fam__n {
+    margin-top: auto;
+    font-size: 13px !important;
+  }
+
+  /* ── FAQ (faq): a 430px phone column, given a reading measure ── */
+  body [id^='fq-'] .fq-in {
+    max-width: 760px !important;
+  }
+
+  body [id^='fq-'] .fq-ttl {
+    font-size: 36px !important;
+    margin-bottom: 18px !important;
+  }
+
+  body [id^='fq-'] .fq-q {
+    font-size: 19px !important;
+  }
+
+  body [id^='fq-'] .fq-hd {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* ── Indian heat (sa-indian-heat): 430px column, phone type — scaled ──
+     `.ht` is scoped to page templates: the product page's own desktop layout
+     uses the same class name for its "how it lasts" block. */
+  main[data-template='page'] [id^='shopify-section-'] .ht {
+    max-width: 760px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-ttl {
+    font-size: 34px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-sub {
+    font-size: 15px !important;
+    margin-bottom: 20px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-card {
+    padding: 24px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-hd b {
+    font-size: 10px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-hd i {
+    font-size: 11px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-sw {
+    height: 40px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-sun b {
+    font-size: 17px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-lanes {
+    gap: 18px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-nm {
+    font-size: 14px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-hr {
+    font-size: 22px !important;
+  }
+
+  main[data-template='page'] [id^='shopify-section-'] .ht-cl {
+    font-size: 15px !important;
+  }
+
+  /* ── Contact (sa-contact): the ways to reach us beside the form ──
+     One 640px column on a phone: heading, three ways, a promise, then the
+     form, then quick answers and the address. On a desktop the form takes
+     the right-hand column and follows the page; everything else stays left. */
+  body [id^='ct-'] .ct-in {
+    max-width: 1080px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 460px;
+    column-gap: 56px;
+    align-items: start;
+  }
+
+  body [id^='ct-'] .ct-in > * {
+    grid-column: 1;
+  }
+
+  body [id^='ct-'] .ct-form {
+    grid-column: 2;
+    grid-row: 1 / span 9;
+    position: sticky;
+    top: 124px;
+    margin-top: 0 !important;
+  }
+
+  body [id^='ct-'] .ct-say {
+    font-size: 16px !important;
+    max-width: 50ch !important;
+  }
+
+  /* The section's own `auto-fit, 240px` put the three ways two-up inside a
+     ~520px column and truncated their notes; one per row reads better here. */
+  body [id^='ct-'] .ct-ways {
+    grid-template-columns: 1fr !important;
+  }
+
+  body [id^='ct-'] .ct-way {
+    padding: 16px 18px !important;
+  }
+
+  body [id^='ct-'] .ct-tx b {
+    font-size: 15px !important;
+  }
+
+  body [id^='ct-'] .ct-tx em {
+    font-size: 12.5px !important;
+  }
+
+  /* ── 404 (sa-404): two link columns need more than 560px ── */
+  body [id^='nf-'] .nf-in {
+    max-width: 760px !important;
+  }
+
+  body [id^='nf-'] .nf-say {
+    font-size: 16px !important;
+    max-width: 46ch !important;
+  }
+
+  body [id^='nf-'] .nf-links {
+    gap: 10px !important;
+  }
+
+  body [id^='nf-'] .nf-links a {
+    padding: 16px 18px !important;
+  }
+
+  body [id^='nf-'] .nf-links b {
+    font-size: 15px !important;
+  }
+
+  body [id^='nf-'] .nf-links em {
+    font-size: 12.5px !important;
+  }
+
+  body [id^='nf-'] .nf-hook {
+    padding: 22px 24px !important;
+  }
+
+  body [id^='nf-'] .nf-htx b {
+    font-size: 15px !important;
+  }
+
+  body [id^='nf-'] .nf-htx em {
+    font-size: 12.5px !important;
+  }
+
+  /* ── Discovery set (discovery-set): `max-width: 90%` is 1728px at 1920 ── */
+  body .discovery-wrapper {
+    max-width: 1200px !important;
+  }
+}

@@ -287,7 +287,38 @@ Measured at 1440 / 1280 / 1200 / 1100 / 1024 / 900 / 390px: no horizontal
 overflow, no truncated product name, no clipped row, and the mobile page is
 byte-for-byte what it was.
 
-The content pages, search and the account pages are next.
+## The content pages
+
+Try-before-you-buy, Golden Scent Pass, the scent quiz, Contact, the 404 and
+the collections hub — 20 sections audited. Verdicts:
+
+| Section | Verdict |
+| --- | --- |
+| `sa-hero`, `sa-promises`, `sa-story`, `about-hero`, `about-story`, `thoughtful-commitments`, `about-stats`, `about-cta`, `sa-collections-hub`, `sa-search`, `main-page` | Already carry a desktop layout (1000–1200px containers, real grids, a 900px tier). **No change.** |
+| `sa-price-gap` | 560px phone card, no media query. **Chart beside its legend** in a 960px grid; quote and closing run under both. |
+| `sa-tester-calc`, `sa-pass-calc` | 560px phone cards. **The stepper beside its answer**: the card becomes a 300px + 1fr grid, the stepper panel spans every row on the left, the flow / rows / verdict stack on the right. |
+| `sa-quiz` | 560px stage. 780px, question at 40px, **answers two-up**. |
+| `sa-closing` | 560px stack. **Community card beside the newsletter** in a 1040px grid. |
+| `sa-try-first`, `sa-scent-families` | 640px, 2×2 from 750px. **Four across** in a 1080px container, cards turned vertical (number / swatch on top, amount / count pinned to the bottom). |
+| `faq`, `sa-indian-heat` | `max_w` defaults to **430px** — a phone column on every desktop. 760px reading measure, and the heat block's 7.5–10.5px type scaled to something legible. |
+| `sa-contact` | One 640px column: heading, ways, promise, form, quick answers, address. **Form in a 460px right column, sticky**; everything else left. The section's own `auto-fit, 240px` ways grid is collapsed to one per row inside that column. |
+| `sa-404` | 560px. 760px so the two link columns breathe; type up. |
+| `discovery-set` | `max-width: 90%` = 1728px at 1920. Capped at 1200px. |
+
+Verified in a harness built from each section's real stylesheet (Liquid values
+substituted) at 1440 / 1024 / 900 / 390: the chart sits beside the legend, the
+stepper beside its flow, steps and families on one row, quiz answers on two,
+community beside newsletter, form beside the ways; no horizontal overflow at
+any width, and 390 is identical to before.
+
+Everything in this section is `!important` — every one of these sheets is
+emitted inline after the layer, most id-scoped. Sections that could plausibly
+be placed on the homepage are matched on their own class alone; `.ht` is scoped
+to `main[data-template='page']` because the product page's desktop layout uses
+the same class for something else.
+
+Still to look at: the account pages, blog and article (Dawn's own sections,
+probably fine), and the cart's line-item card skin.
 
 ### A stray file
 
