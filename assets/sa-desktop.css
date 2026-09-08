@@ -668,6 +668,13 @@
 @media screen and (min-width: 900px) {
   body [id^='shopify-section-'] .ft .twine {
     width: clamp(420px, 42vw, 700px) !important;
+    /* The artwork's rope ends are cut flat. On a phone those cuts sit at the
+       screen edges and read as intended; at this size they float mid-air and
+       read as a pasted-on picture. Fading the last stretch of each tail into
+       the paper makes it a rope sinking into the parcel instead. The seal is
+       a separate element (.stamp), so it keeps its full strength. */
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16%, #000 84%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 16%, #000 84%, transparent 100%);
   }
 
   body [id^='shopify-section-'] .ft .note {
