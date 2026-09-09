@@ -314,6 +314,7 @@
 
   var CFG = {
     rate      : {{ rate }},
+    freeAt    : {{ s.free_at | default: 299 }},
     cur       : {{ s.currency | default: '₹' | json }},
     onWord    : {{ s.add_on_text | default: '✓ Added' | json }},
     offWord   : {{ s.add_text | default: '+ ₹49' | json }},
@@ -495,7 +496,7 @@
       order has crossed the shop's real free-delivery line, which is the only
       threshold on this page that actually exists.
     {%- endcomment -%}
-    var full = WK ? (tot >= WK.freeAt && picks.length > 0) : false;
+    var full = picks.length > 0 && tot >= (WK ? WK.freeAt : CFG.freeAt);
     bar.className = 'stbar' + (full ? ' done' : '') + (picks.length ? '' : ' empty')
                   + (busy ? ' busy' : '') + (bar.classList.contains('down') ? ' down' : '');
 
@@ -657,6 +658,8 @@
     { "type": "range", "id": "rate", "min": 9, "max": 199, "step": 2, "unit": "₹", "label": "Price of one tester", "default": 49,
       "info": "Used for the running total. Keep it the same as in the box." },
     { "type": "text", "id": "currency", "label": "Currency mark", "default": "₹" },
+    { "type": "range", "id": "free_at", "min": 0, "max": 999, "step": 1, "unit": "₹", "label": "Free delivery over", "default": 299,
+      "info": "What the bar has to pass before it turns gold. The discovery box carries this figure too and wins when it is on the page; this is what the bar falls back on when it is not." },
 
     { "type": "header", "content": "The bar at the bottom" },
     { "type": "text", "id": "bar_empty", "label": "Empty · line 1", "default": "Your tray is empty" },
