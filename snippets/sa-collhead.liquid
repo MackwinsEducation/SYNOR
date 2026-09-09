@@ -71,16 +71,28 @@
     <h2>{{ collection.title | default: s.fallback_title }}</h2>
     {%- if s.show_desc and collection.description != blank -%}
       {%- comment -%}
-        Two lines, then a toggle. This used to be truncate: 150, which on a phone
-        is five lines that end mid-word and push the products off the screen.
-        The clamp is CSS, so the whole text is in the page for search engines and
-        for anyone reading with the styles off; the checkbox opens it.
-        Anything short enough to fit inside the clamp is rendered plainly — a
-        "More" that reveals nothing is worse than no "More" at all. 90 characters
-        is about two lines at 13px in this column.
+        strip_html deletes a tag and puts nothing in its place, so a description
+        written as "captivating.<br>This collection" came out as
+        "captivating.This collection" — two sentences run together. Every tag
+        that means a break is turned into a space before the tags are stripped,
+        then the runs of space that leaves are collapsed back to one.
+
+        Two lines, then a toggle. This used to be truncate: 150, which on a
+        phone is five lines that end mid-word and push the products off the
+        screen. The clamp is CSS, so the whole text is in the page for search
+        engines and for anyone reading with the styles off; the checkbox opens
+        it. Anything short enough to fit inside the clamp is rendered plainly —
+        a "More" that reveals nothing is worse than no "More" at all. 90
+        characters is about two lines at 13px in this column.
       {%- endcomment -%}
       {%- liquid
-        assign dtext = collection.description | strip_html | strip | truncate: 600
+        assign dtext = collection.description
+        assign dtext = dtext | replace: '<br>', ' ' | replace: '<br/>', ' ' | replace: '<br />', ' '
+        assign dtext = dtext | replace: '</p>', ' ' | replace: '</div>', ' ' | replace: '</li>', ' '
+        assign dtext = dtext | strip_html | replace: '&nbsp;', ' ' | replace: ' ', ' '
+        assign dtext = dtext | strip_newlines
+        assign dtext = dtext | replace: '  ', ' ' | replace: '  ', ' ' | replace: '  ', ' '
+        assign dtext = dtext | strip | truncate: 600
         assign dlen = dtext | size
       -%}
       {%- if dlen > 90 -%}
