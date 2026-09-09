@@ -50,6 +50,26 @@
 #shopify-section-{{ sid }} .sagt-t:not(.on){color:{{ s.c_soft }}}
 #shopify-section-{{ sid }} .sagt-t:not(.on) .sagt-c .fp{opacity:.55}
 
+{%- comment -%}
+  The collection description: two lines on a phone, three from 900, with a
+  toggle under it. The clamp is CSS only, so the full text stays in the markup;
+  the checkbox is off-screen but still focusable, and the label carries real
+  words rather than ::after content so a screen reader announces the state.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .sahd .sasub-t{position:absolute;width:1px;height:1px;opacity:0;margin:0;pointer-events:none}
+#shopify-section-{{ sid }} .sahd .sasub-clamp{display:-webkit-box;-webkit-box-orient:vertical;
+  -webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+#shopify-section-{{ sid }} .sahd .sasub-t:checked ~ .sasub-clamp{display:block;overflow:visible}
+#shopify-section-{{ sid }} .sahd .sasub-m{display:inline-block;margin-top:6px;cursor:pointer;
+  font-size:{{ s.cnt_size }}px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
+  color:var(--hacc);padding-bottom:1px;
+  border-bottom:1px solid color-mix(in srgb,var(--hacc) 40%,transparent);
+  -webkit-tap-highlight-color:transparent}
+#shopify-section-{{ sid }} .sahd .sasub-less{display:none}
+#shopify-section-{{ sid }} .sahd .sasub-t:checked ~ .sasub-m .sasub-more{display:none}
+#shopify-section-{{ sid }} .sahd .sasub-t:checked ~ .sasub-m .sasub-less{display:inline}
+#shopify-section-{{ sid }} .sahd .sasub-t:focus-visible ~ .sasub-m{outline:2px solid var(--hacc);outline-offset:3px}
+
 @supports not (background: color-mix(in srgb,red 20%,blue)){
   #shopify-section-{{ sid }} .sahd{background:{{ s.c_page }}}
   #shopify-section-{{ sid }} .sahd .sacnt{border-color:{{ s.c_gold2 }}}
@@ -58,6 +78,7 @@
   #shopify-section-{{ sid }} .sahd{padding-top:{{ s.head_pad_y | plus: 14 }}px;
     padding-bottom:{{ s.head_pad_y | plus: 6 }}px}
   #shopify-section-{{ sid }} .sahd h2{font-size:{{ s.h_size | plus: 10 }}px}
+  #shopify-section-{{ sid }} .sahd .sasub-clamp{-webkit-line-clamp:3;line-clamp:3}
   #shopify-section-{{ sid }} .sahwm{font-size:{{ s.wm_head_size | plus: 28 }}px}
 }
 </style>
