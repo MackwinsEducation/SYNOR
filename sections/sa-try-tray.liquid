@@ -1,0 +1,769 @@
+{%- comment -%}
+  ══════════════════════════════════════════════════════════════════════
+  SYNOR · TRY · floor 3 — the tray, and the brain
+  ══════════════════════════════════════════════════════════════════════
+  Fifty fragrances, all the same size, all the same price. Because there
+  is no size to choose and no price to compare, the card can lose almost
+  everything a collection card carries - the size rail, the range, the
+  figure - and what is left is a small bottle you can pick up. Three to a
+  row instead of two means fifteen scents on a screen instead of four,
+  and that is what makes this page feel like a counter rather than a
+  catalogue.
+
+  The same tile also knows how to be a full card: the switch at the top
+  right does not reload or refetch anything, it changes one class on the
+  grid and the tile shows its other half. Both halves are printed by
+  Liquid at page load, so the images are server-rendered either way.
+
+  This section is also the brain for all three floors. It renders LAST,
+  so it can see the box above it; the box could never see the tray. That
+  is the rule this page is built on and the reason none of the behaviour
+  lives up there.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+{%- assign sid = section.id -%}
+
+{%- assign gold  = s.gold  | default: '#C8994B' -%}
+{%- assign ink   = s.ink   | default: '#1A1712' -%}
+{%- assign soft  = s.soft  | default: '#6E6656' -%}
+{%- assign faint = s.faint | default: '#A9A08E' -%}
+{%- assign line  = s.line  | default: '#E5DFD1' -%}
+{%- assign rate  = s.rate  | default: 49 -%}
+
+{%- comment -%}
+  Family palette, the same four as the collection card. The ORDER matters:
+  32 of the 50 testers carry more than one family tag, and the first match
+  in this list is the one the card shows and takes its colour from. woody-oud
+  sat second and so won 15 times, though only 5 of these scents are actually
+  oud - on the rest it is the base note, tagged alongside the family that
+  really describes them. Last is where a base note belongs.
+{%- endcomment -%}
+{%- assign fam_keys = 'fresh-aquatic,amber-sweet,floral-fruity,woody-oud' | split: ',' -%}
+
+<style>
+#shopify-section-{{ sid }}{background:{{ s.bg | default: '#FFFDF8' }}}
+
+{%- comment -%} ── the row with the switch ── {%- endcomment -%}
+#shopify-section-{{ sid }} .stv{display:flex;align-items:center;gap:8px;
+  padding:{{ s.vrow_t | default: 13 }}px {{ s.pad_x | default: 12 }}px 2px}
+#shopify-section-{{ sid }} .stv .cn{font-size:{{ s.vrow_size | default: 9 }}px;letter-spacing:.2em;
+  text-transform:uppercase;color:{{ faint }};font-weight:600}
+#shopify-section-{{ sid }} .stsw{margin-left:auto;display:flex;border:1px solid {{ line }};
+  border-radius:8px;overflow:hidden;background:#fff}
+#shopify-section-{{ sid }} .stsw button{appearance:none;border:0;background:none;
+  padding:5px 11px;font:inherit;font-size:12px;color:{{ soft }};cursor:pointer;
+  display:flex;align-items:center;-webkit-tap-highlight-color:transparent}
+#shopify-section-{{ sid }} .stsw button + button{border-left:1px solid {{ line }}}
+#shopify-section-{{ sid }} .stsw button.on{background:{{ ink }};color:{{ s.bg | default: '#FFFDF8' }}}
+
+{%- comment -%} ── the grid, two shapes of the same tile ── {%- endcomment -%}
+#shopify-section-{{ sid }} .sttray{display:grid;gap:{{ s.gap | default: 8 }}px;
+  padding:{{ s.grid_t | default: 10 }}px {{ s.pad_x | default: 12 }}px {{ s.grid_b | default: 16 }}px}
+#shopify-section-{{ sid }} .sttray.v{grid-template-columns:repeat({{ s.cols_v | default: 3 }},1fr)}
+#shopify-section-{{ sid }} .sttray.c{grid-template-columns:repeat({{ s.cols_c | default: 2 }},1fr);
+  gap:{{ s.gap_c | default: 10 }}px}
+
+#shopify-section-{{ sid }} .sttile{position:relative;background:{{ s.card | default: '#FFFFFF' }};
+  border-radius:{{ s.radius | default: 11 }}px;overflow:hidden;cursor:pointer;
+  box-shadow:0 1px 0 {{ ink | color_modify: 'alpha', 0.05 }},
+             0 0 0 1px {{ ink | color_modify: 'alpha', 0.055 }};
+  transition:transform .16s ease;-webkit-tap-highlight-color:transparent}
+#shopify-section-{{ sid }} .sttile:active{transform:scale(.965)}
+#shopify-section-{{ sid }} .sttile.on:before{content:"";position:absolute;inset:0;
+  border-radius:{{ s.radius | default: 11 }}px;pointer-events:none;z-index:4;
+  box-shadow:inset 0 0 0 {{ s.on_ring | default: 1.5 }}px {{ gold }}}
+
+#shopify-section-{{ sid }} .sttile .im{position:relative;display:flex;align-items:flex-end;
+  justify-content:center;overflow:hidden;
+  background:linear-gradient(180deg,{{ s.im_a | default: '#F4EEE0' }},{{ s.im_b | default: '#FBF7EE' }})}
+{%- comment -%}
+  ── the well is a shape, not a height ──
+  A fixed pixel height was the bug: the tile's WIDTH changes with the
+  number of columns, so a 104px well was a wide letterbox at two per row
+  and the crop ate the top and bottom of the bottle. Driving the well by
+  ratio instead means it is square at two per row, square at three, and
+  square on a tablet - the bottle is always whole. The old fixed heights
+  are still here behind a switch; nothing was deleted.
+{%- endcomment -%}
+{%- if s.im_mode == 'height' -%}
+#shopify-section-{{ sid }} .sttray.v .im{height:{{ s.im_h_v | default: 74 }}px}
+#shopify-section-{{ sid }} .sttray.c .im{height:{{ s.im_h_c | default: 104 }}px}
+{%- else -%}
+#shopify-section-{{ sid }} .sttray.v .im{height:auto;aspect-ratio:1/{{ s.im_ratio_v | default: 1 }}}
+#shopify-section-{{ sid }} .sttray.c .im{height:auto;aspect-ratio:1/{{ s.im_ratio_c | default: 1 }}}
+{%- endif -%}
+{%- comment -%}
+  ── the photo, edge to edge ──
+  This is the collection card's first locked rule and it applies here too:
+  no border, no padding, nothing floating in a well. The photo fills the
+  whole well - both rounded corners at the top, both square ones at the
+  bottom - and is cropped rather than shrunk to fit. A tester bottle
+  standing in the middle of a cream box reads as a placeholder; the same
+  bottle filling the frame reads as a photograph.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .sttile .im img{width:100%;height:100%;display:block;
+  object-fit:{{ s.im_fit | default: 'cover' }};
+  object-position:center {{ s.im_y | default: 50 }}%;
+  padding:{{ s.im_pad | default: 0 }}px;
+  {% if s.im_blend %}mix-blend-mode:multiply;{% endif %}}
+
+#shopify-section-{{ sid }} .sttile .nm{
+  font-family:{{ settings.sa_font_head.family | default: 'Fraunces' }},serif;
+  font-weight:600;color:{{ ink }};line-height:1.22;overflow:hidden}
+#shopify-section-{{ sid }} .sttray.v .nm{font-size:{{ s.nm_v | default: 10.5 }}px;
+  padding:6px 6px 0;height:{{ s.nm_h | default: 31 }}px}
+#shopify-section-{{ sid }} .sttray.c .nm{font-size:{{ s.nm_c | default: 12.5 }}px;padding:8px 9px 0}
+
+#shopify-section-{{ sid }} .sttile .fm{font-size:{{ s.fm_size | default: 7.5 }}px;letter-spacing:.09em;
+  text-transform:uppercase;padding:2px 6px 0;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#shopify-section-{{ sid }} .sttile .ch{display:flex;gap:4px;padding:6px 9px 0;flex-wrap:wrap}
+#shopify-section-{{ sid }} .sttile .ch span{font-size:{{ s.ch_size | default: 7.5 }}px;letter-spacing:.06em;
+  text-transform:uppercase;padding:2px 6px;border-radius:20px;font-weight:600}
+#shopify-section-{{ sid }} .sttile .pr{padding:8px 9px 0;
+  font-family:{{ settings.sa_font_head.family | default: 'Fraunces' }},serif;
+  font-size:{{ s.pr_size | default: 15 }}px;font-weight:600;color:{{ ink }}}
+#shopify-section-{{ sid }} .sttile .pr s{text-decoration:none;font-size:{{ s.pr_note | default: 10 }}px;
+  color:{{ faint }};font-weight:400;margin-left:5px;
+  font-family:{{ settings.sa_font_body.family | default: 'Jost' }},sans-serif}
+
+#shopify-section-{{ sid }} .sttile .add{margin:6px;height:{{ s.add_h | default: 26 }}px;
+  border-radius:{{ s.add_radius | default: 7 }}px;
+  border:1px solid {{ ink | color_modify: 'alpha', 0.16 }};background:{{ s.card | default: '#FFFFFF' }};
+  display:flex;align-items:center;justify-content:center;
+  font-size:{{ s.add_size | default: 10.5 }}px;font-weight:600;color:{{ ink }}}
+#shopify-section-{{ sid }} .sttile.on .add{background:{{ ink }};border-color:{{ ink }};
+  color:{{ s.card | default: '#FFFFFF' }}}
+
+#shopify-section-{{ sid }} .sttile .strip{margin-top:9px;padding:8px 9px;display:flex;
+  align-items:center;gap:6px;font-size:{{ s.strip_size | default: 9.5 }}px;font-weight:600;letter-spacing:.05em}
+#shopify-section-{{ sid }} .sttile .strip .bg{margin-left:auto;width:22px;height:22px;border-radius:6px;
+  background:{{ ink }};color:{{ s.card | default: '#FFFFFF' }};
+  display:flex;align-items:center;justify-content:center;font-size:12px}
+#shopify-section-{{ sid }} .sttile.on .strip .bg{background:{{ gold }};color:{{ ink }}}
+
+#shopify-section-{{ sid }} .stqty{position:absolute;top:6px;right:6px;min-width:19px;height:19px;
+  padding:0 5px;border-radius:20px;background:{{ gold }};color:{{ ink }};
+  font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:5}
+#shopify-section-{{ sid }} .stribbon{position:absolute;top:8px;left:8px;background:{{ ink }};
+  color:{{ s.card | default: '#FFFFFF' }};font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:3px 7px;border-radius:4px;font-weight:600;z-index:3}
+
+{%- comment -%} which half of the tile is on show {%- endcomment -%}
+#shopify-section-{{ sid }} .sttray.v .ch,
+#shopify-section-{{ sid }} .sttray.v .pr,
+#shopify-section-{{ sid }} .sttray.v .strip,
+#shopify-section-{{ sid }} .sttray.v .stribbon{display:none}
+#shopify-section-{{ sid }} .sttray.c .fm,
+#shopify-section-{{ sid }} .sttray.c .add{display:none}
+{%- unless s.ribbon_on -%}
+#shopify-section-{{ sid }} .stribbon{display:none}
+{%- endunless -%}
+
+{%- comment -%}
+  ── the running bar ──
+  It rides above the bottom menu and goes down with it, exactly like the
+  checkout bar on the bag: same dock, same z range. It is the only thing
+  on the page that knows the total, so it says the total and what comes
+  back, and nothing else.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .stbar{position:fixed;left:0;right:0;bottom:0;z-index:{{ s.bar_z | default: 30 }};
+  display:flex;align-items:center;gap:10px;
+  padding:{{ s.bar_pad | default: 10 }}px {{ s.bar_pad_x | default: 13 }}px;
+  padding-bottom:calc({{ s.bar_pad | default: 10 }}px + env(safe-area-inset-bottom));
+  background:{{ s.bar_bg | default: '#1A1712' }};color:{{ s.bar_ink | default: '#F6EDDA' }};
+  transform:translateY(0);transition:transform .28s cubic-bezier(.22,.9,.26,1),background .3s ease}
+#shopify-section-{{ sid }} .stbar.down{transform:translateY(100%)}
+#shopify-section-{{ sid }} .stbar.done{
+  background:linear-gradient(90deg,{{ s.bar_done_a | default: '#8C6B2E' }},{{ s.bar_done_b | default: '#C8994B' }});
+  color:{{ s.bar_done_ink | default: '#221A08' }}}
+#shopify-section-{{ sid }} .stbar .c{
+  font-family:{{ settings.sa_font_head.family | default: 'Fraunces' }},serif;
+  font-size:{{ s.bar_big | default: 15 }}px;font-weight:600;line-height:1.15}
+#shopify-section-{{ sid }} .stbar .s{font-size:{{ s.bar_small | default: 9.5 }}px;
+  opacity:.72;line-height:1.35;margin-top:1px}
+#shopify-section-{{ sid }} .stbar .go{margin-left:auto;appearance:none;border:0;font:inherit;
+  background:{{ gold }};color:{{ ink }};font-size:{{ s.bar_btn | default: 11 }}px;font-weight:700;
+  padding:8px 14px;border-radius:8px;white-space:nowrap;cursor:pointer}
+#shopify-section-{{ sid }} .stbar.done .go{background:{{ ink }};color:{{ s.bar_done_ink2 | default: '#F0DFB4' }}}
+#shopify-section-{{ sid }} .stbar.empty .go{background:{{ s.bar_ink | default: '#F6EDDA' }}1F;
+  color:{{ s.bar_ink | default: '#F6EDDA' }};opacity:.7}
+#shopify-section-{{ sid }} .stbar.busy{pointer-events:none;opacity:.75}
+
+#shopify-section-{{ sid }} .sttail{height:{{ s.tail | default: 84 }}px}
+
+@media(min-width:{{ s.desk_from | default: 750 }}px){
+  #shopify-section-{{ sid }} .stwrap{max-width:{{ s.desk_max | default: 720 }}px;margin:0 auto}
+  #shopify-section-{{ sid }} .sttray.v{grid-template-columns:repeat({{ s.cols_v_d | default: 5 }},1fr)}
+  #shopify-section-{{ sid }} .sttray.c{grid-template-columns:repeat({{ s.cols_c_d | default: 4 }},1fr)}
+  #shopify-section-{{ sid }} .stbar{max-width:{{ s.desk_max | default: 720 }}px;left:50%;
+    transform:translateX(-50%);border-radius:14px 14px 0 0}
+  #shopify-section-{{ sid }} .stbar.down{transform:translate(-50%,100%)}
+}
+</style>
+
+<div class="stwrap">
+  <div class="stv">
+    <span class="cn">{{ s.vrow_text | default: 'All testers · ₹49 each' }}</span>
+    {%- if s.switch_on -%}
+    <span class="stsw" data-stsw>
+      <button type="button" data-v="v" aria-label="Small">{{ s.icon_v | default: '⊞' }}</button>
+      <button type="button" data-v="c" aria-label="Cards">{{ s.icon_c | default: '☰' }}</button>
+    </span>
+    {%- endif -%}
+  </div>
+
+  {%- paginate collection.products by 50 -%}
+  <div class="sttray {{ s.view_start | default: 'v' }}" data-sttray>
+    {%- for product in collection.products -%}
+
+      {%- comment -%} find the tester variant by its size word {%- endcomment -%}
+      {%- assign tv = blank -%}
+      {%- assign word = s.match | default: '3ml' | downcase -%}
+      {%- for v in product.variants -%}
+        {%- assign vt = v.title | downcase | replace: ' ', '' -%}
+        {%- if tv == blank and vt contains word -%}{%- assign tv = v -%}{%- endif -%}
+      {%- endfor -%}
+      {%- if tv == blank -%}{%- assign tv = product.variants.first -%}{%- endif -%}
+
+      {%- comment -%} the family, for colour {%- endcomment -%}
+      {%- assign famk = '' -%}
+      {%- for k in fam_keys -%}
+        {%- assign t = 'family-' | append: k -%}
+        {%- if famk == '' and product.tags contains t -%}{%- assign famk = k -%}{%- endif -%}
+      {%- endfor -%}
+      {%- case famk -%}
+        {%- when 'fresh-aquatic' -%}{%- assign fac = s.f_aqua | default: '#3F8296' -%}{%- assign faw = s.f_aquaw | default: '#DCEBEE' -%}{%- assign famw = s.fw_aqua | default: 'Fresh Aquatic' -%}
+        {%- when 'woody-oud'     -%}{%- assign fac = s.f_oud | default: '#8A5F2E' -%}{%- assign faw = s.f_oudw | default: '#EFE3D2' -%}{%- assign famw = s.fw_oud | default: 'Woody Oud' -%}
+        {%- when 'floral-fruity' -%}{%- assign fac = s.f_bloom | default: '#B4707C' -%}{%- assign faw = s.f_bloomw | default: '#F6E5E7' -%}{%- assign famw = s.fw_bloom | default: 'Floral Fruity' -%}
+        {%- when 'amber-sweet'   -%}{%- assign fac = s.f_amber | default: '#B8843F' -%}{%- assign faw = s.f_amberw | default: '#F7EAD2' -%}{%- assign famw = s.fw_amber | default: 'Amber Sweet' -%}
+        {%- else -%}{%- assign fac = s.f_amber | default: '#B8843F' -%}{%- assign faw = s.f_amberw | default: '#F7EAD2' -%}{%- assign famw = s.fm_fallback | default: 'Tester' -%}
+      {%- endcase -%}
+
+      {%- comment -%} the scent words {%- endcomment -%}
+      {%- assign scents = '' -%}
+      {%- for t in product.tags -%}
+        {%- if t contains 'scent-' -%}
+          {%- assign w = t | remove: 'scent-' | capitalize -%}
+          {%- assign scents = scents | append: w | append: ',' -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- assign slist = scents | split: ',' -%}
+
+      <article class="sttile"
+               data-stp
+               data-id="{{ tv.id }}"
+               data-nm="{{ product.title | replace: 'SYNOR ', '' | escape }}"
+               data-fc="{{ fac }}"
+               data-img="{% if product.featured_image %}{{ product.featured_image | image_url: width: 90 }}{% endif %}"
+               {% unless tv.available %}data-out="1"{% endunless %}>
+
+        <div class="im">
+          <span class="stribbon">{{ s.ribbon_text | default: 'Tester' }}</span>
+          {%- if product.featured_image -%}
+            <img src="{{ product.featured_image | image_url: width: 320 }}"
+                 alt="{{ product.featured_image.alt | escape }}"
+                 width="320" height="320" loading="lazy">
+          {%- endif -%}
+        </div>
+
+        <div class="nm">{{ product.title | replace: 'SYNOR ', '' }}</div>
+
+        <div class="fm" style="color:{{ fac }}">{{ famw }}</div>
+
+        <div class="ch">
+          {%- for w in slist limit: 2 -%}
+            <span style="background:{{ faw }};color:{{ fac }}">{{ w }}</span>
+          {%- endfor -%}
+        </div>
+
+        <div class="pr">{{ tv.price | money }}<s>{{ s.pr_note_text | default: '3ml' }}</s></div>
+
+        <div class="add">{{ s.add_text | default: '+ ₹49' }}</div>
+
+        <div class="strip" style="background:{{ faw }};color:{{ fac }}">
+          <span class="stw">{{ s.strip_text | default: 'TRY 3ML · ₹49' }}</span>
+          <span class="bg">+</span>
+        </div>
+      </article>
+
+    {%- else -%}
+      <p style="grid-column:1/-1;padding:20px 4px;color:{{ soft }};font-size:13px">
+        {{ s.empty_text | default: 'No testers here yet.' }}</p>
+    {%- endfor -%}
+  </div>
+  {%- endpaginate -%}
+</div>
+
+<div class="sttail"></div>
+
+<div class="stbar empty" data-stbar>
+  <div>
+    <div class="c" data-stbc></div>
+    <div class="s" data-stbs></div>
+  </div>
+  <button type="button" class="go" data-stbg></button>
+</div>
+
+<script>
+(function(){
+  var SEC = document.getElementById('shopify-section-{{ sid }}');
+  if(!SEC || SEC.dataset.stBound) return;
+  SEC.dataset.stBound = '1';
+
+  var CFG = {
+    rate      : {{ rate }},
+    cur       : {{ s.currency | default: '₹' | json }},
+    onWord    : {{ s.add_on_text | default: '✓ Added' | json }},
+    offWord   : {{ s.add_text | default: '+ ₹49' | json }},
+    stripOn   : {{ s.strip_on_text | default: 'IN THE BOX' | json }},
+    stripOff  : {{ s.strip_text | default: 'TRY 3ML · ₹49' | json }},
+    barEmpty  : {{ s.bar_empty | default: 'Your tray is empty' | json }},
+    barEmptyS : {{ s.bar_empty_sub | default: 'Pick any scent below · ₹49 each' | json }},
+    barEmptyB : {{ s.bar_empty_btn | default: 'Start' | json }},
+    barOne    : {{ s.bar_one | default: 'tester' | json }},
+    barMany   : {{ s.bar_many | default: 'testers' | json }},
+    barBack   : {{ s.bar_back | json }},
+    barFull   : {{ s.bar_full | default: 'Delivery is free — and every rupee comes back' | json }},
+    btnOpen   : {{ s.bar_btn_open | default: 'Take the tray →' | json }},
+    btnFull   : {{ s.bar_btn_full | default: 'Take them →' | json }},
+    btnBusy   : {{ s.bar_btn_busy | default: 'Adding…' | json }},
+    cartUrl   : {{ routes.cart_url | json }},
+    addUrl    : {{ routes.cart_add_url | json }},
+    remember  : {{ s.remember | default: true | json }},
+    navFb     : {{ s.bar_offset | default: 62 }},
+    follow    : {{ s.bar_follow | default: true | json }}
+  };
+
+  var KEY = 'sa_try_box';
+  var tray = SEC.querySelector('[data-sttray]');
+  var bar  = SEC.querySelector('[data-stbar]');
+  var wk   = document.querySelector('[data-stweek]');
+
+  {%- comment -%}
+    ── the week ──
+    It renders ABOVE this section, so it is found by a document-wide lookup;
+    a lookup inside this section would never see it. If the merchant switches
+    it off it is simply absent, and the tray and the bar carry on without it -
+    neither of them ever assumes it is there.
+
+    Note what is NOT here: no target, no capacity, no "n of N". The week has
+    days, and days are a reason, not an allowance. Anything past the last day
+    becomes a spare and the row keeps going, which is the whole point.
+  {%- endcomment -%}
+  var WK = null;
+  if(wk){
+    WK = {
+      el     : wk,
+      days   : parseInt(wk.dataset.days,10) || 7,
+      labels : (wk.dataset.labels||'').split(',').map(function(x){return x.trim()}),
+      rate   : parseInt(wk.dataset.rate,10) || 49,
+      freeAt : parseInt(wk.dataset.free,10) || 299,
+      cur    : wk.dataset.cur || '₹',
+      grid   : wk.querySelector('[data-stwkdays]'),
+      spares : wk.querySelector('[data-stwkspares]'),
+      say    : wk.querySelector('[data-stwksay]'),
+      fillEl : wk.querySelector('[data-stwkfill]'),
+      pill   : wk.querySelector('[data-stwkpill]'),
+      sNone  : wk.dataset.sayNone || 'Free delivery over {free}',
+      sMore  : wk.dataset.sayMore || '**{left}** more and delivery is free',
+      sFree  : wk.dataset.sayFree || '**Delivery is on us.**',
+      pTo    : wk.dataset.pillTo || '{free} →',
+      pWon   : wk.dataset.pillWon || 'Delivery free',
+      spOne  : wk.dataset.spareOne || 'and {n} spare',
+      spMany : wk.dataset.spareMany || 'and {n} spares'
+    };
+  }
+
+  var picks = [];   // [{id,nm,img}]
+  var busy  = false;
+
+  function money(n){
+    return CFG.cur + Number(n).toLocaleString('en-IN');
+  }
+  function bold(str){
+    return String(str).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+  }
+  function fill(str,o){
+    return String(str).replace(/\{(\w+)\}/g,function(m,k){
+      return (o[k]===undefined ? m : o[k]);
+    });
+  }
+  {%- comment -%}
+    One bottle, drawn in the product's own family colour. The week shows a
+    drawing rather than the photograph on purpose: seven lifestyle shots
+    nineteen pixels wide become seven different rooms, while seven drawings
+    read as one set - which is exactly what a week of scents should look like.
+  {%- endcomment -%}
+  function vial(c, w){
+    return '<svg viewBox="0 0 26 50" preserveAspectRatio="xMidYMax meet"'
+     + (w ? ' style="width:'+w+'px"' : '') + '>'
+     + '<rect x="9.5" y="2" width="7" height="7" rx="1.4" fill="'+c+'" opacity=".9"/>'
+     + '<rect x="11" y="9" width="4" height="4" fill="'+c+'" opacity=".5"/>'
+     + '<path d="M6 16.5a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v27a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z" fill="'+c+'" opacity=".16"/>'
+     + '<path d="M6 16.5a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v27a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z" fill="none" stroke="'+c+'" stroke-width="1.15"/>'
+     + '<rect x="6" y="30" width="14" height="16.5" rx="2.6" fill="'+c+'" opacity=".32"/></svg>';
+  }
+
+  function load(){
+    if(!CFG.remember) return;
+    try{
+      var raw = sessionStorage.getItem(KEY);
+      if(raw){ var o = JSON.parse(raw);
+        if(o && o.p) picks = o.p;
+      }
+    }catch(e){}
+  }
+  function save(){
+    if(!CFG.remember) return;
+    try{ sessionStorage.setItem(KEY, JSON.stringify({p:picks})) }catch(e){}
+  }
+
+  {%- comment -%} ── painting ── {%- endcomment -%}
+  function drawWeek(){
+    if(!WK) return;
+    var n = picks.length, tot = n * WK.rate, free = tot >= WK.freeAt;
+
+    if(WK.grid){
+      var h = '';
+      for(var i=0;i<WK.days;i++){
+        var p = picks[i];
+        h += '<div class="stwk-d'+(p?' full':'')+'"><i>'+(WK.labels[i]||'')+'</i>'
+           + (p ? vial(p.fc || '#B8843F') : '<span class="dot"></span>') + '</div>';
+      }
+      WK.grid.innerHTML = h;
+    }
+
+    {%- comment -%}
+      The spares row is the proof that the week is not a wall. It appears the
+      moment someone takes more than the days allow, and it is written as a
+      welcome, never as an overflow warning.
+    {%- endcomment -%}
+    if(WK.spares){
+      var extra = picks.slice(WK.days);
+      if(extra.length){
+        WK.spares.hidden = false;
+        WK.spares.innerHTML = '<span class="lb">'
+          + fill(extra.length === 1 ? WK.spOne : WK.spMany, { n: extra.length })
+          + '</span>' + extra.map(function(p){ return vial(p.fc || '#B8843F') }).join('');
+      } else { WK.spares.hidden = true; WK.spares.innerHTML = '' }
+    }
+
+    if(WK.fillEl) WK.fillEl.style.width = Math.min(100, tot / WK.freeAt * 100) + '%';
+    if(WK.pill){
+      WK.pill.className = 'stwk-pill' + (free ? ' won' : '');
+      WK.pill.textContent = free ? WK.pWon
+        : fill(WK.pTo, { free: WK.cur + WK.freeAt.toLocaleString('en-IN') });
+    }
+    if(WK.say){
+      WK.say.innerHTML = bold(
+        free ? WK.sFree
+        : n  ? fill(WK.sMore, { left: WK.cur + (WK.freeAt - tot).toLocaleString('en-IN') })
+             : fill(WK.sNone, { free: WK.cur + WK.freeAt.toLocaleString('en-IN') })
+      );
+    }
+  }
+
+  function drawTiles(){
+    var cnt = {};
+    picks.forEach(function(p){ cnt[p.id] = (cnt[p.id]||0) + 1 });
+    tray.querySelectorAll('[data-stp]').forEach(function(t){
+      var c = cnt[t.dataset.id] || 0;
+      t.classList.toggle('on', c > 0);
+
+      var add = t.querySelector('.add');
+      if(add) add.textContent = c ? CFG.onWord : CFG.offWord;
+
+      var sw = t.querySelector('.stw');
+      if(sw) sw.textContent = c ? CFG.stripOn : CFG.stripOff;
+      var bg = t.querySelector('.strip .bg');
+      if(bg) bg.textContent = c ? '✓' : '+';
+
+      var q = t.querySelector('.stqty');
+      if(c > 1){
+        if(!q){ q = document.createElement('span'); q.className = 'stqty'; t.appendChild(q) }
+        q.textContent = c;
+      } else if(q) q.remove();
+    });
+  }
+
+  function drawBar(){
+    var tot = picks.length * CFG.rate;
+    {%- comment -%}
+      "Full" no longer means a box is full - there is no box. It means the
+      order has crossed the shop's real free-delivery line, which is the only
+      threshold on this page that actually exists.
+    {%- endcomment -%}
+    var full = WK ? (tot >= WK.freeAt && picks.length > 0) : false;
+    bar.className = 'stbar' + (full ? ' done' : '') + (picks.length ? '' : ' empty')
+                  + (busy ? ' busy' : '') + (bar.classList.contains('down') ? ' down' : '');
+
+    var c = SEC.querySelector('[data-stbc]'),
+        sb = SEC.querySelector('[data-stbs]'),
+        g = SEC.querySelector('[data-stbg]');
+
+    if(!picks.length){
+      c.textContent  = CFG.barEmpty;
+      sb.textContent = CFG.barEmptyS;
+      g.textContent  = CFG.barEmptyB;
+      return;
+    }
+    c.textContent  = picks.length + ' ' +
+      (picks.length === 1 ? CFG.barOne : CFG.barMany) + ' · ' + money(tot);
+    sb.textContent = full ? CFG.barFull
+      : fill(CFG.barBack || '{money} comes back as cashback', { money: money(tot) });
+    g.textContent  = busy ? CFG.btnBusy : (full ? CFG.btnFull : CFG.btnOpen);
+  }
+
+  function draw(){ drawWeek(); drawTiles(); drawBar(); save() }
+
+  {%- comment -%} ── taps ── {%- endcomment -%}
+  SEC.addEventListener('click', function(e){
+    if(!e.target || !e.target.closest) return;
+
+    var v = e.target.closest('[data-stsw] button');
+    if(v){
+      tray.classList.remove('v','c');
+      tray.classList.add(v.dataset.v);
+      SEC.querySelectorAll('[data-stsw] button').forEach(function(b){
+        b.classList.toggle('on', b === v);
+      });
+      try{ sessionStorage.setItem('sa_try_view', v.dataset.v) }catch(err){}
+      return;
+    }
+
+    var t = e.target.closest('[data-stp]');
+    if(t){
+      if(t.dataset.out === '1') return;
+      var id = t.dataset.id, at = -1;
+      for(var i=0;i<picks.length;i++){ if(picks[i].id === id){ at = i; break } }
+      if(at > -1) picks.splice(at,1);
+      else picks.push({ id:id, nm:t.dataset.nm, img:t.dataset.img, fc:t.dataset.fc });
+      draw();
+      return;
+    }
+
+    if(e.target.closest('[data-stbg]')){ send(); return }
+  });
+
+  {%- comment -%} ── one add, at the end ── {%- endcomment -%}
+  function send(){
+    if(busy) return;
+    if(!picks.length){
+      tray.scrollIntoView({ behavior:'smooth', block:'start' });
+      return;
+    }
+    busy = true; drawBar();
+    var items = {};
+    picks.forEach(function(p){ items[p.id] = (items[p.id]||0) + 1 });
+    var body = { items: Object.keys(items).map(function(k){
+      return { id: parseInt(k,10), quantity: items[k] } }) };
+
+    fetch(CFG.addUrl, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
+      body: JSON.stringify(body)
+    }).then(function(r){ return r.json() })
+      .then(function(){
+        try{ sessionStorage.removeItem(KEY) }catch(e){}
+        window.location.href = CFG.cartUrl;
+      })
+      .catch(function(){
+        busy = false; drawBar();
+      });
+  }
+
+  {%- comment -%}
+    ── riding the bottom menu ──
+    Same behaviour as the checkout bar on the bag: sit on top of the
+    bottom menu, and go down with it when it goes down. The menu is a
+    site-wide section that may render after this one, so it is polled
+    for rather than assumed.
+  {%- endcomment -%}
+  (function dock(){
+    if(!CFG.follow){ bar.style.bottom = '0px'; return }
+    var tries = 0;
+    function place(nav){
+      var h = nav ? (nav.offsetHeight || CFG.navFb) : 0;
+      if(h === 0) h = CFG.navFb;
+      bar.style.bottom = h + 'px';
+    }
+    function bind(nav){
+      place(nav);
+      var mo = new MutationObserver(function(){
+        bar.classList.toggle('down', nav.classList.contains('down'));
+        place(nav);
+      });
+      mo.observe(nav, { attributes:true, attributeFilter:['class','style'] });
+      window.addEventListener('resize', function(){ place(nav) }, { passive:true });
+    }
+    function look(){
+      var nav = document.querySelector('nav[data-bb]');
+      if(nav){ bind(nav); return }
+      if(++tries < 60) setTimeout(look, 100);
+      else bar.style.bottom = '0px';
+    }
+    look();
+  })();
+
+  {%- comment -%} ── start ── {%- endcomment -%}
+  try{
+    var vw = sessionStorage.getItem('sa_try_view');
+    if(vw === 'v' || vw === 'c'){ tray.classList.remove('v','c'); tray.classList.add(vw) }
+  }catch(e){}
+  SEC.querySelectorAll('[data-stsw] button').forEach(function(b){
+    b.classList.toggle('on', tray.classList.contains(b.dataset.v));
+  });
+
+  load();
+  draw();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Try · the tray",
+  "tag": "section",
+  "class": "sa-try-tray",
+  "settings": [
+    { "type": "header", "content": "Words" },
+    { "type": "text", "id": "vrow_text", "label": "Line above the grid", "default": "All testers · ₹49 each" },
+    { "type": "text", "id": "add_text", "label": "Button · not picked", "default": "+ ₹49" },
+    { "type": "text", "id": "add_on_text", "label": "Button · picked", "default": "✓ Added" },
+    { "type": "text", "id": "strip_text", "label": "Card strip · not picked", "default": "TRY 3ML · ₹49" },
+    { "type": "text", "id": "strip_on_text", "label": "Card strip · picked", "default": "IN THE BOX" },
+    { "type": "text", "id": "ribbon_text", "label": "Corner mark", "default": "Tester" },
+    { "type": "checkbox", "id": "ribbon_on", "label": "Show the corner mark", "default": true },
+    { "type": "text", "id": "pr_note_text", "label": "Note beside the price", "default": "3ml" },
+    { "type": "text", "id": "fm_fallback", "label": "Word when a product has no family tag", "default": "Tester" },
+    { "type": "text", "id": "empty_text", "label": "When the collection is empty", "default": "No testers here yet." },
+
+    { "type": "header", "content": "The two views" },
+    { "type": "checkbox", "id": "switch_on", "label": "Show the ⊞ / ☰ switch", "default": true },
+    { "type": "select", "id": "view_start", "label": "View when the page opens",
+      "options": [
+        { "value": "v", "label": "Small bottles (3 across)" },
+        { "value": "c", "label": "Full cards (2 across)" }
+      ], "default": "v" },
+    { "type": "text", "id": "icon_v", "label": "Switch · small icon", "default": "⊞" },
+    { "type": "text", "id": "icon_c", "label": "Switch · card icon", "default": "☰" },
+    { "type": "range", "id": "cols_v", "min": 2, "max": 5, "step": 1, "label": "Small view · per row", "default": 3 },
+    { "type": "range", "id": "cols_c", "min": 1, "max": 4, "step": 1, "label": "Card view · per row", "default": 3 },
+
+    { "type": "header", "content": "Which variant is the tester" },
+    { "type": "text", "id": "match", "label": "Size word to look for", "default": "3ml",
+      "info": "The first variant whose name contains this is used. If none matches, the first variant is used." },
+    { "type": "range", "id": "rate", "min": 9, "max": 199, "step": 2, "unit": "₹", "label": "Price of one tester", "default": 49,
+      "info": "Used for the running total. Keep it the same as in the box." },
+    { "type": "text", "id": "currency", "label": "Currency mark", "default": "₹" },
+
+    { "type": "header", "content": "The bar at the bottom" },
+    { "type": "text", "id": "bar_empty", "label": "Empty · line 1", "default": "Your tray is empty" },
+    { "type": "text", "id": "bar_empty_sub", "label": "Empty · line 2", "default": "Pick any scent below · ₹49 each" },
+    { "type": "text", "id": "bar_empty_btn", "label": "Empty · button", "default": "Start" },
+    { "type": "text", "id": "bar_one", "label": "Word for one", "default": "tester" },
+    { "type": "text", "id": "bar_many", "label": "Word for many", "default": "testers" },
+    { "type": "text", "id": "bar_back", "label": "Line 2 while filling", "default": "{money} comes back as cashback" },
+    { "type": "text", "id": "bar_full", "label": "Line 2 once delivery is free", "default": "Delivery is free — and every rupee comes back" },
+    { "type": "text", "id": "bar_btn_open", "label": "Button while picking", "default": "Take the tray →" },
+    { "type": "text", "id": "bar_btn_full", "label": "Button once delivery is free", "default": "Take them →" },
+    { "type": "text", "id": "bar_btn_busy", "label": "Button while adding", "default": "Adding…" },
+    { "type": "checkbox", "id": "bar_follow", "label": "Ride the bottom menu", "default": true,
+      "info": "Off = the bar sits at the very bottom of the screen." },
+    { "type": "range", "id": "bar_offset", "min": 0, "max": 120, "step": 2, "unit": "px", "label": "Bottom menu height (fallback)", "default": 62 },
+    { "type": "range", "id": "bar_z", "min": 0, "max": 100, "step": 1, "label": "Bar layer", "default": 30,
+      "info": "Keep between 21 and 39 so it stays above the page and below the menu." },
+    { "type": "range", "id": "bar_pad", "min": 4, "max": 24, "step": 1, "unit": "px", "label": "Bar padding", "default": 10 },
+    { "type": "range", "id": "bar_pad_x", "min": 4, "max": 30, "step": 1, "unit": "px", "label": "Bar side padding", "default": 13 },
+    { "type": "range", "id": "bar_big", "min": 11, "max": 22, "step": 0.5, "unit": "px", "label": "Bar figure size", "default": 15 },
+    { "type": "range", "id": "bar_small", "min": 7, "max": 14, "step": 0.5, "unit": "px", "label": "Bar small line size", "default": 9.5 },
+    { "type": "range", "id": "bar_btn", "min": 9, "max": 16, "step": 0.5, "unit": "px", "label": "Bar button size", "default": 11 },
+    { "type": "checkbox", "id": "remember", "label": "Remember the box while browsing", "default": true },
+
+    { "type": "header", "content": "Colour" },
+    { "type": "color", "id": "bg", "label": "Page paper", "default": "#FFFDF8" },
+    { "type": "color", "id": "card", "label": "Tile paper", "default": "#FFFFFF" },
+    { "type": "color", "id": "im_a", "label": "Photo well · top", "default": "#F4EEE0" },
+    { "type": "color", "id": "im_b", "label": "Photo well · bottom", "default": "#FBF7EE" },
+    { "type": "color", "id": "gold", "label": "Gold", "default": "#C8994B" },
+    { "type": "color", "id": "ink", "label": "Ink", "default": "#1A1712" },
+    { "type": "color", "id": "soft", "label": "Soft ink", "default": "#6E6656" },
+    { "type": "color", "id": "faint", "label": "Faint ink", "default": "#A9A08E" },
+    { "type": "color", "id": "line", "label": "Hairline", "default": "#E5DFD1" },
+    { "type": "color", "id": "bar_bg", "label": "Bar", "default": "#1A1712" },
+    { "type": "color", "id": "bar_ink", "label": "Bar text", "default": "#F6EDDA" },
+    { "type": "color", "id": "bar_done_a", "label": "Bar when full · from", "default": "#8C6B2E" },
+    { "type": "color", "id": "bar_done_b", "label": "Bar when full · to", "default": "#C8994B" },
+    { "type": "color", "id": "bar_done_ink", "label": "Bar when full · text", "default": "#221A08" },
+    { "type": "color", "id": "bar_done_ink2", "label": "Bar when full · button text", "default": "#F0DFB4" },
+
+    { "type": "header", "content": "Family colours" },
+    { "type": "color", "id": "f_aqua", "label": "Fresh Aquatic", "default": "#3F8296" },
+    { "type": "color", "id": "f_aquaw", "label": "Fresh Aquatic · wash", "default": "#DCEBEE" },
+    { "type": "color", "id": "f_oud", "label": "Woody Oud", "default": "#8A5F2E" },
+    { "type": "color", "id": "f_oudw", "label": "Woody Oud · wash", "default": "#EFE3D2" },
+    { "type": "color", "id": "f_amber", "label": "Amber Sweet", "default": "#B8843F" },
+    { "type": "color", "id": "f_amberw", "label": "Amber Sweet · wash", "default": "#F7EAD2" },
+    { "type": "color", "id": "f_bloom", "label": "Floral Fruity", "default": "#B4707C" },
+    { "type": "color", "id": "f_bloomw", "label": "Floral Fruity · wash", "default": "#F6E5E7" },
+
+    { "type": "header", "content": "Family words" },
+    { "type": "text", "id": "fw_aqua", "label": "Fresh Aquatic", "default": "Fresh Aquatic" },
+    { "type": "text", "id": "fw_oud", "label": "Woody Oud", "default": "Woody Oud" },
+    { "type": "text", "id": "fw_amber", "label": "Amber Sweet", "default": "Amber Sweet" },
+    { "type": "text", "id": "fw_bloom", "label": "Floral Fruity", "default": "Floral Fruity" },
+
+    { "type": "header", "content": "Size and space" },
+    { "type": "range", "id": "pad_x", "min": 0, "max": 30, "step": 1, "unit": "px", "label": "Side padding", "default": 12 },
+    { "type": "range", "id": "vrow_t", "min": 0, "max": 30, "step": 1, "unit": "px", "label": "Space above the switch row", "default": 13 },
+    { "type": "range", "id": "vrow_size", "min": 7, "max": 13, "step": 0.5, "unit": "px", "label": "Line above the grid · size", "default": 9 },
+    { "type": "range", "id": "grid_t", "min": 0, "max": 30, "step": 1, "unit": "px", "label": "Space above the grid", "default": 10 },
+    { "type": "range", "id": "grid_b", "min": 0, "max": 40, "step": 1, "unit": "px", "label": "Space under the grid", "default": 16 },
+    { "type": "range", "id": "gap", "min": 2, "max": 20, "step": 1, "unit": "px", "label": "Gap · small view", "default": 8 },
+    { "type": "range", "id": "gap_c", "min": 2, "max": 20, "step": 1, "unit": "px", "label": "Gap · card view", "default": 10 },
+    { "type": "range", "id": "radius", "min": 0, "max": 22, "step": 1, "unit": "px", "label": "Tile corner", "default": 11 },
+    { "type": "range", "id": "on_ring", "min": 1, "max": 3, "step": 0.5, "unit": "px", "label": "Picked ring", "default": 1.5 },
+    { "type": "select", "id": "im_mode", "label": "How tall the photo well is",
+      "options": [
+        { "value": "ratio", "label": "By shape — square whatever the width" },
+        { "value": "height", "label": "By a fixed height in pixels" }
+      ], "default": "ratio",
+      "info": "Shape is safer: a fixed height turns into a letterbox when the tiles are wide, and the crop eats the bottle." },
+    { "type": "range", "id": "im_ratio_v", "min": 0.6, "max": 1.8, "step": 0.1, "label": "Photo shape · small view", "default": 1,
+      "info": "1 = square. Below 1 = wide, above 1 = tall." },
+    { "type": "range", "id": "im_ratio_c", "min": 0.6, "max": 1.8, "step": 0.1, "label": "Photo shape · card view", "default": 1 },
+    { "type": "range", "id": "im_h_v", "min": 50, "max": 130, "step": 1, "unit": "px", "label": "Photo height · small view", "default": 74 },
+    { "type": "range", "id": "im_h_c", "min": 70, "max": 200, "step": 2, "unit": "px", "label": "Photo height · card view", "default": 104 },
+    { "type": "select", "id": "im_fit", "label": "How the photo fills the well",
+      "options": [
+        { "value": "cover", "label": "Fill it — edge to edge, cropped" },
+        { "value": "contain", "label": "Fit inside it — whole photo, gaps at the sides" }
+      ], "default": "cover" },
+    { "type": "range", "id": "im_y", "min": 0, "max": 100, "step": 5, "unit": "%", "label": "Photo · which part to keep", "default": 50,
+      "info": "Only used when the photo fills the well. 0 = keep the top, 100 = keep the bottom." },
+    { "type": "checkbox", "id": "im_blend", "label": "Blend the photo into the paper", "default": false,
+      "info": "Only sensible for photos on a plain white background." },
+    { "type": "range", "id": "im_pad", "min": 0, "max": 20, "step": 1, "unit": "px", "label": "Photo padding", "default": 0 },
+    { "type": "range", "id": "nm_v", "min": 8, "max": 15, "step": 0.5, "unit": "px", "label": "Name · small view", "default": 10.5 },
+    { "type": "range", "id": "nm_c", "min": 9, "max": 18, "step": 0.5, "unit": "px", "label": "Name · card view", "default": 12.5 },
+    { "type": "range", "id": "nm_h", "min": 20, "max": 50, "step": 1, "unit": "px", "label": "Name height · small view", "default": 31 },
+    { "type": "range", "id": "fm_size", "min": 6, "max": 12, "step": 0.5, "unit": "px", "label": "Family word size", "default": 7.5 },
+    { "type": "range", "id": "ch_size", "min": 6, "max": 12, "step": 0.5, "unit": "px", "label": "Chip size", "default": 7.5 },
+    { "type": "range", "id": "pr_size", "min": 10, "max": 22, "step": 0.5, "unit": "px", "label": "Price size", "default": 15 },
+    { "type": "range", "id": "pr_note", "min": 7, "max": 14, "step": 0.5, "unit": "px", "label": "Price note size", "default": 10 },
+    { "type": "range", "id": "add_h", "min": 18, "max": 40, "step": 1, "unit": "px", "label": "Button height", "default": 26 },
+    { "type": "range", "id": "add_radius", "min": 0, "max": 16, "step": 1, "unit": "px", "label": "Button corner", "default": 7 },
+    { "type": "range", "id": "add_size", "min": 8, "max": 14, "step": 0.5, "unit": "px", "label": "Button text size", "default": 10.5 },
+    { "type": "range", "id": "strip_size", "min": 7, "max": 13, "step": 0.5, "unit": "px", "label": "Card strip size", "default": 9.5 },
+    { "type": "range", "id": "tail", "min": 0, "max": 200, "step": 2, "unit": "px", "label": "Space under everything", "default": 84 },
+
+    { "type": "header", "content": "Desktop" },
+    { "type": "range", "id": "desk_from", "min": 600, "max": 1100, "step": 10, "unit": "px", "label": "Desktop starts at", "default": 750 },
+    { "type": "range", "id": "desk_max", "min": 480, "max": 1000, "step": 10, "unit": "px", "label": "Desktop width", "default": 720 },
+    { "type": "range", "id": "cols_v_d", "min": 3, "max": 8, "step": 1, "label": "Desktop · small view per row", "default": 5 },
+    { "type": "range", "id": "cols_c_d", "min": 2, "max": 6, "step": 1, "label": "Desktop · card view per row", "default": 4 }
+  ],
+  "presets": [{ "name": "Try · the tray" }]
+}
+{% endschema %}
