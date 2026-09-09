@@ -524,3 +524,60 @@ it is a bug fix in the section itself and had to reach phones too. It
 changes no pixel at any width. The edit was proven byte-safe the usual way
 (strip the addition, md5 back to the server's original 452deb77…), and the
 upload verified at 21631 / 063fab3b….
+
+## Full-width homepage product sections (new file: sa-desktop-wide.css)
+
+The merchant asked why Best Sellers and New Drops "don't go edge to edge on
+desktop". Both wrap their content in a container capped at **1200px**
+(`.ch` and `.pk`; `.rw` on Founder's picks does the same). The section
+BACKGROUND is full width, so at 1920 the band looks full width while the
+goods sit in a 1200px box with 360px of empty colour each side. Measured:
+container `left 360 → right 1560` at 1920.
+
+Two things had to be discovered first:
+
+- **The homepage has changed since this layer was written.** Best Sellers
+  is no longer `sa-row`; it is a new section, **`sa-chart`** — an endless
+  dragged ranking strip. Two more are new: **`sa-howsheet`** and
+  **`sa-oilscale`** (which replaced `sa-standard`). That is why the §3
+  `.rw-shelf` grid appeared to do nothing on Best Sellers: it was never
+  that section. **`sa-howsheet` and `sa-oilscale` have not been reviewed
+  for desktop yet.**
+- **Removing the cap alone would have broken the chart.** `sa-chart`
+  decides once, at init, whether to loop:
+  `loop = setEl.scrollWidth > strip.clientWidth + 8`. In a 1200px box the
+  seven entries (~1410px) overflow, so it loops. Widen the section and
+  they fit, so it drops the clone, adds `.is-static` — and the seven
+  fixed-width cards clump at the left with a ~500px empty tail. Caught by
+  reproducing the section's own condition in the harness.
+
+So the static branch is styled to spread instead: the set becomes a
+`grid-auto-flow: column` of equal columns, entries lose their fixed width.
+Static means "they all fit", so the whole chart is read at once.
+
+For the two grids, width alone was not enough either. At 1920, four
+columns full-width make each card 444px and, at the 5/7 playing-card
+ratio, **621px tall** — the bottle is drawn as a share of the card, so the
+card reads as mostly empty (confirmed by screenshot). Four columns is the
+tidy count for the merchant's eight products (4 + 4), so the cards keep
+their number and lose height: `aspect-ratio: 4/5` from 1440 with a bigger
+bottle. Verified:
+
+| width | chart | New Drops card |
+| --- | --- | --- |
+| 390, 768 | marquee, unchanged | 150 × 210 (5/7) — phone untouched |
+| 1024, 1280 | marquee | 4-up, 5/7 |
+| 1440 | static, spread, 40px gutters | 324 × 404 (4/5) |
+| 1920 | static, spread, 40px gutters | 444 × 554 (4/5) |
+
+No horizontal scrollbar at any width.
+
+### Why there is now a second stylesheet
+
+`themeFilesUpsert` replaces a file whole, and sa-desktop.css had reached
+60KB — re-sending all of it to add a dozen rules is needless risk. §11
+lives in **`assets/sa-desktop-wide.css`** (4.8KB), loaded from
+`layout/theme.liquid` on the line straight after sa-desktop.css, so the
+cascade is identical. sa-desktop.css itself was left untouched on the
+theme (verified: still 59024 / c62c3817…). New desktop work goes in the
+small file.

@@ -333,6 +333,7 @@
     {{ 'base.css' | asset_url | stylesheet_tag }}
     {%- comment -%} SYNOR desktop layer — everything inside is scoped to min-width:900px {%- endcomment -%}
     {{ 'sa-desktop.css' | asset_url | stylesheet_tag }}
+    {{ 'sa-desktop-wide.css' | asset_url | stylesheet_tag }}
     <script src="{{ 'sa-desktop.js' | asset_url }}" defer="defer"></script>
     <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
 

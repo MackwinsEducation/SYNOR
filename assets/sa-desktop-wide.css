@@ -1,0 +1,101 @@
+/* ==========================================================================
+   SYNOR — Desktop layer, part 2
+   --------------------------------------------------------------------------
+   `assets/sa-desktop.css` is the desktop layer; read its header first, every
+   rule here follows the same contract (scoped to `min-width: 900px`, phone
+   untouched, `!important` because the sections emit their own ID-scoped CSS
+   inline after this file, and never write a `shopify-section-<key>` id).
+
+   This file exists only because the Admin API replaces a theme file whole:
+   sa-desktop.css had grown past 60KB, and re-sending all of it to add a
+   dozen rules is a needless risk. New desktop work lands here. It is
+   loaded immediately after sa-desktop.css from `layout/theme.liquid`, so
+   the cascade order is the same as if the two were one file.
+   ========================================================================== */
+
+/* ═══════════════════════════════════════════════════════════════════════
+   11. THE HOMEPAGE PRODUCT SECTIONS USE THE WHOLE WINDOW
+
+   Best Sellers (sa-chart), New Drops (sa-drops) and Founder's picks
+   (sa-row) each wrap their content in a container capped at 1200px. The
+   section BACKGROUND runs edge to edge, so on a 1920 screen the band
+   looks full width while the goods inside sit in a 1200px box with 360px
+   of empty colour down each side. That reads as a phone page stretched,
+   which is exactly what the merchant kept pointing at.
+
+   The cap comes off. Each section already carries a 40px page gutter of
+   its own at this breakpoint (.ch-head, .pk-deck, .rw-shelf all switch to
+   40px at 900px), so removing the cap gives a full-width layout that
+   still has a proper margin — nothing has to be re-padded.
+
+   The two grids need more than width. Measured at 1920, four columns
+   across the full window make each card 444px wide and, at the section's
+   5/7 playing-card ratio, 621px tall — and because the bottle is drawn at
+   a share of the card, the card reads as mostly empty. Four columns is
+   the tidy count for the eight products the merchant shows (4 + 4), so
+   the cards keep their number and lose their height instead: a shorter
+   card from 1440 up, with the bottle taking more of it.
+
+   `:has()` scopes each rule to the container that actually holds the
+   strip or the deck — `.ch`, `.pk` and `.rw` are short class names to be
+   claiming site-wide. Where a browser lacks `:has()` the section keeps
+   its 1200px box, which is the old behaviour, not a broken one.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media screen and (min-width: 900px) {
+  body [id^='shopify-section-'] .ch:has(.ch-strip),
+  body [id^='shopify-section-'] .pk:has(.pk-deck),
+  body [id^='shopify-section-'] .rw:has(.rw-shelf) {
+    max-width: none !important;
+  }
+
+  /* 10px was a phone caption; this line carries the whole explanation of
+     what the chart is. */
+  body [id^='shopify-section-'] .ch-sub {
+    font-size: 13px !important;
+  }
+
+  /* The strip only loops while the entries are wider than the window it
+     sits in — the section's own script measures that once and, when they
+     all fit, drops the clone and marks the track `.is-static`. Widening
+     the section pushes it over that line: at 1440 and up the seven
+     entries fit, so the strip stops looping and, left alone, they clump
+     against the left edge with a 500px empty tail. Static means "they all
+     fit", so here they share the width instead and the chart is read in
+     one go. Below that width nothing changes and it still loops. */
+  body [id^='shopify-section-'] .ch-track.is-static {
+    width: 100% !important;
+  }
+
+  body [id^='shopify-section-'] .ch-track.is-static .ch-set {
+    flex: 1 !important;
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  body [id^='shopify-section-'] .ch-track.is-static .ch-entry {
+    width: auto !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* A 444px-wide card at 5/7 is a 621px tower. Shorter, with a bigger
+   bottle in it, so the card is filled rather than padded out. */
+@media screen and (min-width: 1440px) {
+  body [id^='shopify-section-'] .pk-slot {
+    aspect-ratio: 4 / 5 !important;
+  }
+
+  body [id^='shopify-section-'] .pk-front img {
+    height: 62% !important;
+    max-width: 72% !important;
+  }
+}
+
+@media screen and (min-width: 1800px) {
+  body [id^='shopify-section-'] .pk-front img {
+    height: 66% !important;
+  }
+}
