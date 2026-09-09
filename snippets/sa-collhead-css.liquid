@@ -1,0 +1,63 @@
+{%- comment -%} SYNOR — collection header (H1) styles. Rendered after sa-css so it wins. {%- endcomment -%}
+<style>
+#shopify-section-{{ sid }} .sahd{position:relative;overflow:hidden;text-align:left;
+  margin:0 0 {{ s.head_gap }}px;
+  padding:{{ s.head_pad_y }}px {{ s.head_pad_x }}px {{ s.head_pad_y | minus: 4 }}px;
+  border-radius:{{ s.head_radius }}px;
+  background:linear-gradient(178deg,
+    color-mix(in srgb,var(--hacc) {{ s.head_wash }}%,{{ s.c_page }}),
+    color-mix(in srgb,var(--hacc) {{ s.head_wash | times: 0.42 | round }}%,{{ s.c_page }}) 100%)}
+#shopify-section-{{ sid }} .sahd.sableed{width:100vw;max-width:100vw;
+  margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);border-radius:0;
+  padding-left:{{ s.side | plus: 4 }}px;padding-right:{{ s.side | plus: 4 }}px}
+#shopify-section-{{ sid }} .sahin{position:relative;z-index:2;max-width:{{ s.maxw }}px;margin:0 auto}
+
+#shopify-section-{{ sid }} .sahwm{position:absolute;right:{{ s.wm_head_right }}px;top:{{ s.wm_head_top }}px;z-index:1;
+  font-family:var(--figs,"Fraunces",Georgia,serif);font-weight:{{ s.wm_head_weight }};
+  font-size:{{ s.wm_head_size }}px;line-height:.8;letter-spacing:-.02em;text-transform:uppercase;
+  color:var(--hacc);opacity:{{ s.wm_head_op | divided_by: 100.0 }};pointer-events:none;user-select:none;
+  white-space:nowrap}
+
+{%- comment -%}
+  The eyebrow is a flex block, not inline-flex. As an inline box it sat on the
+  baseline of a line box sized by the section's inherited line-height, which put
+  roughly 12px of leading above a 10px line — space no padding setting can reach.
+  width:fit-content keeps it hugging its own text the way inline-flex did.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .sahd .sakick{display:flex;width:fit-content;line-height:1.2;
+  align-items:center;gap:7px;
+  font-size:{{ s.kick_size }}px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--hacc);font-weight:600;margin:0}
+#shopify-section-{{ sid }} .sahd .sakick::before{content:"";width:16px;height:1px;background:var(--hacc);opacity:.6}
+#shopify-section-{{ sid }} .sahd h2{font-family:var(--figs,"Fraunces",Georgia,serif);font-weight:500;
+  font-size:{{ s.h_size }}px;line-height:1.04;letter-spacing:-.02em;margin:{{ s.kick_gap }}px 0 0;
+  color:{{ s.c_ink }}}
+#shopify-section-{{ sid }} .sahd .sasub{margin:8px 0 0;font-size:{{ s.sub_size }}px;line-height:1.6;
+  color:{{ s.c_soft }};max-width:34ch;font-weight:300}
+#shopify-section-{{ sid }} .sahd .sacnt{display:inline-flex;align-items:center;gap:6px;margin-top:13px;
+  font-size:{{ s.cnt_size }}px;letter-spacing:.14em;text-transform:uppercase;color:var(--hacc);font-weight:600;
+  background:rgba(255,255,255,.72);
+  border:1px solid color-mix(in srgb,var(--hacc) 26%,transparent);
+  padding:5px 11px;border-radius:100px}
+#shopify-section-{{ sid }} .sahd .sacnt i{width:5px;height:5px;border-radius:50%;background:var(--hacc);display:block}
+
+{%- comment -%}
+  The gender tabs when they are not the chosen one. sa-collbar.liquid paints
+  .sagt-t in c_faint, which is 2.34:1 against the page — under the 4.5:1 AA asks
+  for at 9.5px. Its sheet is emitted after this one, so these rules carry the
+  section id to outrank it, and :not(.on) so the chosen tab keeps its own ink.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .sagt-t:not(.on){color:{{ s.c_soft }}}
+#shopify-section-{{ sid }} .sagt-t:not(.on) .sagt-c .fp{opacity:.55}
+
+@supports not (background: color-mix(in srgb,red 20%,blue)){
+  #shopify-section-{{ sid }} .sahd{background:{{ s.c_page }}}
+  #shopify-section-{{ sid }} .sahd .sacnt{border-color:{{ s.c_gold2 }}}
+}
+@media(min-width:900px){
+  #shopify-section-{{ sid }} .sahd{padding-top:{{ s.head_pad_y | plus: 14 }}px;
+    padding-bottom:{{ s.head_pad_y | plus: 6 }}px}
+  #shopify-section-{{ sid }} .sahd h2{font-size:{{ s.h_size | plus: 10 }}px}
+  #shopify-section-{{ sid }} .sahwm{font-size:{{ s.wm_head_size | plus: 28 }}px}
+}
+</style>
