@@ -32,12 +32,9 @@
 {%- assign rate  = s.rate  | default: 49 -%}
 
 {%- comment -%}
-  Family palette, the same four as the collection card. The ORDER matters:
-  32 of the 50 testers carry more than one family tag, and the first match
-  in this list is the one the card shows and takes its colour from. woody-oud
-  sat second and so won 15 times, though only 5 of these scents are actually
-  oud - on the rest it is the base note, tagged alongside the family that
-  really describes them. Last is where a base note belongs.
+  Family palette, same four as the collection card. ORDER matters: 32 of the
+  50 testers carry two family tags and the first match here wins. woody-oud
+  is last because on all but five it is the base note, not the family.
 {%- endcomment -%}
 {%- assign fam_keys = 'fresh-aquatic,amber-sweet,floral-fruity,woody-oud' | split: ',' -%}
 
@@ -659,7 +656,7 @@
       "info": "Used for the running total. Keep it the same as in the box." },
     { "type": "text", "id": "currency", "label": "Currency mark", "default": "₹" },
     { "type": "range", "id": "free_at", "min": 0, "max": 999, "step": 1, "unit": "₹", "label": "Free delivery over", "default": 299,
-      "info": "What the bar has to pass before it turns gold. The discovery box carries this figure too and wins when it is on the page; this is what the bar falls back on when it is not." },
+      "info": "What the tray must pass before the bar turns gold." },
 
     { "type": "header", "content": "The bar at the bottom" },
     { "type": "text", "id": "bar_empty", "label": "Empty · line 1", "default": "Your tray is empty" },
