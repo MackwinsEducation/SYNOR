@@ -581,3 +581,43 @@ lives in **`assets/sa-desktop-wide.css`** (4.8KB), loaded from
 cascade is identical. sa-desktop.css itself was left untouched on the
 theme (verified: still 59024 / c62c3817…). New desktop work goes in the
 small file.
+
+## The last two homepage sections (§12) — shown before built
+
+The merchant asked for the design in HTML first, approval, then the build.
+A before/after preview was published as an artifact ("Sheet and Scale"),
+approved, and then §12 written to match it exactly.
+
+**`sa-howsheet` — the "How it works" panel.** It has no desktop tier at
+all, so at 1920 it was still a 460px strip glued to the bottom edge,
+sliding up, with a drag grip. It is now the centred dialog §9 already gave
+the collection Filter and Sort sheets, so the site has one shape for this.
+The grip is hidden, which also disarms the drag: the section binds
+`mousedown`/`touchstart` to the grip alone. It writes its drag offset as an
+inline `transform`, which the `!important` here outranks in any case.
+
+**`sa-oilscale` — the three-bottle scale.** This carries the whole
+30%-oil argument and on a desktop it was unreadable, not merely small:
+`Oil concentration` set at **6.6px**, the grade at 8.2px, bottles drawn
+88px wide, and the shelf capped at 760px and centred while the heading
+stayed left, so the two halves never bound into one composition. Type goes
+to desktop sizes, the bottles are drawn larger (inline SVG with a viewBox,
+so a `width` plus `height:auto` scales it), and from 1280 the section takes
+the theme's usual desktop shape — words left, the thing explained right,
+as sa-founder and the heat comparison already do.
+
+The two-column split starts at **1280, not 900**: at 900 the right column
+would give each bottle about 139px of track, tighter than the bottle
+itself, so 900–1279 stays stacked and takes only the sizes.
+
+Verified against the real section CSS:
+
+| width | the sheet | the scale |
+| --- | --- | --- |
+| 390 | bottom, 390 wide, grip shown | stacked, bottle 88, cap 6.6px — **untouched** |
+| 900 | centred, 560, grip hidden | stacked, bottle 108, cap 9px, grade 12px |
+| 1280 | centred | two columns, bottle 132 |
+| 1440 | centred | two columns, bottle 132, shelf 745 |
+| 1920 | centred | two columns, bottle 150, shelf 1021 |
+
+No horizontal scrollbar at any width.

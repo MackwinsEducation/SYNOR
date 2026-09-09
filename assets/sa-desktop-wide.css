@@ -99,3 +99,177 @@
     height: 66% !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   12. THE LAST TWO HOMEPAGE SECTIONS  (approved from the preview)
+
+   ── "How it works" (sa-howsheet) ──
+   The panel that explains the ₹49 cashback. Its stylesheet has no desktop
+   tier at all, so on a 1920 screen it is still a 460px strip glued to the
+   bottom edge, sliding up, with a drag grip on top. Given a centred
+   dialog instead — the same shape the collection Filter and Sort sheets
+   were given in §9, so the two behave alike.
+
+   The grip is hidden, which also disarms the drag: the section binds
+   `mousedown`/`touchstart` to the grip alone, and it writes its offset as
+   an inline `transform`, which an `!important` here outranks anyway.
+   Nothing inside the panel changes.
+
+   ── "The SYNOR standard" (sa-oilscale) ──
+   The three bottles that carry the whole 30%-oil argument. On a desktop
+   it was unreadable rather than merely small: "Oil concentration" is set
+   at 6.6px and the grade at 8.2px, the bottles are drawn 88px wide, and
+   the shelf is capped at 760px and centred while the heading stays left,
+   so the two halves never bind into one composition.
+
+   The type is taken to desktop sizes, the bottles are drawn larger (the
+   art is an inline SVG with a viewBox, so a width and `height:auto`
+   scales it cleanly), and from 1280 the section becomes the theme's usual
+   desktop shape — the words in a left column, the thing being explained
+   in a right one, as sa-founder and the heat comparison already do.
+   Between 900 and 1280 it stays stacked: two columns there would leave
+   each bottle about 139px of track, which is tighter than the bottle.
+
+   `:has()` again keeps `.hw` and `.oc` — two very short class names —
+   from claiming anything else on the site.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media screen and (min-width: 900px) {
+  /* ── the sheet becomes a dialog ── */
+  body .hw:has(.hw-body) {
+    left: 50% !important;
+    right: auto !important;
+    top: 50% !important;
+    bottom: auto !important;
+    width: 560px !important;
+    max-width: calc(100vw - 96px) !important;
+    max-height: min(76vh, 720px) !important;
+    margin: 0 !important;
+    border-radius: 20px !important;
+    transform: translate(-50%, -46%) scale(0.97) !important;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 34px 70px -26px rgba(20, 16, 10, 0.6) !important;
+    transition: transform 0.24s cubic-bezier(0.22, 0.9, 0.3, 1), opacity 0.2s ease !important;
+  }
+
+  body .hw.is-on:has(.hw-body) {
+    transform: translate(-50%, -50%) scale(1) !important;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* a handle to drag a sheet up by — there is no sheet to drag now */
+  body .hw:has(.hw-body) .hw-grip {
+    display: none !important;
+  }
+
+  /* ── the oil scale, read from a desk ── */
+  body [id^='shopify-section-'] .oc:has(.oc-shelf) .oc-h {
+    font-size: 40px !important;
+  }
+
+  body [id^='shopify-section-'] .oc:has(.oc-shelf) .oc-say {
+    font-size: 15px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-art {
+    height: 200px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-art svg {
+    width: 108px !important;
+    height: auto !important;
+  }
+
+  body [id^='shopify-section-'] .oc-pct {
+    font-size: 24px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-pct.is-ours {
+    font-size: 26px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-cap {
+    font-size: 9px !important;
+    padding-top: 8px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-rule i {
+    width: 44px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-grade {
+    font-size: 12px !important;
+    padding-top: 11px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-std {
+    font-size: 9px !important;
+    padding-top: 6px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-close {
+    font-size: 13px !important;
+    margin-top: 20px !important;
+  }
+}
+
+/* From 1280 there is room for the words beside the bottles. Below it the
+   right column would give each bottle ~139px of track, so it stays
+   stacked and only the sizes above apply. */
+@media screen and (min-width: 1280px) {
+  body [id^='shopify-section-'] .oc:has(.oc-shelf) {
+    max-width: none !important;
+    display: grid !important;
+    grid-template-columns: 0.85fr 1.15fr;
+    column-gap: 64px;
+    align-items: start;
+  }
+
+  body [id^='shopify-section-'] .oc:has(.oc-shelf) > * {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  body [id^='shopify-section-'] .oc:has(.oc-shelf) > .oc-shelf {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: center;
+    max-width: none !important;
+    margin-top: 0 !important;
+    margin-inline: 0 !important;
+  }
+
+  body [id^='shopify-section-'] .oc-art {
+    height: 243px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-art svg {
+    width: 132px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-pct {
+    font-size: 26px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-pct.is-ours {
+    font-size: 28px !important;
+  }
+}
+
+@media screen and (min-width: 1700px) {
+  body [id^='shopify-section-'] .oc-art {
+    height: 276px !important;
+  }
+
+  body [id^='shopify-section-'] .oc-art svg {
+    width: 150px !important;
+  }
+}
+
+@media screen and (min-width: 900px) and (prefers-reduced-motion: reduce) {
+  body .hw:has(.hw-body) {
+    transition: none !important;
+  }
+}
