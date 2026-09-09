@@ -1,0 +1,185 @@
+{%- comment -%}
+  SYNOR — "Take these three", and the delivery line under it.
+
+  Fifty bottles at one price is not a shelf, it is a stall. The question a
+  shopper actually arrives with is which one, and the page had no answer.
+  This picks three, one from each of three families, so a week tells them
+  something: fresh, warm, deep.
+
+  Chosen from the collection itself rather than hand-listed, so it cannot
+  go stale when the catalogue changes. Bestsellers are preferred; the
+  second pass takes anything, and each product can only fill one slot.
+
+  The button does not keep its own basket. It clicks the tray's own tiles,
+  so the count, the total, the bar and the remembered box are all still the
+  tray's — there is one source of truth on this page and it is down there.
+{%- endcomment -%}
+
+{%- liquid
+  assign s_aqua = ''
+  assign s_amber = ''
+  assign s_oud = ''
+  for pass in (1..2)
+    for p in collection.products
+      assign ok = false
+      if pass == 1 and p.tags contains 'bestseller'
+        assign ok = true
+      elsif pass == 2
+        assign ok = true
+      endif
+      if ok
+        if s_aqua == '' and p.tags contains 'family-fresh-aquatic'
+          assign s_aqua = p.handle
+        elsif s_amber == '' and p.tags contains 'family-amber-sweet' and p.handle != s_aqua
+          assign s_amber = p.handle
+        elsif s_oud == '' and p.tags contains 'family-woody-oud' and p.handle != s_aqua and p.handle != s_amber
+          assign s_oud = p.handle
+        endif
+      endif
+    endfor
+  endfor
+  assign picks = s_aqua | append: ',' | append: s_amber | append: ',' | append: s_oud | split: ','
+  assign rate = rate | default: 49
+  assign total = rate | times: 3
+  assign word = match | default: '3ml' | downcase
+-%}
+
+{%- comment -%} split keeps an empty slot as an empty string, so size is not the test {%- endcomment -%}
+{%- if s_aqua != '' and s_amber != '' and s_oud != '' -%}
+<div class="tst" data-tststart>
+  <span class="tst-lb">{{ lb | default: 'Not sure where to start' }}</span>
+  <h2 class="tst-h">{{ head | default: 'Take these three.' }}</h2>
+  <p class="tst-why">{{ why | default: 'One fresh, one warm, one deep — so a week tells you what you actually like.' }}</p>
+
+  <div class="tst-picks">
+    {%- for h in picks -%}
+      {%- liquid
+        assign p = all_products[h]
+        assign fam = 'Fresh'
+        assign fc = '#3F8296'
+        if p.tags contains 'family-amber-sweet' and h == s_amber
+          assign fam = 'Warm'
+          assign fc = '#B8843F'
+        endif
+        if p.tags contains 'family-woody-oud' and h == s_oud
+          assign fam = 'Deep'
+          assign fc = '#8A5F2E'
+        endif
+        assign tv = blank
+        for v in p.variants
+          assign vt = v.title | downcase | replace: ' ', ''
+          if tv == blank and vt contains word
+            assign tv = v
+          endif
+        endfor
+        if tv == blank
+          assign tv = p.variants.first
+        endif
+      -%}
+      <a class="tst-p" href="{{ p.url }}" style="--fam:{{ fc }}" data-tstid="{{ tv.id }}">
+        {%- if p.featured_image -%}
+          <img src="{{ p.featured_image | image_url: width: 240 }}"
+               alt="{{ p.title | escape }}" width="240" height="240" loading="lazy">
+        {%- endif -%}
+        <span class="nm">{{ p.title | replace: 'SYNOR ', '' }}</span>
+        <span class="fm">{{ fam }}</span>
+      </a>
+    {%- endfor -%}
+  </div>
+
+  <button type="button" class="tst-go" data-tstgo
+          data-idle="{{ idle | default: 'Take all three' }}"
+          data-done="{{ done | default: '✓ All three in the tray' }}"
+          data-money="₹{{ total }}, all of it back">
+    <span data-tstw>{{ idle | default: 'Take all three' }}</span>
+    <em>· ₹{{ total }}, all of it back</em>
+  </button>
+</div>
+
+<p class="tst-free">
+  <b>{{ free_head | default: 'Seven testers and delivery is free.' }}</b>
+  {{ free_sub | default: '₹343, and every rupee of it comes back.' }}
+</p>
+
+<style>
+.tst{margin:20px 13px 0;padding:16px 15px 15px;border-radius:18px;background:#fff;
+  box-shadow:0 10px 30px -20px rgba(60,45,20,.5),0 0 0 1px rgba(200,153,75,.30);
+  font-family:'Jost',system-ui,sans-serif;color:#1A1712}
+.tst *{box-sizing:border-box}
+.tst-lb{display:block;font-size:8px;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:#A9A08E}
+.tst-h{font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:600;
+  margin:5px 0 0;letter-spacing:-.015em;line-height:1.2}
+.tst-why{font-size:11.5px;color:#6E6656;margin:4px 0 0;line-height:1.45}
+.tst-picks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}
+.tst-p{position:relative;overflow:hidden;display:block;text-decoration:none;color:inherit;
+  background:#F7F3EA;border-radius:12px;padding:0 5px 9px;text-align:center;
+  transition:transform .16s ease}
+.tst-p:active{transform:scale(.97)}
+.tst-p::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:var(--fam);z-index:2}
+.tst-p img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;
+  border-radius:12px 12px 0 0;margin:0 -5px;width:calc(100% + 10px);max-width:none}
+.tst-p .nm{display:block;font-family:'Fraunces',Georgia,serif;font-size:11px;
+  font-weight:600;line-height:1.2;margin-top:7px}
+.tst-p .fm{display:block;font-size:7px;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;margin-top:4px;color:var(--fam)}
+.tst-go{display:block;width:100%;margin-top:12px;border:0;cursor:pointer;
+  font-family:inherit;background:#1A1712;color:#F6EDDA;border-radius:11px;
+  padding:12px;text-align:center;font-size:12px;font-weight:600;letter-spacing:.02em;
+  -webkit-tap-highlight-color:transparent;transition:background .2s ease}
+.tst-go em{font-style:normal;color:#E0C68C}
+.tst-go.on{background:linear-gradient(90deg,#8C6B2E,#C8994B);color:#221A08}
+.tst-go.on em{color:#3E2E10}
+.tst-free{margin:20px 22px 0;padding-top:15px;border-top:1px solid #E5DFD1;
+  text-align:center;font-size:11.5px;color:#6E6656;line-height:1.5;
+  font-family:'Jost',system-ui,sans-serif}
+.tst-free b{display:block;font-family:'Fraunces',Georgia,serif;font-size:15px;
+  font-weight:600;color:#1A1712;letter-spacing:-.01em;margin-bottom:2px}
+@media(min-width:750px){
+  .tst,.tst-free{max-width:720px;margin-left:auto;margin-right:auto}
+}
+</style>
+
+<script>
+(function(){
+  var box = document.querySelector('[data-tststart]');
+  if(!box || box.dataset.bound) return;
+  box.dataset.bound = '1';
+
+  var go = box.querySelector('[data-tstgo]');
+  var word = box.querySelector('[data-tstw]');
+  var ids = Array.prototype.map.call(box.querySelectorAll('[data-tstid]'),
+    function(a){ return a.getAttribute('data-tstid') });
+
+  function tiles(){
+    return ids.map(function(id){
+      return document.querySelector('[data-stp][data-id="' + id + '"]');
+    }).filter(Boolean);
+  }
+  function allIn(t){ return t.length === ids.length && t.every(function(x){
+    return x.classList.contains('on') }); }
+
+  function paint(){
+    var t = tiles(), on = allIn(t);
+    go.classList.toggle('on', on);
+    word.textContent = go.getAttribute(on ? 'data-done' : 'data-idle');
+  }
+
+  /* The three are added by clicking the tray's own tiles, so every count on
+     this page keeps coming from one place. A tile already in the tray is
+     left alone — this button adds, it never takes away. */
+  go.addEventListener('click', function(){
+    var t = tiles();
+    if(!t.length) return;
+    t.forEach(function(x){ if(!x.classList.contains('on')) x.click(); });
+    setTimeout(paint, 0);
+  });
+
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-stp]')) setTimeout(paint, 0);
+  });
+
+  paint();
+})();
+</script>
+{%- endif -%}
