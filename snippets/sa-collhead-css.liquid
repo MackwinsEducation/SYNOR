@@ -52,23 +52,43 @@
 
 {%- comment -%}
   The collection description: two lines on a phone, three from 900, with a
-  toggle under it. The clamp is CSS only, so the full text stays in the markup;
-  the checkbox is off-screen but still focusable, and the label carries real
-  words rather than ::after content so a screen reader announces the state.
+  toggle on the end of the last one. The clamp is CSS only, so the full text
+  stays in the markup; the checkbox is off-screen but still focusable, and the
+  label carries real words rather than ::after content so a screen reader
+  announces the state.
 {%- endcomment -%}
 #shopify-section-{{ sid }} .sahd .sasub-t{position:absolute;width:1px;height:1px;opacity:0;margin:0;pointer-events:none}
+#shopify-section-{{ sid }} .sahd .sasub-w{position:relative;margin:8px 0 0;
+  font-size:{{ s.sub_size }}px;max-width:34ch}
+#shopify-section-{{ sid }} .sahd .sasub-w .sasub{margin:0;max-width:none}
 #shopify-section-{{ sid }} .sahd .sasub-clamp{display:-webkit-box;-webkit-box-orient:vertical;
   -webkit-line-clamp:2;line-clamp:2;overflow:hidden}
-#shopify-section-{{ sid }} .sahd .sasub-t:checked ~ .sasub-clamp{display:block;overflow:visible}
-#shopify-section-{{ sid }} .sahd .sasub-m{display:inline-block;margin-top:6px;cursor:pointer;
-  font-size:{{ s.cnt_size }}px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
-  color:var(--hacc);padding-bottom:1px;
-  border-bottom:1px solid color-mix(in srgb,var(--hacc) 40%,transparent);
+#shopify-section-{{ sid }} .sahd .sasub-t:checked ~ .sasub-w .sasub-clamp{display:block;overflow:visible}
+
+{%- comment -%}
+  Collapsed, the toggle is laid on the right end of the last visible line and
+  costs no height. The strip it sits on fades in from the band's own colour at
+  zero alpha, so the words it covers dissolve rather than meeting an edge; the
+  band's gradient has all but landed on its end colour by the time it reaches
+  this line, which is what the 42% here matches. ::before widens the tap target
+  above and below without moving anything. Opened, it returns to the flow and
+  takes a line of its own, which by then is a line the reader asked for.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .sahd .sasub-m{position:absolute;right:0;bottom:0;z-index:2;cursor:pointer;
+  font-size:{{ s.sub_size }}px;line-height:1.6;font-weight:600;color:var(--hacc);
+  text-decoration:underline;text-underline-offset:2px;
+  padding-left:38px;
+  background:linear-gradient(90deg,
+    {{ s.c_page | color_modify: 'alpha', 0 }},
+    color-mix(in srgb,var(--hacc) {{ s.head_wash | times: 0.42 | round }}%,{{ s.c_page }}) 58%);
   -webkit-tap-highlight-color:transparent}
+#shopify-section-{{ sid }} .sahd .sasub-m::before{content:"";position:absolute;inset:-7px -4px -7px 0}
 #shopify-section-{{ sid }} .sahd .sasub-less{display:none}
-#shopify-section-{{ sid }} .sahd .sasub-t:checked ~ .sasub-m .sasub-more{display:none}
-#shopify-section-{{ sid }} .sahd .sasub-t:checked ~ .sasub-m .sasub-less{display:inline}
-#shopify-section-{{ sid }} .sahd .sasub-t:focus-visible ~ .sasub-m{outline:2px solid var(--hacc);outline-offset:3px}
+#shopify-section-{{ sid }} .sahd .sasub-t:checked ~ .sasub-w .sasub-m{position:relative;
+  background:none;padding-left:0;margin-top:4px;display:inline-block}
+#shopify-section-{{ sid }} .sahd .sasub-t:checked ~ .sasub-w .sasub-m .sasub-more{display:none}
+#shopify-section-{{ sid }} .sahd .sasub-t:checked ~ .sasub-w .sasub-m .sasub-less{display:inline}
+#shopify-section-{{ sid }} .sahd .sasub-t:focus-visible ~ .sasub-w .sasub-m{outline:2px solid var(--hacc);outline-offset:3px}
 
 @supports not (background: color-mix(in srgb,red 20%,blue)){
   #shopify-section-{{ sid }} .sahd{background:{{ s.c_page }}}

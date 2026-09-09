@@ -84,6 +84,11 @@
         it. Anything short enough to fit inside the clamp is rendered plainly —
         a "More" that reveals nothing is worse than no "More" at all. 90
         characters is about two lines at 13px in this column.
+
+        The toggle is laid over the end of the last visible line rather than
+        put under it, so it costs no height at all. It cannot sit inside the
+        paragraph — the clamp needs overflow:hidden and would cut it off — so
+        the two share a positioned wrapper.
       {%- endcomment -%}
       {%- liquid
         assign dtext = collection.description
@@ -97,8 +102,10 @@
       -%}
       {%- if dlen > 90 -%}
         <input class="sasub-t" type="checkbox" id="sasub-{{ collection.id }}">
-        <p class="sasub sasub-clamp">{{ dtext }}</p>
-        <label class="sasub-m" for="sasub-{{ collection.id }}"><span class="sasub-more">More</span><span class="sasub-less">Less</span></label>
+        <div class="sasub-w">
+          <p class="sasub sasub-clamp">{{ dtext }}</p>
+          <label class="sasub-m" for="sasub-{{ collection.id }}"><span class="sasub-more">More</span><span class="sasub-less">Less</span></label>
+        </div>
       {%- else -%}
         <p class="sasub">{{ dtext }}</p>
       {%- endif -%}
