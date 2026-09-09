@@ -32,9 +32,12 @@
 {%- assign rate  = s.rate  | default: 49 -%}
 
 {%- comment -%}
-  Family palette, same four as the collection card. ORDER matters: 32 of the
-  50 testers carry two family tags and the first match here wins. woody-oud
-  is last because on all but five it is the base note, not the family.
+  Family palette, the same four as the collection card. The ORDER matters:
+  32 of the 50 testers carry more than one family tag, and the first match
+  in this list is the one the card shows and takes its colour from. woody-oud
+  sat second and so won 15 times, though only 5 of these scents are actually
+  oud - on the rest it is the base note, tagged alongside the family that
+  really describes them. Last is where a base note belongs.
 {%- endcomment -%}
 {%- assign fam_keys = 'fresh-aquatic,amber-sweet,floral-fruity,woody-oud' | split: ',' -%}
 
@@ -311,7 +314,6 @@
 
   var CFG = {
     rate      : {{ rate }},
-    freeAt    : {{ s.free_at | default: 299 }},
     cur       : {{ s.currency | default: '₹' | json }},
     onWord    : {{ s.add_on_text | default: '✓ Added' | json }},
     offWord   : {{ s.add_text | default: '+ ₹49' | json }},
@@ -493,7 +495,7 @@
       order has crossed the shop's real free-delivery line, which is the only
       threshold on this page that actually exists.
     {%- endcomment -%}
-    var full = picks.length > 0 && tot >= (WK ? WK.freeAt : CFG.freeAt);
+    var full = WK ? (tot >= WK.freeAt && picks.length > 0) : false;
     bar.className = 'stbar' + (full ? ' done' : '') + (picks.length ? '' : ' empty')
                   + (busy ? ' busy' : '') + (bar.classList.contains('down') ? ' down' : '');
 
@@ -655,8 +657,6 @@
     { "type": "range", "id": "rate", "min": 9, "max": 199, "step": 2, "unit": "₹", "label": "Price of one tester", "default": 49,
       "info": "Used for the running total. Keep it the same as in the box." },
     { "type": "text", "id": "currency", "label": "Currency mark", "default": "₹" },
-    { "type": "range", "id": "free_at", "min": 0, "max": 999, "step": 1, "unit": "₹", "label": "Free delivery over", "default": 299,
-      "info": "What the tray must pass before the bar turns gold." },
 
     { "type": "header", "content": "The bar at the bottom" },
     { "type": "text", "id": "bar_empty", "label": "Empty · line 1", "default": "Your tray is empty" },
