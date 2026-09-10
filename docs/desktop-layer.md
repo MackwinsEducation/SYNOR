@@ -813,11 +813,24 @@ is identical to today's.
 ### Not built: "On your skin"
 
 `sa-wears` was drawn in the same preview and **held back** at the merchant's
-request — he wants to think about it. The fault stands and is worth recording:
-the section is set `bare: true`, which is right on a phone (it strips the
-card), but `bare` also sets `max-width: none`, and there is no desktop rule
-to put a limit back. So on the product page it is the only section that runs
-the full width of the window while every other one sits in `sa-desktop.liquid`'s
-1400px box — `.ws` is simply not in that file's widened list
-(`.ug-in, .jr, .nl, .tg, .cb, .rv, .fq-in, .ht, .tw`), because sa-wears is
-newer than it.
+request — he wants to think about it.
+
+**Correction to what the preview said about it.** The preview claimed `.ws`
+runs the full width of the window on the product page. It does not. `bare:
+true` does set `max-width: none`, and `.ws` is genuinely absent from
+sa-desktop.liquid's widened list (`.ug-in, .jr, .nl, .tg, .cb, .rv, .fq-in,
+.ht, .tw`) — but on the product page the section never renders where the
+template puts it. `sa-drawers` is configured with `strip_key: "sa_wears"`, and
+its script *removes* the whole `<section>` from the DOM and re-hosts its
+children inside `.dw-strip`:
+
+```js
+while (sec.firstChild) { d.appendChild(sec.firstChild); }
+if (sec.parentNode) { sec.parentNode.removeChild(sec); }
+```
+
+So on the product page "On your skin" is inside the drawers box, and `.dw`
+decides its width — 560px from the section, 1400px with §10. The full-width
+fault would only appear if sa-wears were placed on a page where nothing
+harvests it. Held back, and now held back for a better reason than the one
+given.
