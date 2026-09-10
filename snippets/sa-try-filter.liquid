@@ -1,0 +1,100 @@
+{%- comment -%}
+  SYNOR — a way into fifty.
+
+  The tray's ⊞ / ☰ switch changes how dense the grid is, not how it is
+  organised, so fifty identical prices arrive in catalogue order with no
+  way to narrow them. A curated set would answer "which one?" by drawing a
+  ceiling. A filter answers it by clearing the table: nothing is hidden
+  from the shopper's reach, and All is one tap away.
+
+  It reads the tiles the tray already printed rather than rendering its own
+  grid — there is one grid on this page and it belongs to the tray. Each
+  tile carries data-fc, its family colour, which is the same value the card
+  is coloured with, so a chip and the cards it shows can never disagree.
+
+  The counts are worked out with the tray's own family precedence
+  (aquatic, amber, floral, oud), so a chip that says 18 shows 18.
+{%- endcomment -%}
+
+{%- liquid
+  assign c_aqua = 0
+  assign c_amber = 0
+  assign c_bloom = 0
+  assign c_oud = 0
+  for p in collection.products
+    if p.tags contains 'family-fresh-aquatic'
+      assign c_aqua = c_aqua | plus: 1
+    elsif p.tags contains 'family-amber-sweet'
+      assign c_amber = c_amber | plus: 1
+    elsif p.tags contains 'family-floral-fruity'
+      assign c_bloom = c_bloom | plus: 1
+    elsif p.tags contains 'family-woody-oud'
+      assign c_oud = c_oud | plus: 1
+    endif
+  endfor
+  assign total = c_aqua | plus: c_amber | plus: c_bloom | plus: c_oud
+-%}
+
+<div class="tsfl" data-tsfl hidden>
+  <button type="button" class="on" data-fc="" style="--fam:#8C6B2E">
+    {{ all_word | default: 'All' }}<i>{{ total }}</i></button>
+  {%- if c_aqua > 0 -%}<button type="button" data-fc="#3F8296" style="--fam:#3F8296">
+    {{ w_aqua | default: 'Fresh' }}<i>{{ c_aqua }}</i></button>{%- endif -%}
+  {%- if c_amber > 0 -%}<button type="button" data-fc="#B8843F" style="--fam:#B8843F">
+    {{ w_amber | default: 'Amber' }}<i>{{ c_amber }}</i></button>{%- endif -%}
+  {%- if c_oud > 0 -%}<button type="button" data-fc="#8A5F2E" style="--fam:#8A5F2E">
+    {{ w_oud | default: 'Woody' }}<i>{{ c_oud }}</i></button>{%- endif -%}
+  {%- if c_bloom > 0 -%}<button type="button" data-fc="#B4707C" style="--fam:#B4707C">
+    {{ w_bloom | default: 'Floral' }}<i>{{ c_bloom }}</i></button>{%- endif -%}
+</div>
+
+<style>
+.tsfl{display:flex;gap:6px;padding:2px 13px 0;overflow-x:auto;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;font-family:'Jost',system-ui,sans-serif}
+.tsfl::-webkit-scrollbar{display:none}
+.tsfl button{flex:none;display:inline-flex;align-items:center;gap:5px;cursor:pointer;
+  font:inherit;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:8px 12px;border-radius:100px;background:none;color:#6E6656;
+  border:1px solid rgba(26,23,18,.14);-webkit-tap-highlight-color:transparent;
+  transition:background .18s ease,color .18s ease,border-color .18s ease}
+.tsfl button i{font-style:normal;font-size:9px;font-weight:600;letter-spacing:0;
+  opacity:.55;font-variant-numeric:tabular-nums}
+.tsfl button.on{background:var(--fam);border-color:var(--fam);color:#FFFDF8}
+.tsfl button.on i{opacity:.72}
+.tsfl button:focus-visible{outline:2px solid var(--fam);outline-offset:2px}
+@media(min-width:750px){
+  .tsfl{max-width:720px;margin:0 auto;justify-content:center;flex-wrap:wrap;overflow:visible}
+}
+</style>
+
+<script>
+(function(){
+  var bar = document.querySelector('[data-tsfl]');
+  if(!bar || bar.dataset.bound) return;
+  bar.dataset.bound = '1';
+
+  /* The chips are printed before the tray so they exist by now, then moved
+     to sit directly under the tray's own header row — above the grid they
+     act on, which is where a filter has to be to make sense. */
+  var tray = document.querySelector('[data-sttray]');
+  if(!tray){ return; }
+  var head = tray.parentNode.querySelector('.stv');
+  if(head && head.parentNode) head.after(bar); else tray.before(bar);
+  bar.hidden = false;
+
+  var btns = Array.prototype.slice.call(bar.querySelectorAll('button'));
+
+  function apply(fc){
+    Array.prototype.forEach.call(tray.querySelectorAll('[data-stp]'), function(t){
+      t.style.display = (!fc || t.getAttribute('data-fc') === fc) ? '' : 'none';
+    });
+    btns.forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-fc') === fc); });
+  }
+
+  bar.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('button');
+    if(!b) return;
+    apply(b.getAttribute('data-fc'));
+  });
+})();
+</script>
