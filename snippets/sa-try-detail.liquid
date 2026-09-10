@@ -43,6 +43,10 @@
   assign c_amberw= f_amberw| default: '#F7EAD2'
   assign c_bloom = f_bloom | default: '#B4707C'
   assign c_bloomw= f_bloomw| default: '#F6E5E7'
+  assign c_ink   = ink     | default: '#1A1712'
+  assign c_gold  = gold    | default: '#C8994B'
+  assign c_onink = gold_ink| default: '#241C0B'
+  assign c_btnink= btn_ink | default: '#F6EDDA'
 -%}
 
 <script type="application/json" data-stdt-data>[
@@ -171,16 +175,48 @@
 .sttile .stmuse b{font-weight:600;color:var(--mc,#8C6B2E)}
 .sttray.c .sttile .stmuse{padding:4px 9px 0;font-size:9.5px}
 
-.sttile .stinfo{position:absolute;right:5px;bottom:5px;width:21px;height:21px;z-index:5;
-  border:0;padding:0;border-radius:50%;cursor:pointer;
+/* ── the ⓘ, on the row where ₹49 already is ──────────────────────────
+   A disc floating on the bottle was wrong twice over: it sat on top of the
+   photograph, and it sat inside a tile whose whole surface adds to the
+   tray, so a near miss cost the shopper a tester. Splitting the button
+   the card already has fixes both and costs the card no height at all.
+
+   ₹49 keeps the room it had minus 30px; the ⓘ half is filled, because
+   the first version failed for being a pale disc on a pale photo. Both
+   halves turn gold together once the scent is in the tray, so the control
+   still reads as one object.
+
+   Nothing here fights the tray's own rules: .add is reshaped with inline
+   styles (which outrank any selector) and everything else is a class the
+   tray has never heard of. */
+.sttile .stbtn{display:flex;align-items:stretch;margin:6px}
+.sttile .stinf{position:relative;flex:none;width:30px;border:0;padding:0;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  font:600 11px/1 'Fraunces',Georgia,serif;font-style:italic;
-  background:rgba(255,253,248,.88);color:#1A1712;
-  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
-  box-shadow:0 1px 3px rgba(26,23,18,.2);-webkit-tap-highlight-color:transparent;
-  transition:transform .14s ease}
-.sttile .stinfo:active{transform:scale(.88)}
-.sttile .stinfo:focus-visible{outline:2px solid #C8994B;outline-offset:2px}
+  font:700 13px/1 'Fraunces',Georgia,serif;font-style:italic;
+  background:{{ c_ink }};color:{{ c_btnink }};border-radius:0 7px 7px 0;
+  -webkit-tap-highlight-color:transparent;transition:opacity .14s ease}
+/* the tap area runs well past the ink, out to the card's own edge */
+.sttile .stinf::after{content:"";position:absolute;inset:-9px -6px -6px -4px}
+.sttile .stinf:active{opacity:.72}
+.sttile .stinf:focus-visible{outline:2px solid {{ c_gold }};outline-offset:2px}
+.sttile.on .stinf{background:{{ c_gold }};color:{{ c_onink }}}
+
+/* ☰ card view has no + ₹49 button at all — there the price line carries
+   the figure, so that is where the ⓘ goes. Same rule in both views:
+   wherever ₹49 is, the ⓘ is beside it. */
+.sttray.c .sttile .stbtn{display:none}
+.sttray.v .sttile .stinf-p{display:none}
+.sttray.c .sttile .pr{display:flex;align-items:center}
+.sttile .stinf-p{margin-left:auto;width:22px;height:22px;border-radius:6px;
+  position:relative;flex:none;border:0;padding:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font:700 12px/1 'Fraunces',Georgia,serif;font-style:italic;
+  background:{{ c_ink }};color:{{ c_btnink }};
+  -webkit-tap-highlight-color:transparent;transition:opacity .14s ease}
+.sttile .stinf-p::after{content:"";position:absolute;inset:-10px -7px -10px -10px}
+.sttile .stinf-p:active{opacity:.72}
+.sttile .stinf-p:focus-visible{outline:2px solid {{ c_gold }};outline-offset:2px}
+.sttile.on .stinf-p{background:{{ c_gold }};color:{{ c_onink }}}
 
 /* ── the sheet ─────────────────────────────────────────────────────── */
 /* every display rule below outranks the browser's own [hidden], so the
@@ -277,15 +313,37 @@
         if(nm && nm.parentNode){ nm.after(m); tile.classList.add('stm'); }
       }
 
-      var im = tile.querySelector('.im');
-      if(im){
-        var i = document.createElement('button');
-        i.type = 'button';
-        i.className = 'stinfo';
-        i.textContent = 'i';
-        i.setAttribute('aria-label', 'What ' + (d.nm || 'this') + ' smells like');
-        im.appendChild(i);
+      var label = 'What ' + (d.nm || 'this') + ' smells like';
+
+      function mark(cls){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = cls;
+        b.textContent = 'i';
+        b.setAttribute('aria-label', label);
+        return b;
       }
+
+      /* ⊞ view: + ₹49 becomes the left half of a split button. The tray
+         redraws .add by setting its textContent, so the ⓘ has to be its
+         sibling, never its child, or every redraw would wipe it. */
+      var add = tile.querySelector('.add');
+      if(add && add.parentNode){
+        var row = document.createElement('div');
+        row.className = 'stbtn';
+        add.parentNode.insertBefore(row, add);
+        row.appendChild(add);
+        add.style.margin = '0';
+        add.style.flex = '1';
+        add.style.minWidth = '0';
+        add.style.borderRadius = '7px 0 0 7px';
+        add.style.borderRight = '0';
+        row.appendChild(mark('stinf'));
+      }
+
+      /* ☰ view: the price line is where ₹49 is, so the ⓘ rides its end */
+      var pr = tile.querySelector('.pr');
+      if(pr) pr.appendChild(mark('stinf-p'));
     });
 
     /* ── the sheet ── */
@@ -399,9 +457,10 @@
     });
 
     /* the ⓘ sits inside the tile, whose whole surface adds to the tray —
-       so it has to take the tap out of the tray's hands entirely */
+       so it has to take the tap out of the tray's hands entirely. Capture,
+       because the tray's own handler waits on the section, above this. */
     tray.addEventListener('click', function(e){
-      var b = e.target.closest && e.target.closest('.stinfo');
+      var b = e.target.closest && e.target.closest('.stinf,.stinf-p');
       if(!b) return;
       e.preventDefault();
       e.stopPropagation();
