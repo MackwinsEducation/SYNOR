@@ -621,3 +621,127 @@ Verified against the real section CSS:
 | 1920 | centred | two columns, bottle 150, shelf 1021 |
 
 No horizontal scrollbar at any width.
+
+---
+
+## §13 — the ₹49 Try page
+
+`templates/collection.try.json` → `sa-try-hero`, `sa-try-motion`,
+`sa-try-free` (snippet, via custom-liquid), `sa-try-tray`, `sa-try-freeat`.
+All of it lands in `assets/sa-desktop-wide.css`. **No Try-page section file
+is edited.**
+
+Shown to the merchant as an HTML before/after first — "Forty-Nine Returned",
+`claude.ai/code/artifact/f31e500a-e3e7-4248-8a0a-694214574833` — and built
+only after he approved it. That is the working order now: draw, agree, build.
+
+### What was wrong
+
+`sa-try-hero` has exactly one desktop rule: cap the sheet at 720px, take the
+number to 84px and the claim to 34px. `sa-try-motion` draws nothing.
+`sa-try-tray` caps at 720px and goes 5-up. Everything else — the kick, the
+slip label, the rows, the ₹0 line, the button, every tile — is phone type on
+a 1440px window, in a 720px column with ~360px of bare cream down each side.
+
+### The sheet opens into two leaves
+
+The section's own header calls itself *"the whole idea, on one sheet"*: ₹49,
+an arc that returns it, and a torn slip doing the arithmetic. Stacked, the
+number and the reckoning are read one after the other. Side by side they
+answer each other, which is the picture the arc was already drawing. So from
+1100 `.sth` becomes a two-column grid — the argument left, the slip right —
+and the type goes to desktop sizes (₹49 118px → 132px at 1440, claim 42 → 46,
+handwriting 26, rows 14/17.5, the ₹0 answer 34px).
+
+Three things had to be got right and each one nearly went wrong silently:
+
+**`grid-row: 1 / -1` does not mean "all rows".** `-1` counts back from the end
+of the **explicit** grid, and this container declares no `grid-template-rows`
+at all — so `-1` resolves to line 1, the span collapses to a single row, and
+the slip quietly sits in row 1 instead of spanning. `grid-row: 1 / span 2`
+counts forward and does not care. Measured before and after; the fault is
+invisible to the eye but puts the slip 150px above where it belongs.
+
+> The same `1 / -1` appears in **§7 (cart, `main[data-template='cart']`)** and
+> **§12 (oilscale, `.oc:has(.oc-shelf)`)**, both on containers with no explicit
+> rows. Neither looks broken — in both the spanning item ends up top-aligned,
+> which is close to what was wanted — but neither is doing what the CSS says.
+> Left alone for now; flagged for the merchant.
+
+**The pair drifted apart.** With the slip spanning both rows and
+`align-items:center`, the number and the claim each centre in their own
+(half-slip-tall) row and leave a hole down the middle. `.st-num{align-self:end}`
++ `.st-claim{align-self:start}` makes them meet at the row boundary, so the
+pair reads as one block. Measured: left-block midpoint and slip midpoint now
+agree to the pixel at 1100, 1280 and 1440.
+
+**The glow could not be re-aimed, so the layer was.** `.sth:before` is a
+radial-gradient with `at 50% 26%` baked in from the merchant's settings.
+`right: 53%` stops the layer at the column gap, which puts its centre behind
+the number instead of behind the empty middle of the sheet — without touching
+a colour he chose.
+
+### The tray becomes a desktop shop
+
+720px/5-up → 1180px/6-up, 1300px/7-up at 1440, 1440px/8-up at 1800 (card view
+4 → 5 → 6). Tiles land at 165–178px instead of 136. Names 12.5px, family line
+8.5px, the "+ ₹49" button 32px tall.
+
+Hover is new — there was none at all, only the `:active` tap-shrink a finger
+gets. Under `(hover:hover)` the tile lifts 4px, the photo eases in 6%, and the
+button fills: the whole tile announces that it is one button, which it is.
+`:hover:not(:active)` leaves the section's own tap-shrink alone so a click
+still presses in rather than fighting the lift. A `prefers-reduced-motion`
+block turns all of it off.
+
+### The running bar: a repair, not just a redesign
+
+Two real faults, both found by reading the section rather than looking at it.
+
+**It floats 62px above nothing.** The bar rides on top of the mobile bottom
+menu and falls back to that menu's height when it cannot measure it:
+
+```js
+navFb : {{ s.bar_offset | default: 62 }}   // 62
+if (h === 0) h = CFG.navFb;
+bar.style.bottom = h + 'px';
+```
+
+`sa-bottom-bar` is `mobile_only: true`, so on desktop it is in the document at
+zero height — `h` comes back 0, the fallback fires, and the bar is parked
+62px up in the air with its bottom corners still square, because it believes
+something is underneath it.
+
+**It has never been 720px wide.** The section's own 750px tier writes
+`max-width:720px; left:50%; transform:translateX(-50%)` but leaves `right:0`
+in place, so the used width is half the window and the cap never binds — 512px
+on a 1024 screen, 960px on a 1920 one.
+
+Both are stated here instead of inferred: `width: calc(100% - 40px)` with
+`box-sizing: border-box`, `bottom: 22px`, radius on all four corners, a
+shadow, and `.down` retuned to `translate(-50%, calc(100% + 26px))` so it
+still clears the screen when it hides. A stylesheet `!important` outranks the
+script's inline `bottom`, so the dock stays where it is put. `.sttail` goes
+84 → 112px to give the floating dock its floor.
+
+### Verified
+
+Harness built from the sections' own compiled CSS with realistic
+`template--142857293__<key>` ids, driven headless:
+
+| width | sheet | tray | bar |
+| --- | --- | --- | --- |
+| 390 | block, no cap, ₹49 44.6px | 3-up, tile 117 | bottom 62px, no radius — **untouched** |
+| 900 | block, 720, ₹49 84px | 5-up, tile 133 | bottom 62px, 512 wide — **untouched** |
+| 1024 | block, 720 | 5-up, tile 133 | **untouched** |
+| 1100 | **grid**, 1180, ₹49 118px | 6-up, tile 165 | 1060 wide, bottom 22, r16 |
+| 1280 | grid, 1180 | 6-up, tile 178 | 1180 wide, aligned to the tray |
+| 1440 | grid, 1300, ₹49 132px | 7-up, tile 168 | 1300 wide, aligned to the tray |
+
+Left-leaf midpoint == slip midpoint at every desktop width. Bar left edge ==
+tray wrap left edge at every desktop width. Below 1100 every measurement is
+identical to today's.
+
+All 68 rules confirmed present in the CSSOM after parsing — no selector
+silently dropped. The file carries no Liquid: `.css` assets are served raw,
+so a `{% %}` tag in one is a parse error, not a comment.

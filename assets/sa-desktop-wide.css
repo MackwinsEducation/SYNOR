@@ -273,3 +273,447 @@
     transition: none !important;
   }
 }
+
+/* ==========================================================================
+   13 · THE ₹49 TRY PAGE  ·  templates/collection.try.json
+   sa-try-hero · sa-try-free · sa-try-tray
+
+   The page makes one argument: ₹49 goes out, ₹49 comes back. On a phone it
+   runs down a single sheet, and that is right. On a desktop window the same
+   sheet is still 720px wide with a third of a metre of bare cream on either
+   side, so the page whispers what it should be stating.
+
+   Three things happen here and nothing else:
+
+   1. THE SHEET OPENS INTO TWO LEAVES. The claim on the left, the reckoning
+      on the right. That is not a way of filling the width - it is the
+      picture the section was already drawing: the arc leaves the number and
+      travels across the sheet to the slip that proves it. Stacked, the two
+      halves are read one after the other; side by side they answer each
+      other, which is the whole idea.
+
+   2. THE TRAY BECOMES A DESKTOP SHOP. More columns, larger tiles, and a
+      hover state - because a mouse gets no feedback at all today, and a tile
+      that does not respond to a cursor does not read as a button.
+
+   3. THE RUNNING BAR BECOMES A DOCK. This one is a repair as much as a
+      redesign. The bar rides on top of the mobile bottom menu, and when it
+      cannot measure that menu it falls back to the menu's height setting:
+
+        navFb : bar_offset, which is 62
+        if (h === 0) h = CFG.navFb;
+        bar.style.bottom = h + 'px';
+
+      sa-bottom-bar is mobile_only, so on desktop it is in the document but
+      zero pixels tall - h comes back 0, the fallback fires, and the bar is
+      parked 62px up in the air on top of nothing, with its bottom corners
+      still square because it believes something is underneath it. Setting
+      bottom here with !important beats that inline style and makes the
+      position deliberate instead of accidental.
+
+      Its width was wrong too. The section's own 750px tier writes
+
+        max-width:720px; left:50%; transform:translateX(-50%)
+
+      but leaves right:0 in place, so the used width is half the window and
+      the cap never binds - 512px on a 1024 screen, 960px on a 1920 one. The
+      width is stated here instead of inferred from two edges.
+
+   No Try-page section file is edited. Everything is class-based and inside a
+   min-width query, so a phone renders exactly the bytes it renders today.
+   ========================================================================== */
+
+@media screen and (min-width: 1100px) {
+
+  /* ── 13a · the sheet, opened ──────────────────────────────────────────── */
+
+  /* .sth is scoped by .st-loop so the short name cannot claim anything
+     else on the site. */
+  body [id^='shopify-section-'] .sth:has(.st-loop) {
+    max-width: 1180px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 72px;
+    align-items: center;
+    text-align: left !important;
+    padding-top: 44px !important;
+    padding-bottom: 44px !important;
+  }
+
+  /* the argument stacks down the left leaf; the slip holds the right one */
+  body [id^='shopify-section-'] .sth:has(.st-loop) > * {
+    grid-column: 1;
+  }
+
+  /* `1 / -1` would be wrong here, and silently so: -1 counts back from the
+     end of the EXPLICIT grid, and this container declares no rows at all, so
+     -1 resolves to line 1 and the span collapses to a single row. `span 2`
+     counts forward from line 1 and does not care whether the rows are
+     explicit. Two is the number of things in the left leaf - the number and
+     the claim. (If the seal is ever switched back on it takes a third row of
+     its own and the slip keeps its two, which is the right answer anyway: a
+     signature belongs under the figures, not beside them.) */
+  body [id^='shopify-section-'] .sth:has(.st-loop) > .st-sliparea {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  /* The glow is a radial-gradient with its centre baked in at 50%, so it
+     cannot be re-aimed - but the layer it sits on can be. Stopping the layer
+     at the column gap puts its centre behind the number, where the eye is
+     going, instead of behind the empty middle of the sheet. */
+  body [id^='shopify-section-'] .sth:has(.st-loop):before {
+    right: 53% !important;
+  }
+
+  /* The slip spans both rows, so the rows are as tall as half of it - and
+     with everything centred in its own row, the number and the claim drift
+     apart and leave a hole down the middle of the left leaf. Sending the
+     number to the bottom of its row and the claim to the top of the next
+     makes the pair meet at the row boundary: they read as one block,
+     vertically centred against the slip. */
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-num {
+    text-align: left !important;
+    padding: 0 !important;
+    align-self: end;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-kick {
+    font-size: 10.5px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-loop {
+    margin-top: 12px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-loop b {
+    font-size: 118px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-hand {
+    font-size: 26px !important;
+    margin-top: 6px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-claim {
+    text-align: left !important;
+    padding: 22px 0 0 !important;
+    align-self: start;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-claim h1 {
+    font-size: 42px !important;
+    max-width: 15ch;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-claim p {
+    font-size: 14px !important;
+    max-width: 44ch;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-sliparea {
+    padding: 0 !important;
+  }
+
+  /* the reckoning, at a size it can be read at */
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-slip.slab {
+    padding: 24px 28px 22px !important;
+    border-radius: 26px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-lb {
+    font-size: 9px !important;
+    margin-bottom: 13px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-r {
+    font-size: 14px !important;
+    padding: 6px 0 !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-r b {
+    font-size: 17.5px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-vials {
+    gap: 9px !important;
+    padding-top: 17px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-v {
+    border-radius: 16px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-v svg {
+    padding: 11px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-slip.slab .st-strip {
+    margin-top: 17px !important;
+    padding-top: 17px !important;
+    gap: 14px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-slip.slab .st-strip .n {
+    font-size: 34px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-strip .w {
+    font-size: 12px !important;
+    max-width: 16ch;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-slip.slab .st-go {
+    font-size: 13px !important;
+    padding: 13px 20px !important;
+    border-radius: 11px !important;
+  }
+
+  /* ── 13b · the free-delivery line ─────────────────────────────────────── */
+  /* Rendered by a custom-liquid section, so its <style> lands after this
+     sheet and wins on equal specificity - hence !important, not weight. */
+
+  body .tstf {
+    max-width: 1180px !important;
+    font-size: 13.5px !important;
+    padding-top: 22px !important;
+    margin-top: 30px !important;
+  }
+
+  body .tstf b {
+    font-size: 19px !important;
+    margin-bottom: 4px !important;
+  }
+
+  /* ── 13c · the tray ───────────────────────────────────────────────────── */
+
+  body [id^='shopify-section-'] .stwrap:has(.sttray) {
+    max-width: 1180px !important;
+  }
+
+  body [id^='shopify-section-'] .sttray.v {
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  body [id^='shopify-section-'] .sttray.c {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  body [id^='shopify-section-'] .sttray {
+    padding: 14px 20px 16px !important;
+  }
+
+  body [id^='shopify-section-'] .stv:has(.stsw),
+  body [id^='shopify-section-'] .stv:has(.cn) {
+    padding: 20px 20px 4px !important;
+  }
+
+  body [id^='shopify-section-'] .stv .cn {
+    font-size: 10.5px !important;
+  }
+
+  body [id^='shopify-section-'] .stsw button {
+    padding: 7px 15px !important;
+    font-size: 14px !important;
+  }
+
+  body [id^='shopify-section-'] .sttile {
+    border-radius: 13px !important;
+    transition: transform .18s ease, box-shadow .18s ease !important;
+  }
+
+  body [id^='shopify-section-'] .sttray.v .nm {
+    font-size: 12.5px !important;
+    padding: 8px 9px 0 !important;
+    height: 35px !important;
+  }
+
+  body [id^='shopify-section-'] .sttray.c .nm {
+    font-size: 14px !important;
+    padding: 10px 11px 0 !important;
+  }
+
+  body [id^='shopify-section-'] .sttile .fm {
+    font-size: 8.5px !important;
+    padding: 3px 9px 0 !important;
+  }
+
+  body [id^='shopify-section-'] .sttile .ch span {
+    font-size: 8.5px !important;
+  }
+
+  body [id^='shopify-section-'] .sttile .add {
+    margin: 9px !important;
+    height: 32px !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+  }
+
+  body [id^='shopify-section-'] .stribbon {
+    font-size: 8.5px !important;
+    padding: 4px 8px !important;
+    top: 9px !important;
+    left: 9px !important;
+  }
+
+  body [id^='shopify-section-'] .stqty {
+    min-width: 22px !important;
+    height: 22px !important;
+    font-size: 11.5px !important;
+    top: 8px !important;
+    right: 8px !important;
+  }
+
+  /* the photo has to be told it may move before it can be zoomed */
+  body [id^='shopify-section-'] .sttile .im img {
+    transition: transform .3s ease;
+  }
+
+  /* ── 13d · the running bar, as a dock ─────────────────────────────────── */
+  /* !important is doing real work in this block: the section's own script
+     writes bar.style.bottom inline on every resize. A stylesheet !important
+     beats a plain inline style, so the dock stays where it is put. */
+
+  body [id^='shopify-section-'] .stbar:has(.go) {
+    max-width: 1180px !important;
+    left: 50% !important;
+    right: auto !important;
+    width: calc(100% - 40px) !important;
+    box-sizing: border-box !important;
+    bottom: 22px !important;
+    transform: translateX(-50%) !important;
+    padding: 14px 18px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 22px 44px -18px rgba(26, 23, 18, .55) !important;
+  }
+
+  body [id^='shopify-section-'] .stbar.down:has(.go) {
+    transform: translate(-50%, calc(100% + 26px)) !important;
+  }
+
+  body [id^='shopify-section-'] .stbar:has(.go) .c {
+    font-size: 18px !important;
+  }
+
+  body [id^='shopify-section-'] .stbar:has(.go) .s {
+    font-size: 11.5px !important;
+    margin-top: 3px !important;
+  }
+
+  body [id^='shopify-section-'] .stbar:has(.go) .go {
+    font-size: 13px !important;
+    padding: 12px 24px !important;
+    border-radius: 10px !important;
+  }
+
+  /* the floating dock needs a little more floor under it than the welded one */
+  body [id^='shopify-section-'] .sttail {
+    height: 112px !important;
+  }
+}
+
+/* ── 13e · hover, for the pointer that has one ───────────────────────────── */
+/* :not(:active) leaves the section's own tap-shrink alone, so a click still
+   presses the tile in rather than fighting the lift. */
+
+@media screen and (min-width: 1100px) and (hover: hover) {
+  body [id^='shopify-section-'] .sttile:has(.im):hover:not(:active) {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 14px 26px -14px rgba(26, 23, 18, .42),
+                0 0 0 1px rgba(26, 23, 18, .09) !important;
+  }
+
+  body [id^='shopify-section-'] .sttile:has(.im):hover .im img {
+    transform: scale(1.06);
+  }
+
+  /* the whole tile is one button, so the button says so on approach */
+  body [id^='shopify-section-'] .sttile:has(.im):not(.on):hover .add {
+    background: #1a1712 !important;
+    border-color: #1a1712 !important;
+    color: #f6edda !important;
+  }
+
+  body [id^='shopify-section-'] .stsw button:hover:not(.on) {
+    background: rgba(26, 23, 18, .05) !important;
+  }
+
+  body [id^='shopify-section-'] .st-slip.slab .st-go:hover {
+    filter: brightness(1.18);
+  }
+}
+
+@media screen and (min-width: 1100px) and (prefers-reduced-motion: reduce) {
+  body [id^='shopify-section-'] .sttile,
+  body [id^='shopify-section-'] .sttile .im img {
+    transition: none !important;
+  }
+
+  body [id^='shopify-section-'] .sttile:has(.im):hover:not(:active) {
+    transform: none !important;
+  }
+
+  body [id^='shopify-section-'] .sttile:has(.im):hover .im img {
+    transform: none;
+  }
+}
+
+/* ── 13f · one more column, and one more after that ─────────────────────── */
+
+@media screen and (min-width: 1440px) {
+  body [id^='shopify-section-'] .sth:has(.st-loop) {
+    max-width: 1300px !important;
+    column-gap: 88px;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-loop b {
+    font-size: 132px !important;
+  }
+
+  body [id^='shopify-section-'] .sth:has(.st-loop) .st-claim h1 {
+    font-size: 46px !important;
+  }
+
+  body .tstf {
+    max-width: 1300px !important;
+  }
+
+  body [id^='shopify-section-'] .stwrap:has(.sttray),
+  body [id^='shopify-section-'] .stbar:has(.go) {
+    max-width: 1300px !important;
+  }
+
+  body [id^='shopify-section-'] .sttray.v {
+    grid-template-columns: repeat(7, 1fr) !important;
+  }
+
+  body [id^='shopify-section-'] .sttray.c {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+}
+
+@media screen and (min-width: 1800px) {
+  body [id^='shopify-section-'] .sth:has(.st-loop) {
+    max-width: 1400px !important;
+  }
+
+  body .tstf {
+    max-width: 1440px !important;
+  }
+
+  body [id^='shopify-section-'] .stwrap:has(.sttray),
+  body [id^='shopify-section-'] .stbar:has(.go) {
+    max-width: 1440px !important;
+  }
+
+  body [id^='shopify-section-'] .sttray.v {
+    grid-template-columns: repeat(8, 1fr) !important;
+  }
+
+  body [id^='shopify-section-'] .sttray.c {
+    grid-template-columns: repeat(6, 1fr) !important;
+  }
+}
