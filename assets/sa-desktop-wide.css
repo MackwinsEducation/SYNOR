@@ -717,3 +717,217 @@
     grid-template-columns: repeat(6, 1fr) !important;
   }
 }
+
+/* ==========================================================================
+   14 · THE REVIEWS PAGE  ·  templates/page.reviews.json  ·  sa-allreviews
+
+   One section, read live from Judge.me, with no desktop rule of any kind:
+   `max-width: 720px` and nothing else. On a 1440 window that is a ribbon down
+   the middle with half the screen empty, and the page's own lede makes a
+   promise it does not look like it can keep - "we do not edit them and we do
+   not remove the ones that are less than five stars". A page saying that
+   should look like it has plenty to show.
+
+   The shape is the one the product page already uses for its own review block
+   (`html.sy-pdp .rv` in sa-desktop.liquid, .62fr / 1.38fr), so the two pages
+   agree: a summary rail on the left - title, lede, the rating panel, the count
+   note and the ₹49 button, the proof and the invitation together where the
+   reader starts - and the reviews taking the rest.
+
+   From 1440 the reviews run in TWO COLUMNS. A wall of short, independent
+   opinions is a newspaper, not a list; two columns put twelve on a screen
+   instead of four. `break-inside: avoid` is what makes that safe - without it
+   a review splits across the fold, which is worse than one column.
+
+   ── the row trap, again ──
+   `.rq-list` spans the rail's rows, and a spanning item grows the tracks it
+   spans. With auto rows the rail's five items then share the list's height
+   and drift apart, leaving a hole between the title and the lede. Two things
+   fix it together: the last track is `1fr` so all the slack lands there
+   instead of being shared out, and the button gets `align-self: start` so it
+   stays at the top of that slack rather than floating in the middle of it.
+   (And `span 5`, never `1 / -1` - see §13 for why -1 is not "all rows".)
+
+   Scoped by `[id^='rq-']`, the section's own wrapper id, the same hook §8
+   uses for the FAQ. `:has(.rq-list)` means an empty review feed - which
+   renders only a heading and "No reviews yet." - is left exactly as it is.
+   ========================================================================== */
+
+@media screen and (min-width: 1100px) {
+  body [id^='shopify-section-']:has([id^='rq-']) {
+    padding: 44px 0 64px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) {
+    max-width: 1180px !important;
+    padding: 0 40px !important;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    column-gap: 56px;
+    grid-template-rows: repeat(4, min-content) 1fr;
+    align-items: start;
+  }
+
+  body [id^='rq-']:has(.rq-list) > * {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  body [id^='rq-']:has(.rq-list) > .rq-list {
+    grid-column: 2;
+    grid-row: 1 / span 5;
+  }
+
+  body [id^='rq-']:has(.rq-list) > .rq-cta {
+    align-self: start;
+  }
+
+  /* ── the rail ── */
+
+  body [id^='rq-']:has(.rq-list) .rq-h1 {
+    font-size: 40px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-lede {
+    font-size: 14px !important;
+    margin: 14px 0 24px !important;
+    max-width: 42ch !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-avg {
+    font-size: 52px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-stars.is-big .rq-s {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-cnt {
+    font-size: 12px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-bar {
+    margin-bottom: 7px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-track {
+    height: 6px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-k,
+  body [id^='rq-']:has(.rq-list) .rq-n {
+    font-size: 11.5px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-ks {
+    width: 11px !important;
+    height: 11px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-note {
+    font-size: 10px !important;
+    margin-top: 10px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-foot {
+    font-size: 12px !important;
+    margin-top: 18px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-cta {
+    font-size: 14px !important;
+    padding: 15px !important;
+    margin-top: 20px !important;
+  }
+
+  /* ── the reviews ── */
+
+  /* The rule between two reviews is a separator, not an underline on a block
+     that also carries the next one's top margin - so the padding moves off
+     the top and the gap is stated once. In two columns this matters: an
+     asymmetric row leaves the first review in the right column sitting lower
+     than the first in the left. */
+  body [id^='rq-']:has(.rq-list) .rq-row {
+    padding: 0 0 18px !important;
+    margin-bottom: 18px;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-t {
+    font-size: 16px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-b {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-nm {
+    font-size: 13.5px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-dt {
+    font-size: 11.5px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-stars.is-row .rq-s {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-p {
+    font-size: 11px !important;
+  }
+}
+
+/* Two columns, and the rail grows with them. Below 1440 the reviews column is
+   about 700px, which is one comfortable measure; splitting it there would
+   leave each review 320px, tighter than the sentences in them. */
+@media screen and (min-width: 1440px) {
+  body [id^='rq-']:has(.rq-list) {
+    max-width: 1500px !important;
+    grid-template-columns: 380px 1fr;
+    column-gap: 64px;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-h1 {
+    font-size: 44px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-avg {
+    font-size: 58px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-stars.is-big .rq-s {
+    width: 19px !important;
+    height: 19px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) > .rq-list {
+    column-count: 2;
+    column-gap: 48px;
+  }
+}
+
+@media screen and (min-width: 1800px) {
+  body [id^='rq-']:has(.rq-list) {
+    max-width: 1620px !important;
+  }
+
+  body [id^='rq-']:has(.rq-list) > .rq-list {
+    column-gap: 60px;
+  }
+}
+
+/* Two things on this page are clickable and say nothing to a cursor. */
+@media screen and (min-width: 1100px) and (hover: hover) {
+  body [id^='rq-']:has(.rq-list) .rq-cta:hover {
+    filter: brightness(1.06);
+  }
+
+  body [id^='rq-']:has(.rq-list) .rq-p:hover u {
+    border-bottom-color: currentColor;
+  }
+}

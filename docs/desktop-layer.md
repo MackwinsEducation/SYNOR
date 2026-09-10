@@ -745,3 +745,79 @@ identical to today's.
 All 68 rules confirmed present in the CSSOM after parsing — no selector
 silently dropped. The file carries no Liquid: `.css` assets are served raw,
 so a `{% %}` tag in one is a parse error, not a comment.
+
+---
+
+## §14 — the reviews page
+
+`templates/page.reviews.json` → `sa-allreviews` (one section, read live from
+Judge.me). Lands in `assets/sa-desktop-wide.css`. The section file is not
+edited.
+
+Shown as an HTML before/after first — "Skin and Testimony",
+`claude.ai/code/artifact/02b85e02-b03c-46c2-964c-193c69bca778` — and built
+after the merchant approved this half of it.
+
+### What was wrong
+
+`max-width: 720px` and no other desktop rule anywhere in the section. On a
+1440 window that is a ribbon down the middle with half the screen empty, and
+the page's own lede makes a promise it does not look able to keep: *"we do not
+edit them and we do not remove the ones that are less than five stars."* The
+rating summary — the page's headline fact — sat in the same narrow column and
+scrolled away, and the ₹49 button was a full-width bar stranded at the bottom
+of a long list.
+
+### The shape
+
+A **340px summary rail** (380px from 1440) holding the title, lede, rating
+panel, count note and the ₹49 button — the proof and the invitation together,
+where the reader starts — with the reviews taking the rest. This is the same
+shape `html.sy-pdp .rv` already gives the product page's own review block, so
+the two pages agree.
+
+From **1440 the reviews run in two columns**. A wall of short independent
+opinions is a newspaper, not a list. `break-inside: avoid` is what makes that
+safe; without it a review splits across the fold, which is worse than one
+column. The row rule also moves its padding off the top so the first review in
+each column starts at the same height.
+
+### The row trap, again
+
+`.rq-list` spans the rail's rows, and a spanning item grows the tracks it
+spans, so the rail's five items shared its height and drifted apart — the same
+class of fault as §13's left leaf, in a different disguise. Fixed by two
+things together: `grid-template-rows: repeat(4, min-content) 1fr` puts all the
+slack in the last track instead of sharing it out, and `align-self: start` on
+the button keeps it at the top of that slack. And `span 5`, never `1 / -1`.
+
+Scoped by `[id^='rq-']` — the section's own wrapper id, the same hook §8 uses
+for the FAQ — plus `:has(.rq-list)`, so an empty review feed (heading and
+"No reviews yet.") is left exactly as it is.
+
+### Verified
+
+| width | shape | h1 | body | review columns | gaps in the rail |
+| --- | --- | --- | --- | --- | --- |
+| 390 | block, 720 cap | 27px | 13.5px | 1 | 9 / 20 / 18 — **untouched** |
+| 900 | block, 720 cap | 27px | 13.5px | 1 | **untouched** |
+| 1024 | block, 720 cap | 27px | 13.5px | 1 | **untouched** |
+| 1100 | rail 340 + list 624 | 40px | 14px | 1 | 14 / 24 / 20 |
+| 1280 | rail 340 + list 704 | 40px | 14px | 1 | 14 / 24 / 20 |
+| 1440 | rail 380 + list 916 | 44px | 14px | **2** | 14 / 24 / 20 |
+| 1800 | rail 380 + list 1096 | 44px | 14px | **2** | 14 / 24 / 20 |
+
+Rail and list top-aligned at every desktop width; below 1100 every measurement
+is identical to today's.
+
+### Not built: "On your skin"
+
+`sa-wears` was drawn in the same preview and **held back** at the merchant's
+request — he wants to think about it. The fault stands and is worth recording:
+the section is set `bare: true`, which is right on a phone (it strips the
+card), but `bare` also sets `max-width: none`, and there is no desktop rule
+to put a limit back. So on the product page it is the only section that runs
+the full width of the window while every other one sits in `sa-desktop.liquid`'s
+1400px box — `.ws` is simply not in that file's widened list
+(`.ug-in, .jr, .nl, .tg, .cb, .rv, .fq-in, .ht, .tw`), because sa-wears is
+newer than it.
