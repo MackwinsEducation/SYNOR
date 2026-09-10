@@ -171,15 +171,6 @@
         "c_golddk": "#8c6b2e"
       }
     },
-    "start": {
-      "type": "custom-liquid",
-      "settings": {
-        "custom_liquid": "{% render 'sa-try-start', rate: 49, match: '3ml' %}<style>.shopify-section:has(.tst),.shopify-section:has(.tst) > *,.shopify-section:has(.tst) > * > *{background:none;background-image:none}</style>",
-        "color_scheme": "scheme-1",
-        "padding_top": 0,
-        "padding_bottom": 0
-      }
-    },
     "tray": {
       "type": "sa-try-tray",
       "settings": {
@@ -288,12 +279,21 @@
         "padding_top": 0,
         "padding_bottom": 0
       }
+    },
+    "free": {
+      "type": "custom-liquid",
+      "settings": {
+        "custom_liquid": "{% render 'sa-try-free', count: 7, rate: 49 %}<style>.shopify-section:has(.tstf),.shopify-section:has(.tstf) > *,.shopify-section:has(.tstf) > * > *{background:none;background-image:none}</style>",
+        "color_scheme": "scheme-1",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
     }
   },
   "order": [
     "hero",
     "sa_try_motion",
-    "start",
+    "free",
     "tray",
     "freeat"
   ]
