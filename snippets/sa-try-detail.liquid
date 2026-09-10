@@ -1,0 +1,421 @@
+{%- comment -%}
+  SYNOR — the two lines a tester card was missing.
+
+  Fifty bottles at one price gives a shopper nothing to choose on. The
+  card said what the scent was called and what family it sat in; neither
+  of those is why anyone reaches for a tester. Two things are:
+
+    1. what it smells like — "Like DIOR J'adore" — the one line that
+       turns an unknown name into a known smell, and
+    2. everything else they would have gone to the product page for:
+       who it is for, when to wear it, the notes, the season.
+
+  The first is printed on the card. The second is one tap behind an ⓘ,
+  because a card that carries all of it is a spec sheet, and a grid of
+  fifty spec sheets is unreadable.
+
+  It reads the tiles the tray already printed rather than rendering its
+  own grid — same rule as the filter chips: there is one grid on this
+  page and it belongs to the tray. That also keeps this out of
+  sections/sa-try-tray.liquid entirely.
+
+  The muse tag: the catalogue stores the reference as a plain tag beside
+  its brand- slug ("DIOR J'adore" next to brand-dior), in the same tag
+  list as the celebrity tags ("Emma Stone"). The two are told apart by
+  case — a house is set in caps, a person is not — which is sturdier
+  than matching the brand slug, where brand-tom-ford and "Tom Cruise"
+  collide and brand-dolce-gabbana and "DOLCE & GABBANA" do not match at
+  all. Celebrity tags are deliberately left off the card: naming a
+  person beside a bottle they never endorsed is a claim, not a hint.
+
+  Accepts the same colours as the tray so a card and its sheet can never
+  disagree about which family a scent belongs to.
+{%- endcomment -%}
+
+{%- liquid
+  assign word = match | default: '3ml' | downcase
+  assign fam_keys = 'fresh-aquatic,amber-sweet,floral-fruity,woody-oud' | split: ','
+  assign c_aqua  = f_aqua  | default: '#3F8296'
+  assign c_aquaw = f_aquaw | default: '#DCEBEE'
+  assign c_oud   = f_oud   | default: '#8A5F2E'
+  assign c_oudw  = f_oudw  | default: '#EFE3D2'
+  assign c_amber = f_amber | default: '#B8843F'
+  assign c_amberw= f_amberw| default: '#F7EAD2'
+  assign c_bloom = f_bloom | default: '#B4707C'
+  assign c_bloomw= f_bloomw| default: '#F6E5E7'
+-%}
+
+<script type="application/json" data-stdt-data>[
+{%- for product in collection.products -%}
+
+  {%- comment -%} the tester variant, found the way the tray finds it {%- endcomment -%}
+  {%- assign tv = blank -%}
+  {%- for v in product.variants -%}
+    {%- assign vt = v.title | downcase | replace: ' ', '' -%}
+    {%- if tv == blank and vt contains word -%}{%- assign tv = v -%}{%- endif -%}
+  {%- endfor -%}
+  {%- if tv == blank -%}{%- assign tv = product.variants.first -%}{%- endif -%}
+
+  {%- comment -%} family, in the tray's own precedence {%- endcomment -%}
+  {%- assign famk = '' -%}
+  {%- for k in fam_keys -%}
+    {%- assign ft = 'family-' | append: k -%}
+    {%- if famk == '' and product.tags contains ft -%}{%- assign famk = k -%}{%- endif -%}
+  {%- endfor -%}
+  {%- case famk -%}
+    {%- when 'fresh-aquatic' -%}{%- assign fac = c_aqua  -%}{%- assign faw = c_aquaw  -%}{%- assign famw = fw_aqua  | default: 'Fresh Aquatic'  -%}
+    {%- when 'woody-oud'     -%}{%- assign fac = c_oud   -%}{%- assign faw = c_oudw   -%}{%- assign famw = fw_oud   | default: 'Woody Oud'      -%}
+    {%- when 'floral-fruity' -%}{%- assign fac = c_bloom -%}{%- assign faw = c_bloomw -%}{%- assign famw = fw_bloom | default: 'Floral Fruity'  -%}
+    {%- when 'amber-sweet'   -%}{%- assign fac = c_amber -%}{%- assign faw = c_amberw -%}{%- assign famw = fw_amber | default: 'Amber Sweet'    -%}
+    {%- else -%}{%- assign fac = c_amber -%}{%- assign faw = c_amberw -%}{%- assign famw = '' -%}
+  {%- endcase -%}
+
+  {%- comment -%} the muse: the one tag set in capitals {%- endcomment -%}
+  {%- assign muse = '' -%}
+  {%- for t in product.tags -%}
+    {%- if muse == '' and t contains ' ' -%}
+      {%- assign two = t | slice: 0, 2 -%}
+      {%- assign twou = two | upcase -%}
+      {%- assign twol = two | downcase -%}
+      {%- if two == twou and two != twol -%}{%- assign muse = t -%}{%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- comment -%} who it is for {%- endcomment -%}
+  {%- if product.tags contains 'gender-her' -%}{%- assign gd = 'For her' -%}
+  {%- elsif product.tags contains 'gender-him' -%}{%- assign gd = 'For him' -%}
+  {%- elsif product.tags contains 'gender-unisex' -%}{%- assign gd = 'For anyone' -%}
+  {%- else -%}{%- assign gd = '' -%}{%- endif -%}
+
+  {%- comment -%} when to wear it {%- endcomment -%}
+  {%- assign occ = '' -%}
+  {%- for t in product.tags -%}
+    {%- if t contains 'occasion-' -%}
+      {%- assign o = t | remove: 'occasion-' -%}
+      {%- case o -%}
+        {%- when 'daily'    -%}{%- assign ow = 'Everyday'   -%}
+        {%- when 'date'     -%}{%- assign ow = 'Date night' -%}
+        {%- when 'vacation' -%}{%- assign ow = 'Holiday'    -%}
+        {%- else -%}{%- assign ow = o | capitalize -%}
+      {%- endcase -%}
+      {%- assign occ = occ | append: ow | append: ' · ' -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- assign occ = occ | split: ' · ' | join: ' · ' -%}
+
+  {%- comment -%} what it smells of {%- endcomment -%}
+  {%- assign nts = '' -%}
+  {%- for t in product.tags -%}
+    {%- if t contains 'scent-' -%}
+      {%- assign nw = t | remove: 'scent-' | capitalize -%}
+      {%- assign nts = nts | append: nw | append: ',' -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- assign nts = nts | split: ',' | join: ',' -%}
+
+  {%- comment -%} when in the year {%- endcomment -%}
+  {%- if product.tags contains 'season-all' -%}{%- assign sea = 'All year' -%}
+  {%- elsif product.tags contains 'season-summer' and product.tags contains 'season-winter' -%}{%- assign sea = 'All year' -%}
+  {%- elsif product.tags contains 'season-summer' -%}{%- assign sea = 'Summer' -%}
+  {%- elsif product.tags contains 'season-winter' -%}{%- assign sea = 'Winter' -%}
+  {%- else -%}{%- assign sea = '' -%}{%- endif -%}
+
+  {%- comment -%} how it carries {%- endcomment -%}
+  {%- assign mood = '' -%}
+  {%- for t in product.tags -%}
+    {%- if mood == '' and t contains 'mood-' -%}{%- assign mood = t | remove: 'mood-' | capitalize -%}{%- endif -%}
+  {%- endfor -%}
+  {%- if product.tags contains 'longevity-high' -%}
+    {%- if mood == '' -%}{%- assign mood = 'Lasts long' -%}
+    {%- else -%}{%- assign mood = mood | append: ' · lasts long' -%}{%- endif -%}
+  {%- endif -%}
+
+{% unless forloop.first %},{% endunless %}{"id":{{ tv.id | default: 0 }},"nm":{{ product.title | replace: 'SYNOR ', '' | json }},"mu":{{ muse | json }},"fa":{{ famw | json }},"fc":{{ fac | json }},"fw":{{ faw | json }},"gd":{{ gd | json }},"oc":{{ occ | json }},"nt":{{ nts | json }},"sn":{{ sea | json }},"md":{{ mood | json }},"pr":{{ tv.price | money | strip_html | json }},"im":{% if product.featured_image %}{{ product.featured_image | image_url: width: 220 | json }}{% else %}""{% endif %},"ur":{{ product.url | json }}}
+{%- endfor -%}
+]</script>
+
+<div class="stdt" data-stdt hidden>
+  <div class="stdt-b" data-stdt-close></div>
+  <div class="stdt-s" role="dialog" aria-modal="true" aria-labelledby="stdt-nm">
+    <span class="stdt-grab"></span>
+    <button type="button" class="stdt-x" data-stdt-close aria-label="{{ close_label | default: 'Close' }}">&times;</button>
+
+    <div class="stdt-h">
+      <span class="stdt-im"><img alt="" data-dt-im width="220" height="220"></span>
+      <span class="stdt-ht">
+        <span class="stdt-nm" id="stdt-nm" data-dt-nm></span>
+        <span class="stdt-mu" data-dt-mu></span>
+        <span class="stdt-fa" data-dt-fa></span>
+      </span>
+    </div>
+
+    <dl class="stdt-r" data-dt-rows></dl>
+
+    <div class="stdt-f">
+      <span class="stdt-pr" data-dt-pr></span>
+      <button type="button" class="stdt-add" data-dt-add></button>
+    </div>
+    <a class="stdt-full" data-dt-full href="#">{{ full_text | default: 'See the full bottle →' }}</a>
+  </div>
+</div>
+
+<style>
+/* ── on the card ───────────────────────────────────────────────────── */
+/* The muse takes the family word's place in the small view: the line is
+   printed in the family's own colour, so the family is still legible at a
+   glance and the row buys the card its most persuasive sentence instead. */
+.sttray.v .sttile.stm .fm{display:none}
+.sttile .stmuse{padding:3px 6px 0;font-size:8.5px;line-height:1.25;color:#6E6656;
+  font-family:'Jost',system-ui,sans-serif;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.sttile .stmuse b{font-weight:600;color:var(--mc,#8C6B2E)}
+.sttray.c .sttile .stmuse{padding:4px 9px 0;font-size:9.5px}
+
+.sttile .stinfo{position:absolute;right:5px;bottom:5px;width:21px;height:21px;z-index:5;
+  border:0;padding:0;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font:600 11px/1 'Fraunces',Georgia,serif;font-style:italic;
+  background:rgba(255,253,248,.88);color:#1A1712;
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  box-shadow:0 1px 3px rgba(26,23,18,.2);-webkit-tap-highlight-color:transparent;
+  transition:transform .14s ease}
+.sttile .stinfo:active{transform:scale(.88)}
+.sttile .stinfo:focus-visible{outline:2px solid #C8994B;outline-offset:2px}
+
+/* ── the sheet ─────────────────────────────────────────────────────── */
+.stdt{position:fixed;inset:0;z-index:220;font-family:'Jost',system-ui,sans-serif}
+.stdt-b{position:absolute;inset:0;background:rgba(26,23,18,.48);opacity:0;
+  transition:opacity .24s ease}
+.stdt.in .stdt-b{opacity:1}
+.stdt-s{position:absolute;left:0;right:0;bottom:0;background:#FFFDF8;color:#1A1712;
+  border-radius:20px 20px 0 0;max-height:86vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:8px 17px calc(18px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -10px 44px rgba(26,23,18,.24);
+  transform:translateY(102%);transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.stdt.in .stdt-s{transform:none}
+.stdt-grab{display:block;width:38px;height:4px;border-radius:4px;margin:0 auto 12px;
+  background:rgba(26,23,18,.16)}
+.stdt-x{position:absolute;top:10px;right:12px;width:28px;height:28px;border:0;padding:0;
+  border-radius:50%;background:rgba(26,23,18,.06);color:#6E6656;font-size:19px;line-height:1;
+  cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+.stdt-h{display:flex;gap:13px;align-items:center}
+.stdt-im{flex:none;width:74px;height:74px;border-radius:12px;overflow:hidden;
+  background:linear-gradient(180deg,#F4EEE0,#FBF7EE);display:block}
+.stdt-im img{width:100%;height:100%;object-fit:cover;display:block}
+.stdt-ht{display:block;min-width:0}
+.stdt-nm{display:block;font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:19px;
+  line-height:1.16;letter-spacing:-.01em}
+.stdt-mu{display:block;margin-top:4px;font-size:12px;color:#6E6656}
+.stdt-mu b{font-weight:600;color:var(--mc,#8C6B2E)}
+.stdt-fa{display:inline-block;margin-top:7px;font-size:8px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;padding:3px 8px;border-radius:20px}
+
+.stdt-r{display:grid;grid-template-columns:auto 1fr;gap:10px 15px;margin:15px 0 0;padding-top:14px;
+  border-top:1px solid rgba(26,23,18,.09)}
+.stdt-r dt{margin:0;font-size:8px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:#A9A08E;padding-top:3px;white-space:nowrap}
+.stdt-r dd{margin:0;font-size:12.5px;line-height:1.45}
+.stdt-nt{display:flex;flex-wrap:wrap;gap:5px}
+.stdt-nt span{font-size:8px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px}
+
+.stdt-f{display:flex;align-items:center;gap:13px;margin-top:16px;padding-top:14px;
+  border-top:1px solid rgba(26,23,18,.09)}
+.stdt-pr{font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:600}
+.stdt-pr s{text-decoration:none;font-family:'Jost',system-ui,sans-serif;font-size:10px;
+  color:#A9A08E;font-weight:400;margin-left:5px}
+.stdt-add{margin-left:auto;border:0;cursor:pointer;font:600 12.5px/1 'Jost',system-ui,sans-serif;
+  padding:13px 22px;border-radius:9px;background:#1A1712;color:#F6EDDA;
+  -webkit-tap-highlight-color:transparent;transition:background .18s ease,color .18s ease}
+.stdt-add.on{background:#C8994B;color:#241C0B}
+.stdt-full{display:block;margin-top:13px;text-align:center;font-size:10.5px;letter-spacing:.05em;
+  color:#A9A08E;text-decoration:none}
+
+@media(min-width:750px){
+  .stdt-s{max-width:520px;margin:0 auto;border-radius:20px;bottom:auto;top:50%;
+    transform:translateY(-44%) scale(.97);opacity:0;transition:transform .26s ease,opacity .2s ease}
+  .stdt.in .stdt-s{transform:translateY(-50%) scale(1);opacity:1}
+  .stdt-grab{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .stdt-b,.stdt-s{transition:none}
+}
+</style>
+
+<script>
+(function(){
+  function boot(){
+    var wrap = document.querySelector('[data-stdt]');
+    var raw  = document.querySelector('[data-stdt-data]');
+    var tray = document.querySelector('[data-sttray]');
+    if(!wrap || !raw || !tray || wrap.dataset.bound) return;
+    wrap.dataset.bound = '1';
+
+    var rows;
+    try{ rows = JSON.parse(raw.textContent); }catch(e){ return; }
+    var byId = {};
+    rows.forEach(function(r){ byId[String(r.id)] = r; });
+
+    /* ── print the muse line and the ⓘ onto the tiles the tray made ── */
+    Array.prototype.forEach.call(tray.querySelectorAll('[data-stp]'), function(tile){
+      var d = byId[tile.getAttribute('data-id')];
+      if(!d) return;
+
+      if(d.mu){
+        var m = document.createElement('div');
+        m.className = 'stmuse';
+        m.style.setProperty('--mc', d.fc || '#8C6B2E');
+        m.appendChild(document.createTextNode('Like '));
+        var b = document.createElement('b');
+        b.textContent = d.mu;
+        m.appendChild(b);
+        var nm = tile.querySelector('.nm');
+        if(nm && nm.parentNode){ nm.after(m); tile.classList.add('stm'); }
+      }
+
+      var im = tile.querySelector('.im');
+      if(im){
+        var i = document.createElement('button');
+        i.type = 'button';
+        i.className = 'stinfo';
+        i.textContent = 'i';
+        i.setAttribute('aria-label', 'What ' + (d.nm || 'this') + ' smells like');
+        im.appendChild(i);
+      }
+    });
+
+    /* ── the sheet ── */
+    var el = {
+      im:   wrap.querySelector('[data-dt-im]'),
+      nm:   wrap.querySelector('[data-dt-nm]'),
+      mu:   wrap.querySelector('[data-dt-mu]'),
+      fa:   wrap.querySelector('[data-dt-fa]'),
+      rows: wrap.querySelector('[data-dt-rows]'),
+      pr:   wrap.querySelector('[data-dt-pr]'),
+      add:  wrap.querySelector('[data-dt-add]'),
+      full: wrap.querySelector('[data-dt-full]')
+    };
+    var open = null, lastFocus = null;
+
+    function row(label, value){
+      if(!value) return;
+      var dt = document.createElement('dt'); dt.textContent = label;
+      var dd = document.createElement('dd'); dd.textContent = value;
+      el.rows.appendChild(dt); el.rows.appendChild(dd);
+    }
+
+    function tileFor(id){ return tray.querySelector('[data-stp][data-id="' + id + '"]'); }
+
+    function syncAdd(){
+      if(!open) return;
+      var t = tileFor(open.id);
+      var on = !!(t && t.classList.contains('on'));
+      el.add.classList.toggle('on', on);
+      el.add.textContent = on ? '✓ In the tray' : 'Add · ' + (open.pr || '');
+    }
+
+    function show(d){
+      open = d;
+      lastFocus = document.activeElement;
+
+      if(d.im){ el.im.src = d.im; el.im.parentNode.hidden = false; }
+      else { el.im.removeAttribute('src'); el.im.parentNode.hidden = true; }
+
+      el.nm.textContent = d.nm || '';
+
+      el.mu.textContent = '';
+      if(d.mu){
+        el.mu.appendChild(document.createTextNode('Like '));
+        var b = document.createElement('b'); b.textContent = d.mu;
+        el.mu.appendChild(b);
+        el.mu.hidden = false;
+      } else { el.mu.hidden = true; }
+      el.mu.style.setProperty('--mc', d.fc || '#8C6B2E');
+
+      if(d.fa){
+        el.fa.textContent = d.fa;
+        el.fa.style.background = d.fw || '#F7EAD2';
+        el.fa.style.color = d.fc || '#8C6B2E';
+        el.fa.hidden = false;
+      } else { el.fa.hidden = true; }
+
+      el.rows.textContent = '';
+      row('For', d.gd);
+      row('Wear it', d.oc);
+      row('Season', d.sn);
+      row('Feels', d.md);
+      if(d.nt){
+        var dt = document.createElement('dt'); dt.textContent = 'Notes';
+        var dd = document.createElement('dd');
+        var box = document.createElement('span'); box.className = 'stdt-nt';
+        d.nt.split(',').forEach(function(w){
+          if(!w) return;
+          var s = document.createElement('span');
+          s.textContent = w;
+          s.style.background = d.fw || '#F7EAD2';
+          s.style.color = d.fc || '#8C6B2E';
+          box.appendChild(s);
+        });
+        dd.appendChild(box);
+        el.rows.appendChild(dt); el.rows.appendChild(dd);
+      }
+
+      el.pr.innerHTML = '';
+      el.pr.appendChild(document.createTextNode(d.pr || ''));
+      var s = document.createElement('s'); s.textContent = '3ml tester';
+      el.pr.appendChild(s);
+
+      if(d.ur){ el.full.href = d.ur; el.full.hidden = false; } else { el.full.hidden = true; }
+
+      syncAdd();
+      wrap.hidden = false;
+      requestAnimationFrame(function(){ wrap.classList.add('in'); });
+      document.documentElement.style.overflow = 'hidden';
+      el.add.focus({ preventScroll: true });
+    }
+
+    function hide(){
+      if(!wrap.classList.contains('in')) return;
+      wrap.classList.remove('in');
+      document.documentElement.style.overflow = '';
+      var t = setTimeout(function(){ wrap.hidden = true; }, 320);
+      if(lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+      open = null;
+      return t;
+    }
+
+    /* the tray owns adding; the sheet just presses the tile it belongs to,
+       so one scent can never be in the tray twice by two different routes */
+    el.add.addEventListener('click', function(){
+      if(!open) return;
+      var t = tileFor(open.id);
+      if(!t) return;
+      t.click();
+      setTimeout(syncAdd, 30);
+    });
+
+    /* the ⓘ sits inside the tile, whose whole surface adds to the tray —
+       so it has to take the tap out of the tray's hands entirely */
+    tray.addEventListener('click', function(e){
+      var b = e.target.closest && e.target.closest('.stinfo');
+      if(!b) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var tile = b.closest('[data-stp]');
+      var d = tile && byId[tile.getAttribute('data-id')];
+      if(d) show(d);
+    }, true);
+
+    wrap.addEventListener('click', function(e){
+      if(e.target.closest && e.target.closest('[data-stdt-close]')) hide();
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') hide();
+    });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>

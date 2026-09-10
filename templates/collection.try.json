@@ -297,6 +297,15 @@
         "padding_top": 0,
         "padding_bottom": 0
       }
+    },
+    "detail": {
+      "type": "custom-liquid",
+      "settings": {
+        "custom_liquid": "{% render 'sa-try-detail' %}<style>.shopify-section:has(.stdt),.shopify-section:has(.stdt) > *,.shopify-section:has(.stdt) > * > *{background:none;background-image:none;padding:0}</style>",
+        "color_scheme": "scheme-1",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
     }
   },
   "order": [
@@ -305,6 +314,7 @@
     "free",
     "filter",
     "tray",
-    "freeat"
+    "freeat",
+    "detail"
   ]
 }

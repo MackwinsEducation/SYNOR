@@ -69,32 +69,41 @@
 
 <script>
 (function(){
-  var bar = document.querySelector('[data-tsfl]');
-  if(!bar || bar.dataset.bound) return;
-  bar.dataset.bound = '1';
+  /* A section's position in the template decides when its inline script
+     runs — not where the bar ends up, since it moves itself. Running at
+     parse time meant looking for the tray before the tray existed, and
+     coming back empty-handed left the bar hidden for good. Waiting for the
+     document settles it whichever way round the two sections are ordered. */
+  function boot(){
+    var bar = document.querySelector('[data-tsfl]');
+    if(!bar || bar.dataset.bound) return;
 
-  /* The chips are printed before the tray so they exist by now, then moved
-     to sit directly under the tray's own header row — above the grid they
-     act on, which is where a filter has to be to make sense. */
-  var tray = document.querySelector('[data-sttray]');
-  if(!tray){ return; }
-  var head = tray.parentNode.querySelector('.stv');
-  if(head && head.parentNode) head.after(bar); else tray.before(bar);
-  bar.hidden = false;
+    /* moved to sit directly under the tray's own header row — above the
+       grid it acts on, which is where a filter has to be to make sense */
+    var tray = document.querySelector('[data-sttray]');
+    if(!tray) return;
+    bar.dataset.bound = '1';
+    var head = tray.parentNode.querySelector('.stv');
+    if(head && head.parentNode) head.after(bar); else tray.before(bar);
+    bar.hidden = false;
 
-  var btns = Array.prototype.slice.call(bar.querySelectorAll('button'));
+    var btns = Array.prototype.slice.call(bar.querySelectorAll('button'));
 
-  function apply(fc){
-    Array.prototype.forEach.call(tray.querySelectorAll('[data-stp]'), function(t){
-      t.style.display = (!fc || t.getAttribute('data-fc') === fc) ? '' : 'none';
+    function apply(fc){
+      Array.prototype.forEach.call(tray.querySelectorAll('[data-stp]'), function(t){
+        t.style.display = (!fc || t.getAttribute('data-fc') === fc) ? '' : 'none';
+      });
+      btns.forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-fc') === fc); });
+    }
+
+    bar.addEventListener('click', function(e){
+      var b = e.target.closest && e.target.closest('button');
+      if(!b) return;
+      apply(b.getAttribute('data-fc'));
     });
-    btns.forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-fc') === fc); });
   }
 
-  bar.addEventListener('click', function(e){
-    var b = e.target.closest && e.target.closest('button');
-    if(!b) return;
-    apply(b.getAttribute('data-fc'));
-  });
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();
 </script>
