@@ -183,7 +183,10 @@
 .sttile .stinfo:focus-visible{outline:2px solid #C8994B;outline-offset:2px}
 
 /* ── the sheet ─────────────────────────────────────────────────────── */
-.stdt{position:fixed;inset:0;z-index:220;font-family:'Jost',system-ui,sans-serif}
+/* every display rule below outranks the browser's own [hidden], so the
+   attribute has to be given back its authority inside the sheet */
+.stdt[hidden],.stdt [hidden]{display:none!important}
+.stdt{position:fixed;inset:0;z-index:9999;font-family:'Jost',system-ui,sans-serif}
 .stdt-b{position:absolute;inset:0;background:rgba(26,23,18,.48);opacity:0;
   transition:opacity .24s ease}
 .stdt.in .stdt-b{opacity:1}
