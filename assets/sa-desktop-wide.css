@@ -931,3 +931,215 @@
     border-bottom-color: currentColor;
   }
 }
+
+/* ==========================================================================
+   15 · THE PRODUCT PAGE GETS A BUY COLUMN  ·  templates/product.json
+
+   Four sections on this page state, in their own settings, the width they
+   want: sa-promise 560, sa-urgency 520, sa-drawers 560, sa-wears 560. Three
+   of them are being rendered at 1400. Not because anyone chose 1400 - because
+   the desktop layout has only two columns and they had nowhere else to go.
+
+   sa-desktop.liquid builds that layout in script. It creates one wrapper,
+   `.syd-top`, and moves exactly TWO sections into it:
+
+     wg.classList.add('syd-gal');  w.appendChild(wg);
+     wi.classList.add('syd-info'); w.appendChild(wi);
+
+   Everything after those two stays a sibling under #MainContent, so it can
+   only be a full-width band. sa-promise is the one section that gets the
+   width it asked for, and it gets it by walking its own contents into the
+   info block ("Sit just above the stock line"). The other three have no such
+   trick, so the layout stretches them instead.
+
+   The photo pays for this too. It is `position: sticky`, but a sticky grid
+   item can only travel inside its own grid area, and its area is one row
+   shared with the info block. The two are about the same height, so the
+   travel is close to zero: the gallery is declared sticky and behaves as if
+   it were not.
+
+   ── what changes ──
+   #MainContent becomes the grid instead of .syd-top - the same move §7 makes
+   on the cart - and `display: contents` on .syd-top lets the gallery and the
+   info block become items of it without a single node moving in the DOM.
+   Then the photo takes column 2 and spans the buy column's rows, and the
+   info block, the urgency lines and the details accordion take column 4.
+   Everything below keeps `grid-column: 1 / -1`, so the storytelling bands are
+   exactly as wide as they are today.
+
+   The column maths is the old maths, restated as tracks. Today .syd-top is
+   `56fr 44fr` with a 56px gap inside `padding: 0 max(40px, (100% - 1620)/2)`.
+   Here the padding becomes two gutter tracks and the gap becomes a third
+   track, so the two content tracks resolve to the same widths they always
+   had: 875.8 / 688.2 at 1700 and up, 730.2 / 573.8 at 1440.
+
+   ── span 3, and why not `1 / -1` ──
+   The gallery must span the buy column or sticky has nowhere to travel.
+   `1 / -1` is the trap §13 and §14 already document: with no explicit rows,
+   -1 is line 1 and the span collapses. `span 3` counts forward, and 3 is the
+   number of things in the buy column - the info block, urgency, the drawers.
+   If a section is ever added to that column the gallery simply stops being
+   sticky one row early, which is the safe direction to be wrong in.
+
+   ── the background ──
+   `display: contents` throws away .syd-top's box, and with it the cream it
+   painted behind the first screen - the gallery and info sections are told
+   `background: transparent !important` and were relying on it. The cream is
+   given to #MainContent instead. It is the same colour (#F7F4EC) and every
+   section below paints its own cream within two units of it, so nothing on
+   the page changes tone.
+
+   No section file is edited, sa-desktop.liquid included.
+   ========================================================================== */
+
+@media screen and (min-width: 900px) {
+
+  /* ── 15a · the page becomes the grid ─────────────────────────────────── */
+
+  html.sy-pdp #MainContent {
+    display: grid;
+    grid-template-columns:
+      max(40px, calc((100% - 1620px) / 2))
+      minmax(0, 56fr)
+      56px
+      minmax(0, 44fr)
+      max(40px, calc((100% - 1620px) / 2));
+    align-items: start;
+    background: #f7f4ec;
+  }
+
+  /* Every band keeps the whole width, gutters included, so anything painting
+     edge to edge carries on doing it. */
+  html.sy-pdp #MainContent > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  /* !important because sa-desktop.liquid sets .syd-top{display:grid} from a
+     <style> inside the body, which lands after this sheet. */
+  html.sy-pdp .syd-top {
+    display: contents !important;
+  }
+
+  html.sy-pdp .syd-top > .syd-gal {
+    grid-column: 2;
+    grid-row: auto / span 3;
+    align-self: start;
+    padding-top: 28px;
+  }
+
+  html.sy-pdp .syd-top > .syd-info {
+    grid-column: 4;
+    padding-top: 28px;
+  }
+
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in),
+  html.sy-pdp #MainContent > .shopify-section:has(.dw) {
+    grid-column: 4;
+  }
+
+  /* Once sa-promise walks its own contents into the info block its section
+     wrapper is an empty shell. As a full-width grid item it would sit
+     between the info block and urgency and cut the gallery's span in half. */
+  html.sy-pdp #MainContent > .shopify-section.pr-moved {
+    display: none !important;
+  }
+
+  /* ── 15b · urgency, back to the width it asked for ───────────────────── */
+
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in) .ug-in {
+    display: block !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 16px 0 0 !important;
+  }
+
+  /* The flat sheet turns the divider between the two rows into a vertical
+     rule with 28px of indent, which is right for two rows side by side and
+     wrong for two rows stacked. Its rules are !important and land after this
+     file, so these are written with the #MainContent id to outrank them. */
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in) .ug-in .ug-row + .ug-row {
+    border-left: 0 !important;
+    border-top: 1px solid #ddd5c0 !important;
+    padding-left: 0 !important;
+  }
+
+  /* ── 15c · the drawers, back to the width they asked for ────────────── */
+
+  /* This undoes §10. §10 gave the drawer 1400px because the sections it
+     swallows carry the page's two-column grids and had no room for them
+     inside a 560px box. In the buy column the answer is the other way up:
+     the drawer keeps the width it was drawn for and the sections inside it
+     use the layout they use on a phone, which is a layout that already
+     exists and is already tested. */
+  html.sy-pdp #MainContent > .shopify-section:has(.dw) .dw {
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  html.sy-pdp #MainContent .dw .jr,
+  html.sy-pdp #MainContent .dw .nl,
+  html.sy-pdp #MainContent .dw .tg,
+  html.sy-pdp #MainContent .dw .ct,
+  html.sy-pdp #MainContent .dw .ug-in {
+    display: block !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* sa-desktop.liquid's boxrow() moves the second row of trust badges into
+     the first and writes the column count as an INLINE !important style,
+     which no stylesheet can outrank. Switching the row to flex makes
+     grid-template-columns inert, which is the way past it. */
+  html.sy-pdp #MainContent .dw .tg-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 16px 14px !important;
+  }
+
+  html.sy-pdp #MainContent .dw .tg-row > * {
+    flex: 1 1 150px !important;
+  }
+
+  /* Headings drawn for a 1400px band, read at 574. */
+  html.sy-pdp #MainContent .dw .jr-h,
+  html.sy-pdp #MainContent .dw .jr-now {
+    font-size: 26px !important;
+  }
+
+  html.sy-pdp #MainContent .dw .jr-p,
+  html.sy-pdp #MainContent .dw .desc {
+    font-size: 13.5px !important;
+    line-height: 1.7 !important;
+  }
+
+  html.sy-pdp #MainContent .dw .n-row .tx b {
+    font-size: 15px !important;
+  }
+
+  /* The drawer's own body padding was zero because the sections inside
+     carried the page's 40px gutters. They no longer do. */
+  html.sy-pdp #MainContent .dw .dw-pad {
+    padding: 4px 26px 18px !important;
+  }
+}
+
+/* Between 900 and 1099 the buy column is about 400px, which is narrower than
+   a phone reads comfortably once the drawer contents are inside it. The
+   photo keeps its column; the buy column takes the full width below it. */
+@media screen and (min-width: 900px) and (max-width: 1099px) {
+  html.sy-pdp .syd-top > .syd-gal {
+    grid-row: auto / span 1;
+  }
+
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in),
+  html.sy-pdp #MainContent > .shopify-section:has(.dw) {
+    grid-column: 2 / 5;
+  }
+}

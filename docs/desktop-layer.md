@@ -834,3 +834,139 @@ decides its width — 560px from the section, 1400px with §10. The full-width
 fault would only appear if sa-wears were placed on a page where nothing
 harvests it. Held back, and now held back for a better reason than the one
 given.
+
+---
+
+## §15 — the product page gets a buy column
+
+`templates/product.json`. Lands in `assets/sa-desktop-wide.css`. **No section
+file is edited, `sa-desktop.liquid` included.**
+
+Shown as an HTML before/after first — "The Buy Column",
+`claude.ai/code/artifact/9952d54b-c8cf-4290-99f2-f1402a9bed62` — and built
+after the merchant approved it.
+
+### The finding that made the case
+
+Four sections on this page state, in their own saved settings, the width they
+want. Three were being rendered at nearly three times it:
+
+| section | its own setting | asked | got | why |
+| --- | --- | --- | --- | --- |
+| `sa-promise` | `maxw` | 560 | ~574 | moves itself into the info column |
+| `sa-urgency` | `width` | 520 | **1400** | forced by `sa-desktop.liquid` |
+| `sa-drawers` | `maxw` | 560 | **1400** | forced by §10, to fit what it swallowed |
+| `sa-wears` | `maxw` | 560 | **1400** | lives inside the drawers, inherits it |
+
+Nobody chose 1400. The desktop layout has two columns and those sections had
+nowhere else to stand, so the layout stretched them. The one that got what it
+asked for is the one with a way to **move**: `sa-promise` has a setting called
+"Sit just above the stock line", and with it ticked the section walks its own
+`.pr` into the info block, above `[data-stockline]`, and marks its own wrapper
+`.pr-moved`.
+
+### Why the layout only had two columns
+
+`sa-desktop.liquid`'s `build()` creates one wrapper and moves exactly two
+sections into it:
+
+```js
+if (wg) { wg.classList.add('syd-gal'); w.appendChild(wg); }
+wi.classList.add('syd-info');
+w.appendChild(wi);
+```
+
+Everything after those two stays a sibling under `#MainContent`, so it can
+only be a full-width band.
+
+The photo paid for this too. It is `position: sticky`, but a sticky **grid
+item can only travel inside its own grid area**, and its area was one row
+shared with the info block. The two are about the same height, so the travel
+was close to zero — the gallery was declared sticky and behaved as if it were
+not.
+
+### The shape
+
+`#MainContent` becomes the grid instead of `.syd-top` — the same move §7 makes
+on the cart — and `display: contents` on `.syd-top` lets the gallery and the
+info block become items of it **without a single node moving in the DOM**.
+The photo takes column 2 and spans the buy column's rows; the info block, the
+urgency lines and the details accordion take column 4. Everything below keeps
+`grid-column: 1 / -1`.
+
+The column maths is the old maths restated as tracks. `.syd-top` was
+`56fr 44fr` with a 56px gap inside `padding: 0 max(40px, (100% − 1620px)/2)`.
+Here the padding becomes two gutter tracks and the gap becomes a third track,
+so the content tracks resolve to exactly the same widths — confirmed by
+measurement, not by arithmetic alone.
+
+### Three things that had to be got right
+
+**`span 3`, not `1 / -1`.** The gallery must span the buy column or sticky has
+nowhere to travel. `-1` is the trap §13 and §14 already document. Three is the
+number of things in the buy column. If a section is ever added there the
+gallery stops being sticky one row early — the safe direction to be wrong in.
+
+**The empty promise wrapper.** Once `sa-promise` walks its contents into the
+info block its section wrapper is an empty shell. As a full-width grid item it
+would sit between the info block and urgency and cut the gallery's span in
+half, so `.pr-moved` is hidden.
+
+**An inline `!important` that no stylesheet can outrank.** `boxrow()` writes
+the trust row's column count as `row.style.setProperty(..., 'important')`, and
+an inline `!important` beats a stylesheet `!important`. The way past it is to
+change the *property that matters*: `display: flex` makes
+`grid-template-columns` inert, and the badges wrap instead.
+
+### The background, and why the risk was smaller than stated
+
+The preview warned that `display: contents` throws away `.syd-top`'s box and
+with it the cream behind the first screen — the gallery and info sections are
+told `background: transparent !important` and were relying on it. True, and
+the cream is given to `#MainContent` instead. But the risk was overstated:
+`top_bg` is `#F7F4EC` and every section below paints its own cream within two
+units of it (`sa-urgency` `#f7f3ea`, `sa-drawers` `#f7f4ec`, `sa-wears`
+`#f7f4ec`), so the page is one cream surface either way.
+
+### §10 is undone here, deliberately
+
+§10 gave the drawer 1400px because the sections it swallows
+(`sa-trust`, `sa-scent-journey`, `sa-note-list`, `sa-certificate`) carry the
+page's two-column grids and had no room for them inside a 560px box. In the
+buy column the answer is the other way up: the drawer keeps the width it was
+drawn for, and the sections inside it use the layout they use on a phone —
+a layout that already exists and is already tested. §10's row sizes (40px
+icons, 16px titles, 18/26 padding) are kept; only its width is reversed.
+
+### Verified
+
+Harness built from `sa-desktop.liquid`'s own compiled rules — including the
+`flat` snippet — with the real `#MainContent` child order after the drawers
+have harvested, and the section `<style>` placed *after* the stylesheet so the
+cascade order matches the real page.
+
+| width | `#MainContent` | gutter | photo | buy column | bands |
+| --- | --- | --- | --- | --- | --- |
+| 390 | block | — | full width | full width | full width — **untouched** |
+| 749 | block | — | full width | full width | **untouched** |
+| 900 | grid | 40 | 428 | 820, below the photo | full width |
+| 1024 | grid | 40 | 497 | 944, below the photo | full width |
+| 1280 | grid | 40 | 641 | **503, beside** | full width |
+| 1440 | grid | 40 | **730** | **574, beside** | full width |
+| 1920 | grid | **150** | **876** | **688, beside** | full width |
+
+876 / 688 at 1920 and 730 / 574 at 1440 are the widths `.syd-top` produced
+before the change, to the pixel.
+
+Scrolled to the drawers at 1440 and 1024, the gallery is pinned at the header
+offset and **still on screen** — which is the whole point, and was not true
+before. At 749 and 390 every measurement is identical to today's, including
+`.ug-in` padding, `.dw` max-width 560, `.tg-row` back to grid and `.pr-moved`
+back to `display: block`.
+
+### One piece of litter to delete
+
+`assets/sa-desktop-wide-15.css` was created on the theme by mistake and is
+**not loaded by `layout/theme.liquid`**, so nothing reads it. The Admin API
+cannot delete a theme file, so it has been emptied and labelled "NOT USED.
+SAFE TO DELETE." Delete it from the theme editor when convenient.
