@@ -288,7 +288,13 @@
 #shopify-section-{{ sid }} .stbar .c,
 #shopify-section-{{ sid }} .stbar .chip,
 #shopify-section-{{ sid }} .sttile .add.qty b{
-  transition:transform .4s cubic-bezier(.2,1.3,.35,1)}
+  transition:transform .4s cubic-bezier(.2,1.3,.35,1);
+  {%- comment -%}
+    A figure that climbs passes through narrow digits and wide ones. On
+    proportional numerals the line would shuffle sideways for the whole
+    climb - which is why the bag pins these too.
+  {%- endcomment -%}
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 #shopify-section-{{ sid }} .sttile .add.qty b{display:inline-block}
 #shopify-section-{{ sid }} .stbar .c.up,
 #shopify-section-{{ sid }} .stbar .chip.up,
@@ -440,6 +446,7 @@
     updUrl    : {{ routes.cart_update_url | json }},
     cartJs    : {{ routes.cart_url | append: '.js' | json }},
     wait      : {{ s.sync_wait | default: 600 }},
+    roll      : {{ s.roll_ms | default: 520 }},
     navFb     : {{ s.bar_offset | default: 62 }},
     follow    : {{ s.bar_follow | default: true | json }}
   };
@@ -489,7 +496,7 @@
   var busy  = false;
 
   function money(n){
-    return CFG.cur + Number(n).toLocaleString('en-IN');
+    return CFG.cur + Math.round(Number(n)).toLocaleString('en-IN');
   }
   function bold(str){
     return String(str).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
@@ -535,22 +542,52 @@
   var cartQty = {}, touched = {}, syncT = null, syncing = false, again = false;
 
   {%- comment -%}
-    Writes a figure and lets it settle. The class has to come off and go
-    back on across a reflow - dropped straight back on it would be no change
-    at all and nothing would move. A first paint is not a change, so an
-    empty element fills silently.
+    ── a number counts, it does not jump ──
+    The bag's own tween, with its duration and its easing rather than
+    anything invented here: from whatever is on screen to whatever it should
+    be, over 520ms on an ease-out quart, so ₹49 climbs through 50, 51, 52 to
+    ₹98 instead of simply becoming it. `last` holds what is on screen, so a
+    tap part-way through carries on from the figure the eye is actually
+    looking at, not from the one the cart last settled on.
+
+    Only money counts. The bag deliberately leaves its item count alone - a
+    1 tweening to a 2 has nothing to travel through - so the card's stepper
+    and the menu's bag count take the lift and nothing more.
   {%- endcomment -%}
-  function setNum(el, txt){
+  var last = {};
+
+  function bump(el){
     if(!el) return;
-    var was = el.textContent;
-    if(was === txt) return;
-    el.textContent = txt;
-    if(!was) return;
     el.classList.remove('up');
     void el.offsetWidth;
     el.classList.add('up');
     clearTimeout(el.saUp);
-    el.saUp = setTimeout(function(){ el.classList.remove('up') }, 190);
+    el.saUp = setTimeout(function(){ el.classList.remove('up') }, 400);
+  }
+
+  function roll(el, key, val, paint){
+    if(!el) return;
+    var from = (last[key] === undefined) ? val : last[key];
+    last[key] = val;
+    if(from === val){ el.textContent = paint(val); return }
+    var t0 = null;
+    requestAnimationFrame(function step(ts){
+      if(!t0) t0 = ts;
+      var p = Math.min(1, (ts - t0) / CFG.roll);
+      var e = 1 - Math.pow(1 - p, 4);
+      el.textContent = paint(from + (val - from) * e);
+      if(p < 1) requestAnimationFrame(step);
+    });
+    bump(el);
+  }
+
+  {%- comment -%} a count has nowhere to travel, so it only lifts {%- endcomment -%}
+  function tick(el, txt){
+    if(!el) return;
+    var was = el.textContent;
+    if(was === txt) return;
+    el.textContent = txt;
+    if(was) bump(el);
   }
 
   function post(url, body){
@@ -562,7 +599,7 @@
   function paintBag(n){
     var pill = document.querySelector('[data-bag]');
     if(!pill) return;
-    if(n > 0){ setNum(pill, String(n)); pill.hidden = false } else { pill.hidden = true }
+    if(n > 0){ tick(pill, String(n)); pill.hidden = false } else { pill.hidden = true }
   }
 
   function refresh(){
@@ -691,7 +728,7 @@
           add.appendChild(document.createElement('b'));
           add.appendChild(stepBtn('pl', '+', 'One more'));
         }
-        setNum(add.querySelector('b'), String(c));
+        tick(add.querySelector('b'), String(c));
       } else if(add.classList.contains('qty')){
         add.classList.remove('qty');
         add.textContent = CFG.offWord;
@@ -727,6 +764,8 @@
       c.textContent  = CFG.barEmpty;
       sb.textContent = CFG.barEmptyS;
       goT.textContent = CFG.barEmptyB;
+      {%- comment -%} an emptied tray starts the next climb from zero {%- endcomment -%}
+      last.tot = 0; last.cash = 0;
       return;
     }
 
@@ -736,11 +775,13 @@
       is a chip beside it rather than a sentence under it, because it is the
       same promise every time and a sentence makes it look conditional.
     {%- endcomment -%}
-    setNum(c, money(tot));
+    roll(c, 'tot', tot, money);
     sb.textContent = picks.length + ' ' +
       (picks.length === 1 ? CFG.barOne : CFG.barMany) +
       (full ? ' · ' + CFG.barFull : '');
-    setNum(k, fill(CFG.barBack || '+{money} back', { money: money(tot) }));
+    roll(k, 'cash', tot, function(v){
+      return fill(CFG.barBack || '+{money} back', { money: money(v) });
+    });
     goT.textContent = busy ? CFG.btnBusy : CFG.btnOpen;
   }
 
@@ -931,6 +972,8 @@
     { "type": "checkbox", "id": "bar_follow", "label": "Ride the bottom menu", "default": true,
       "info": "Off = the bar sits at the very bottom of the screen." },
     { "type": "range", "id": "bar_offset", "min": 0, "max": 120, "step": 2, "unit": "px", "label": "Bottom menu height (fallback)", "default": 62 },
+    { "type": "range", "id": "roll_ms", "min": 0, "max": 1200, "step": 20, "unit": "ms", "label": "How long a figure takes to count",
+      "info": "The bar's total and its cashback climb to the new figure over this long. 0 makes them jump." , "default": 520 },
     { "type": "range", "id": "sync_wait", "min": 200, "max": 1500, "step": 50, "unit": "ms", "label": "Wait before telling the cart", "default": 600,
       "info": "A tap paints at once; the cart is told once the hand stops, so quick taps cost one request." },
     { "type": "range", "id": "bar_z", "min": 0, "max": 100, "step": 1, "label": "Bar layer", "default": 30,
