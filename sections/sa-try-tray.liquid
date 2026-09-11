@@ -122,10 +122,25 @@
   font-size:{{ s.add_size | default: 10.5 }}px;font-weight:600;color:{{ ink }}}
 #shopify-section-{{ sid }} .sttile.on .add{background:{{ ink }};border-color:{{ ink }};
   color:{{ s.card | default: '#FFFFFF' }}}
+{%- comment -%}
+  ── once it is in the tray, the button counts ──
+  Tapping a tile used to toggle, so the only way to a second bottle of the
+  same scent was a tap that could just as easily throw the first one away.
+  The tray has always counted duplicates - the picks list holds one entry
+  per bottle - so only the control was missing. Now the tile's own tap adds
+  the first, and from there the stepper owns the number: − at one takes it
+  back out. The count sits where ₹49 was, so the card never changes height.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .sttile .add.qty{padding:0;min-width:74px;
+  display:flex;align-items:center;justify-content:space-between}
+#shopify-section-{{ sid }} .sttile .add.qty button{appearance:none;border:0;background:none;
+  font:inherit;font-size:15px;line-height:1;color:inherit;cursor:pointer;
+  width:26px;align-self:stretch;display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent}
+#shopify-section-{{ sid }} .sttile .add.qty button:active{opacity:.6}
+#shopify-section-{{ sid }} .sttile .add.qty b{font-weight:700;font-size:11px;
+  font-variant-numeric:tabular-nums}
 
-#shopify-section-{{ sid }} .stqty{position:absolute;top:6px;right:6px;min-width:19px;height:19px;
-  padding:0 5px;border-radius:20px;background:{{ gold }};color:{{ ink }};
-  font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:5}
 #shopify-section-{{ sid }} .stribbon{position:absolute;top:8px;left:8px;background:{{ ink }};
   color:{{ s.card | default: '#FFFFFF' }};font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;
   padding:3px 7px;border-radius:4px;font-weight:600;z-index:3}
@@ -178,28 +193,63 @@
   checkout bar on the bag: same dock, same z range. It is the only thing
   on the page that knows the total, so it says the total and what comes
   back, and nothing else.
+
+  It used to say that as a solid black plank across the full width, square
+  at the corners. The product page's bar - the one a shopper sees far more
+  often - is a floating glass pill, inset from both edges, with the figure
+  on the left, a green cashback chip beside it and a dark round button at
+  the end. Two bars in one shop should not be two different languages, so
+  this one is now built to the product page's: same inset, same blur, same
+  green, same round button.
 {%- endcomment -%}
-#shopify-section-{{ sid }} .stbar{position:fixed;left:0;right:0;bottom:0;z-index:{{ s.bar_z | default: 30 }};
-  display:flex;align-items:center;gap:10px;
-  padding:{{ s.bar_pad | default: 10 }}px {{ s.bar_pad_x | default: 13 }}px;
-  padding-bottom:calc({{ s.bar_pad | default: 10 }}px + env(safe-area-inset-bottom));
-  background:{{ s.bar_bg | default: '#1A1712' }};color:{{ s.bar_ink | default: '#F6EDDA' }};
-  transform:translateY(0);transition:transform .28s cubic-bezier(.22,.9,.26,1),background .3s ease}
-#shopify-section-{{ sid }} .stbar.down{transform:translateY(100%)}
-#shopify-section-{{ sid }} .stbar.done{
-  background:linear-gradient(90deg,{{ s.bar_done_a | default: '#8C6B2E' }},{{ s.bar_done_b | default: '#C8994B' }});
-  color:{{ s.bar_done_ink | default: '#221A08' }}}
+{%- assign pill_a = s.pill_op | default: 52 | divided_by: 100.0 -%}
+#shopify-section-{{ sid }} .stbar{position:fixed;
+  left:{{ s.pill_side | default: 12 }}px;right:{{ s.pill_side | default: 12 }}px;bottom:0;
+  z-index:{{ s.bar_z | default: 30 }};
+  display:flex;align-items:center;gap:9px;padding:7px 7px 7px 15px;border-radius:100px;
+  background:{{ s.pill_glass | default: '#FFFFFF' | color_modify: 'alpha', pill_a }};
+  -webkit-backdrop-filter:blur({{ s.pill_blur | default: 20 }}px) saturate(170%);
+  backdrop-filter:blur({{ s.pill_blur | default: 20 }}px) saturate(170%);
+  border:1px solid {{ s.pill_edge | default: '#FFFFFF' | color_modify: 'alpha', 0.55 }};
+  box-shadow:0 10px 32px {{ ink | color_modify: 'alpha', 0.16 }},
+             inset 0 1px 0 {{ s.pill_edge | default: '#FFFFFF' | color_modify: 'alpha', 0.6 }};
+  color:{{ ink }};
+  transform:translateY(0);transition:transform .3s cubic-bezier(.22,.9,.26,1),
+             box-shadow .3s ease,border-color .3s ease}
+#shopify-section-{{ sid }} .stbar.down{transform:translateY(calc(100% + {{ s.pill_gap | default: 9 }}px))}
+{%- comment -%} the free-delivery line is a rim of gold, not a repaint {%- endcomment -%}
+#shopify-section-{{ sid }} .stbar.done{border-color:{{ gold | color_modify: 'alpha', 0.85 }};
+  box-shadow:0 10px 32px {{ gold | color_modify: 'alpha', 0.26 }},
+             inset 0 1px 0 {{ s.pill_edge | default: '#FFFFFF' | color_modify: 'alpha', 0.6 }}}
+#shopify-section-{{ sid }} .stbar .tx{min-width:0}
 #shopify-section-{{ sid }} .stbar .c{
   font-family:{{ settings.sa_font_head.family | default: 'Fraunces' }},serif;
-  font-size:{{ s.bar_big | default: 15 }}px;font-weight:600;line-height:1.15}
-#shopify-section-{{ sid }} .stbar .s{font-size:{{ s.bar_small | default: 9.5 }}px;
-  opacity:.72;line-height:1.35;margin-top:1px}
-#shopify-section-{{ sid }} .stbar .go{margin-left:auto;appearance:none;border:0;font:inherit;
-  background:{{ gold }};color:{{ ink }};font-size:{{ s.bar_btn | default: 11 }}px;font-weight:700;
-  padding:8px 14px;border-radius:8px;white-space:nowrap;cursor:pointer}
-#shopify-section-{{ sid }} .stbar.done .go{background:{{ ink }};color:{{ s.bar_done_ink2 | default: '#F0DFB4' }}}
-#shopify-section-{{ sid }} .stbar.empty .go{background:{{ s.bar_ink | default: '#F6EDDA' }}1F;
-  color:{{ s.bar_ink | default: '#F6EDDA' }};opacity:.7}
+  font-size:{{ s.bar_big | default: 20 }}px;font-weight:600;line-height:1.05;letter-spacing:-.01em;
+  white-space:nowrap}
+#shopify-section-{{ sid }} .stbar .s{font-size:{{ s.bar_small | default: 8 }}px;font-weight:600;
+  letter-spacing:.13em;text-transform:uppercase;color:{{ faint }};
+  line-height:1.3;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#shopify-section-{{ sid }} .stbar .chip{margin-left:auto;flex:none;
+  font-size:8.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:5px 9px;border-radius:100px;white-space:nowrap;
+  background:{{ s.cash_bg | default: '#E8F3EE' }};color:{{ s.cash | default: '#0C6B52' }}}
+#shopify-section-{{ sid }} .stbar .stgo{flex:none;appearance:none;border:0;font:inherit;cursor:pointer;
+  background:{{ ink }};color:{{ s.bar_ink | default: '#F6EDDA' }};
+  font-size:{{ s.bar_btn | default: 12.5 }}px;font-weight:700;letter-spacing:.01em;
+  padding:12px 19px;border-radius:100px;white-space:nowrap;min-height:42px;
+  transition:transform .16s ease}
+#shopify-section-{{ sid }} .stbar .stgo:active{transform:scale(.96)}
+{%- comment -%} an empty tray has no figure to set in Fraunces and nothing
+  to hand back, so it speaks in the body face and drops the chip {%- endcomment -%}
+#shopify-section-{{ sid }} .stbar.empty .c{
+  font-family:{{ settings.sa_font_body.family | default: 'Jost' }},sans-serif;
+  font-size:13px;font-weight:600;letter-spacing:0}
+#shopify-section-{{ sid }} .stbar.empty .s{text-transform:none;letter-spacing:0;
+  font-weight:400;font-size:10.5px;color:{{ soft }}}
+#shopify-section-{{ sid }} .stbar.empty .chip{display:none}
+#shopify-section-{{ sid }} .stbar.empty .tx{margin-right:auto}
+#shopify-section-{{ sid }} .stbar.empty .stgo{background:none;color:{{ ink }};
+  border:1px solid {{ ink | color_modify: 'alpha', 0.18 }};padding:11px 18px}
 #shopify-section-{{ sid }} .stbar.busy{pointer-events:none;opacity:.75}
 
 #shopify-section-{{ sid }} .sttail{height:{{ s.tail | default: 84 }}px}
@@ -207,9 +257,10 @@
 @media(min-width:{{ s.desk_from | default: 750 }}px){
   #shopify-section-{{ sid }} .stwrap{max-width:{{ s.desk_max | default: 720 }}px;margin:0 auto}
   #shopify-section-{{ sid }} .sttray.v{grid-template-columns:repeat({{ s.cols_v_d | default: 5 }},1fr)}
-  #shopify-section-{{ sid }} .stbar{max-width:{{ s.desk_max | default: 720 }}px;left:50%;
-    transform:translateX(-50%);border-radius:14px 14px 0 0}
-  #shopify-section-{{ sid }} .stbar.down{transform:translate(-50%,100%)}
+  #shopify-section-{{ sid }} .stbar{max-width:{{ s.desk_max | default: 720 }}px;left:50%;right:auto;
+    transform:translateX(-50%)}
+  #shopify-section-{{ sid }} .stbar.down{
+    transform:translate(-50%,calc(100% + {{ s.pill_gap | default: 9 }}px))}
 }
 </style>
 
@@ -286,12 +337,18 @@
 
 <div class="sttail"></div>
 
+{%- comment -%}
+  The button is deliberately NOT called "go". The theme hands every
+  button.go to GoKwik on a capture-phase listener, which would open
+  checkout before this tray had put a single tester in the cart.
+{%- endcomment -%}
 <div class="stbar empty" data-stbar>
-  <div>
+  <div class="tx">
     <div class="c" data-stbc></div>
     <div class="s" data-stbs></div>
   </div>
-  <button type="button" class="go" data-stbg></button>
+  <span class="chip" data-stbk></span>
+  <button type="button" class="stgo" data-stbg></button>
 </div>
 
 <script>
@@ -303,7 +360,6 @@
   var CFG = {
     rate      : {{ rate }},
     cur       : {{ s.currency | default: '₹' | json }},
-    onWord    : {{ s.add_on_text | default: '✓ Added' | json }},
     offWord   : {{ s.add_text | default: '+ ₹49' | json }},
     barEmpty  : {{ s.bar_empty | default: 'Your tray is empty' | json }},
     barEmptyS : {{ s.bar_empty_sub | default: 'Pick any scent below · ₹49 each' | json }},
@@ -313,9 +369,7 @@
     barBack   : {{ s.bar_back | json }},
     barFull   : {{ s.bar_full | default: 'Delivery is free — and every rupee comes back' | json }},
     btnOpen   : {{ s.bar_btn_open | default: 'Take the tray →' | json }},
-    btnFull   : {{ s.bar_btn_full | default: 'Take them →' | json }},
     btnBusy   : {{ s.bar_btn_busy | default: 'Adding…' | json }},
-    cartUrl   : {{ routes.cart_url | json }},
     addUrl    : {{ routes.cart_add_url | json }},
     remember  : {{ s.remember | default: true | json }},
     navFb     : {{ s.bar_offset | default: 62 }},
@@ -325,6 +379,7 @@
   var KEY = 'sa_try_box';
   var tray = SEC.querySelector('[data-sttray]');
   var bar  = SEC.querySelector('[data-stbar]');
+  var go   = SEC.querySelector('[data-stbg]');
   var wk   = document.querySelector('[data-stweek]');
 
   {%- comment -%}
@@ -459,14 +514,30 @@
       t.classList.toggle('on', c > 0);
 
       var add = t.querySelector('.add');
-      if(add) add.textContent = c ? CFG.onWord : CFG.offWord;
-
-      var q = t.querySelector('.stqty');
-      if(c > 1){
-        if(!q){ q = document.createElement('span'); q.className = 'stqty'; t.appendChild(q) }
-        q.textContent = c;
-      } else if(q) q.remove();
+      if(!add) return;
+      if(c > 0){
+        if(!add.classList.contains('qty')){
+          add.classList.add('qty');
+          add.textContent = '';
+          add.appendChild(stepBtn('mn', '−', 'One fewer'));
+          add.appendChild(document.createElement('b'));
+          add.appendChild(stepBtn('pl', '+', 'One more'));
+        }
+        add.querySelector('b').textContent = c;
+      } else if(add.classList.contains('qty')){
+        add.classList.remove('qty');
+        add.textContent = CFG.offWord;
+      }
     });
+  }
+
+  function stepBtn(cls, glyph, label){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = cls;
+    b.textContent = glyph;
+    b.setAttribute('aria-label', label);
+    return b;
   }
 
   function drawBar(){
@@ -480,21 +551,29 @@
     bar.className = 'stbar' + (full ? ' done' : '') + (picks.length ? '' : ' empty')
                   + (busy ? ' busy' : '') + (bar.classList.contains('down') ? ' down' : '');
 
-    var c = SEC.querySelector('[data-stbc]'),
+    var c  = SEC.querySelector('[data-stbc]'),
         sb = SEC.querySelector('[data-stbs]'),
-        g = SEC.querySelector('[data-stbg]');
+        k  = SEC.querySelector('[data-stbk]');
 
     if(!picks.length){
       c.textContent  = CFG.barEmpty;
       sb.textContent = CFG.barEmptyS;
-      g.textContent  = CFG.barEmptyB;
+      go.textContent = CFG.barEmptyB;
       return;
     }
-    c.textContent  = picks.length + ' ' +
-      (picks.length === 1 ? CFG.barOne : CFG.barMany) + ' · ' + money(tot);
-    sb.textContent = full ? CFG.barFull
-      : fill(CFG.barBack || '{money} comes back as cashback', { money: money(tot) });
-    g.textContent  = busy ? CFG.btnBusy : (full ? CFG.btnFull : CFG.btnOpen);
+
+    {%- comment -%}
+      The figure leads, the way it does on a product page: the total in the
+      display face, and under it what that total is made of. What comes back
+      is a chip beside it rather than a sentence under it, because it is the
+      same promise every time and a sentence makes it look conditional.
+    {%- endcomment -%}
+    c.textContent  = money(tot);
+    sb.textContent = picks.length + ' ' +
+      (picks.length === 1 ? CFG.barOne : CFG.barMany) +
+      (full ? ' · ' + CFG.barFull : '');
+    k.textContent  = fill(CFG.barBack || '+{money} back', { money: money(tot) });
+    go.textContent = busy ? CFG.btnBusy : CFG.btnOpen;
   }
 
   function draw(){ drawWeek(); drawTiles(); drawBar(); save() }
@@ -514,21 +593,45 @@
       return;
     }
 
+    {%- comment -%}
+      the stepper is inside the tile, and the tile adds on tap, so it has to
+      answer first and keep the tap to itself
+    {%- endcomment -%}
+    var st = e.target.closest('.add.qty button');
+    if(st){
+      var ts = st.closest('[data-stp]');
+      if(!ts) return;
+      if(st.classList.contains('pl')) addOne(ts);
+      else {
+        for(var j=picks.length-1;j>=0;j--){
+          if(picks[j].id === ts.dataset.id){ picks.splice(j,1); break }
+        }
+        draw();
+      }
+      return;
+    }
+
     var t = e.target.closest('[data-stp]');
     if(t){
       if(t.dataset.out === '1') return;
-      var id = t.dataset.id, at = -1;
-      for(var i=0;i<picks.length;i++){ if(picks[i].id === id){ at = i; break } }
-      if(at > -1) picks.splice(at,1);
-      else picks.push({ id:id, nm:t.dataset.nm, img:t.dataset.img, fc:t.dataset.fc });
-      draw();
+      {%- comment -%}
+        the tile's own tap puts the first bottle in; after that the stepper
+        owns the count, so a stray tap on the photo can no longer undo it
+      {%- endcomment -%}
+      for(var i=0;i<picks.length;i++){ if(picks[i].id === t.dataset.id) return }
+      addOne(t);
       return;
     }
 
     if(e.target.closest('[data-stbg]')){ send(); return }
   });
 
-  {%- comment -%} ── one add, at the end ── {%- endcomment -%}
+  function addOne(t){
+    picks.push({ id:t.dataset.id, nm:t.dataset.nm, img:t.dataset.img, fc:t.dataset.fc });
+    draw();
+  }
+
+  {%- comment -%} ── one add, at the end, then straight to checkout ── {%- endcomment -%}
   function send(){
     if(busy) return;
     if(!picks.length){
@@ -548,11 +651,29 @@
     }).then(function(r){ return r.json() })
       .then(function(){
         try{ sessionStorage.removeItem(KEY) }catch(e){}
-        window.location.href = CFG.cartUrl;
+        checkout();
       })
       .catch(function(){
         busy = false; drawBar();
       });
+  }
+
+  {%- comment -%}
+    ── buy now means buy now ──
+    The shop checks out through GoKwik, which the theme opens by calling
+    onCheckoutClick on a button. Asking for it here, after the add has
+    actually landed, is the whole reason the bar's button is not called
+    "go": the theme's own capture-phase listener would otherwise have
+    opened checkout on the cart as it stood before any of this.
+  {%- endcomment -%}
+  function checkout(){
+    try{
+      if(window.bndlr && typeof initWithBundlrDiscount === 'function'){
+        initWithBundlrDiscount(go); return;
+      }
+      if(typeof onCheckoutClick === 'function'){ onCheckoutClick(go); return; }
+    }catch(err){}
+    window.location.href = '/checkout';
   }
 
   {%- comment -%}
@@ -563,12 +684,13 @@
     for rather than assumed.
   {%- endcomment -%}
   (function dock(){
-    if(!CFG.follow){ bar.style.bottom = '0px'; return }
+    var GAP = {{ s.pill_gap | default: 9 }};
+    if(!CFG.follow){ bar.style.bottom = GAP + 'px'; return }
     var tries = 0;
     function place(nav){
       var h = nav ? (nav.offsetHeight || CFG.navFb) : 0;
       if(h === 0) h = CFG.navFb;
-      bar.style.bottom = h + 'px';
+      bar.style.bottom = (h + GAP) + 'px';
     }
     function bind(nav){
       place(nav);
@@ -583,7 +705,7 @@
       var nav = document.querySelector('nav[data-bb]');
       if(nav){ bind(nav); return }
       if(++tries < 60) setTimeout(look, 100);
-      else bar.style.bottom = '0px';
+      else bar.style.bottom = (CFG.navFb + GAP) + 'px';
     }
     look();
   })();
@@ -611,7 +733,6 @@
     { "type": "header", "content": "Words" },
     { "type": "text", "id": "vrow_text", "label": "Line above the grid", "default": "All testers · ₹49 each" },
     { "type": "text", "id": "add_text", "label": "Button · not picked", "default": "+ ₹49" },
-    { "type": "text", "id": "add_on_text", "label": "Button · picked", "default": "✓ Added" },
     { "type": "text", "id": "ribbon_text", "label": "Corner mark", "default": "Tester" },
     { "type": "checkbox", "id": "ribbon_on", "label": "Show the corner mark", "default": true },
     { "type": "text", "id": "fm_fallback", "label": "Word when a product has no family tag", "default": "Tester" },
@@ -641,21 +762,23 @@
     { "type": "text", "id": "bar_empty_btn", "label": "Empty · button", "default": "Start" },
     { "type": "text", "id": "bar_one", "label": "Word for one", "default": "tester" },
     { "type": "text", "id": "bar_many", "label": "Word for many", "default": "testers" },
-    { "type": "text", "id": "bar_back", "label": "Line 2 while filling", "default": "{money} comes back as cashback" },
-    { "type": "text", "id": "bar_full", "label": "Line 2 once delivery is free", "default": "Delivery is free — and every rupee comes back" },
-    { "type": "text", "id": "bar_btn_open", "label": "Button while picking", "default": "Take the tray →" },
-    { "type": "text", "id": "bar_btn_full", "label": "Button once delivery is free", "default": "Take them →" },
+    { "type": "text", "id": "bar_back", "label": "Cashback chip", "default": "+{money} back" },
+    { "type": "text", "id": "bar_full", "label": "Added to line 2 once delivery is free", "default": "free delivery" },
+    { "type": "text", "id": "bar_btn_open", "label": "Bar button", "default": "Buy now" },
     { "type": "text", "id": "bar_btn_busy", "label": "Button while adding", "default": "Adding…" },
     { "type": "checkbox", "id": "bar_follow", "label": "Ride the bottom menu", "default": true,
       "info": "Off = the bar sits at the very bottom of the screen." },
     { "type": "range", "id": "bar_offset", "min": 0, "max": 120, "step": 2, "unit": "px", "label": "Bottom menu height (fallback)", "default": 62 },
     { "type": "range", "id": "bar_z", "min": 0, "max": 100, "step": 1, "label": "Bar layer", "default": 30,
       "info": "Keep between 21 and 39 so it stays above the page and below the menu." },
-    { "type": "range", "id": "bar_pad", "min": 4, "max": 24, "step": 1, "unit": "px", "label": "Bar padding", "default": 10 },
-    { "type": "range", "id": "bar_pad_x", "min": 4, "max": 30, "step": 1, "unit": "px", "label": "Bar side padding", "default": 13 },
-    { "type": "range", "id": "bar_big", "min": 11, "max": 22, "step": 0.5, "unit": "px", "label": "Bar figure size", "default": 15 },
-    { "type": "range", "id": "bar_small", "min": 7, "max": 14, "step": 0.5, "unit": "px", "label": "Bar small line size", "default": 9.5 },
-    { "type": "range", "id": "bar_btn", "min": 9, "max": 16, "step": 0.5, "unit": "px", "label": "Bar button size", "default": 11 },
+    { "type": "range", "id": "bar_big", "min": 13, "max": 26, "step": 0.5, "unit": "px", "label": "Bar figure size", "default": 20 },
+    { "type": "range", "id": "bar_small", "min": 6.5, "max": 12, "step": 0.5, "unit": "px", "label": "Bar small line size", "default": 8 },
+    { "type": "range", "id": "bar_btn", "min": 9, "max": 16, "step": 0.5, "unit": "px", "label": "Bar button size", "default": 12.5 }
+    ,{ "type": "header", "content": "The bar's glass" },
+    { "type": "range", "id": "pill_side", "min": 0, "max": 28, "step": 1, "unit": "px", "label": "Inset from the edges", "default": 12 },
+    { "type": "range", "id": "pill_gap", "min": 0, "max": 24, "step": 1, "unit": "px", "label": "Gap above the menu", "default": 9 },
+    { "type": "range", "id": "pill_blur", "min": 0, "max": 40, "step": 1, "unit": "px", "label": "Blur behind the glass", "default": 20 },
+    { "type": "range", "id": "pill_op", "min": 20, "max": 100, "step": 1, "unit": "%", "label": "Glass opacity", "default": 52 },
     { "type": "checkbox", "id": "remember", "label": "Remember the box while browsing", "default": true },
 
     { "type": "header", "content": "Colour" },
@@ -668,12 +791,11 @@
     { "type": "color", "id": "soft", "label": "Soft ink", "default": "#6E6656" },
     { "type": "color", "id": "faint", "label": "Faint ink", "default": "#A9A08E" },
     { "type": "color", "id": "line", "label": "Hairline", "default": "#E5DFD1" },
-    { "type": "color", "id": "bar_bg", "label": "Bar", "default": "#1A1712" },
-    { "type": "color", "id": "bar_ink", "label": "Bar text", "default": "#F6EDDA" },
-    { "type": "color", "id": "bar_done_a", "label": "Bar when full · from", "default": "#8C6B2E" },
-    { "type": "color", "id": "bar_done_b", "label": "Bar when full · to", "default": "#C8994B" },
-    { "type": "color", "id": "bar_done_ink", "label": "Bar when full · text", "default": "#221A08" },
-    { "type": "color", "id": "bar_done_ink2", "label": "Bar when full · button text", "default": "#F0DFB4" },
+    { "type": "color", "id": "bar_ink", "label": "Bar button text", "default": "#F6EDDA" },
+    { "type": "color", "id": "pill_glass", "label": "Bar glass", "default": "#FFFFFF" },
+    { "type": "color", "id": "pill_edge", "label": "Bar glass rim", "default": "#FFFFFF" },
+    { "type": "color", "id": "cash", "label": "Cashback chip text", "default": "#0C6B52" },
+    { "type": "color", "id": "cash_bg", "label": "Cashback chip", "default": "#E8F3EE" },
 
     { "type": "header", "content": "Family colours" },
     { "type": "color", "id": "f_aqua", "label": "Fresh Aquatic", "default": "#3F8296" },
