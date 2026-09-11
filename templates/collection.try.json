@@ -212,7 +212,6 @@
         "bar_big": 20,
         "bar_small": 8,
         "bar_btn": 12.5,
-        "remember": true,
         "bg": "#fffdf8",
         "card": "#ffffff",
         "im_a": "#f4eee0",
@@ -266,7 +265,8 @@
         "pill_glass": "#ffffff",
         "pill_edge": "#ffffff",
         "cash": "#0c6b52",
-        "cash_bg": "#e8f3ee"
+        "cash_bg": "#e8f3ee",
+        "sync_wait": 600
       }
     },
     "freeat": {

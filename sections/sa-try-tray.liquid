@@ -371,12 +371,13 @@
     btnOpen   : {{ s.bar_btn_open | default: 'Take the tray →' | json }},
     btnBusy   : {{ s.bar_btn_busy | default: 'Adding…' | json }},
     addUrl    : {{ routes.cart_add_url | json }},
-    remember  : {{ s.remember | default: true | json }},
+    updUrl    : {{ routes.cart_update_url | json }},
+    cartJs    : {{ routes.cart_url | append: '.js' | json }},
+    wait      : {{ s.sync_wait | default: 600 }},
     navFb     : {{ s.bar_offset | default: 62 }},
     follow    : {{ s.bar_follow | default: true | json }}
   };
 
-  var KEY = 'sa_try_box';
   var tray = SEC.querySelector('[data-sttray]');
   var bar  = SEC.querySelector('[data-stbar]');
   var go   = SEC.querySelector('[data-stbg]');
@@ -447,18 +448,99 @@
      + '<rect x="6" y="30" width="14" height="16.5" rx="2.6" fill="'+c+'" opacity=".32"/></svg>';
   }
 
-  function load(){
-    if(!CFG.remember) return;
-    try{
-      var raw = sessionStorage.getItem(KEY);
-      if(raw){ var o = JSON.parse(raw);
-        if(o && o.p) picks = o.p;
-      }
-    }catch(e){}
+  {%- comment -%}
+    ── the tray and the bag are the same thing ──
+    The tray used to hold its picks in the tab and hand them to the cart in
+    one go at the end. That made the bag's count disagree with the bar's on
+    the same screen - eleven here, six down there - and the shopper is right
+    to trust the bag. So every tap now reaches the real cart, and the count
+    in the menu moves with it.
+
+    Taps are not calls, though: a tap paints straight away and the cart is
+    told once the hand stops. Five quick taps are one request, not five.
+
+    Because the cart is now where the tray lives, the tray also reads it on
+    the way in - a tester added from its own product page is already in the
+    tray when this page opens, which is the only way the two can keep
+    agreeing. Ids the shopper has already touched in this visit are left
+    alone, so a slow cart read can never undo a tap that beat it.
+  {%- endcomment -%}
+  var cartQty = {}, touched = {}, syncT = null, syncing = false, again = false;
+
+  function post(url, body){
+    return fetch(url, { method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
+      body: JSON.stringify(body) }).then(function(r){ return r.json() });
   }
-  function save(){
-    if(!CFG.remember) return;
-    try{ sessionStorage.setItem(KEY, JSON.stringify({p:picks})) }catch(e){}
+
+  function paintBag(n){
+    var pill = document.querySelector('[data-bag]');
+    if(!pill) return;
+    if(n > 0){ pill.textContent = n; pill.hidden = false } else { pill.hidden = true }
+  }
+
+  function refresh(){
+    return fetch(CFG.cartJs, { headers:{ 'Accept':'application/json' } })
+      .then(function(r){ return r.json() })
+      .then(function(c){
+        cartQty = {};
+        (c.items || []).forEach(function(it){ cartQty[String(it.variant_id)] = it.quantity });
+        paintBag(c.item_count);
+        return c;
+      });
+  }
+
+  function seed(){
+    return refresh().then(function(c){
+      (c.items || []).forEach(function(it){
+        var id = String(it.variant_id);
+        if(touched[id]) return;
+        var t = tray.querySelector('[data-stp][data-id="' + id + '"]');
+        if(!t) return;
+        for(var i=0;i<it.quantity;i++){
+          picks.push({ id:id, nm:t.dataset.nm, img:t.dataset.img, fc:t.dataset.fc });
+        }
+      });
+      draw();
+    }).catch(function(){});
+  }
+
+  function wanted(){
+    var m = {};
+    tray.querySelectorAll('[data-stp]').forEach(function(t){ m[t.dataset.id] = 0 });
+    picks.forEach(function(p){ if(p.id in m) m[p.id] = m[p.id] + 1 });
+    return m;
+  }
+
+  function queueSync(){
+    clearTimeout(syncT);
+    syncT = setTimeout(pushCart, CFG.wait);
+  }
+
+  {%- comment -%}
+    A line already in the cart is set outright, so a minus can reach zero.
+    One that is not there yet has to be added - update only moves lines it
+    can already see. Anything the tray does not carry is never touched.
+  {%- endcomment -%}
+  function pushCart(){
+    if(syncing){ again = true; return Promise.resolve() }
+    var want = wanted(), ups = {}, adds = [], anyUp = false;
+    Object.keys(want).forEach(function(id){
+      var have = cartQty[id] || 0, n = want[id];
+      if(n === have) return;
+      if(have > 0){ ups[id] = n; anyUp = true }
+      else if(n > 0){ adds.push({ id: parseInt(id,10), quantity: n }) }
+    });
+    if(!anyUp && !adds.length) return Promise.resolve();
+
+    syncing = true;
+    var chain = Promise.resolve();
+    if(adds.length) chain = chain.then(function(){ return post(CFG.addUrl, { items: adds }) });
+    if(anyUp)       chain = chain.then(function(){ return post(CFG.updUrl, { updates: ups }) });
+    return chain.then(refresh).then(function(){
+      syncing = false;
+      if(again){ again = false; return pushCart() }
+    }).catch(function(){ syncing = false; });
   }
 
   {%- comment -%} ── painting ── {%- endcomment -%}
@@ -576,7 +658,7 @@
     go.textContent = busy ? CFG.btnBusy : CFG.btnOpen;
   }
 
-  function draw(){ drawWeek(); drawTiles(); drawBar(); save() }
+  function draw(){ drawWeek(); drawTiles(); drawBar() }
 
   {%- comment -%} ── taps ── {%- endcomment -%}
   SEC.addEventListener('click', function(e){
@@ -601,13 +683,7 @@
     if(st){
       var ts = st.closest('[data-stp]');
       if(!ts) return;
-      if(st.classList.contains('pl')) addOne(ts);
-      else {
-        for(var j=picks.length-1;j>=0;j--){
-          if(picks[j].id === ts.dataset.id){ picks.splice(j,1); break }
-        }
-        draw();
-      }
+      if(st.classList.contains('pl')) addOne(ts); else removeOne(ts.dataset.id);
       return;
     }
 
@@ -628,10 +704,24 @@
 
   function addOne(t){
     picks.push({ id:t.dataset.id, nm:t.dataset.nm, img:t.dataset.img, fc:t.dataset.fc });
-    draw();
+    touched[t.dataset.id] = 1;
+    draw(); queueSync();
   }
 
-  {%- comment -%} ── one add, at the end, then straight to checkout ── {%- endcomment -%}
+  function removeOne(id){
+    for(var i=picks.length-1;i>=0;i--){
+      if(picks[i].id === id){ picks.splice(i,1); break }
+    }
+    touched[id] = 1;
+    draw(); queueSync();
+  }
+
+  {%- comment -%}
+    ── buy now ──
+    The testers are in the cart already; all that can be outstanding is a
+    sync still waiting on the debounce. So the wait is cut short, that one
+    push is let finish, and checkout opens on a cart that is certainly right.
+  {%- endcomment -%}
   function send(){
     if(busy) return;
     if(!picks.length){
@@ -639,23 +729,8 @@
       return;
     }
     busy = true; drawBar();
-    var items = {};
-    picks.forEach(function(p){ items[p.id] = (items[p.id]||0) + 1 });
-    var body = { items: Object.keys(items).map(function(k){
-      return { id: parseInt(k,10), quantity: items[k] } }) };
-
-    fetch(CFG.addUrl, {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
-      body: JSON.stringify(body)
-    }).then(function(r){ return r.json() })
-      .then(function(){
-        try{ sessionStorage.removeItem(KEY) }catch(e){}
-        checkout();
-      })
-      .catch(function(){
-        busy = false; drawBar();
-      });
+    clearTimeout(syncT);
+    pushCart().then(checkout).catch(function(){ busy = false; drawBar() });
   }
 
   {%- comment -%}
@@ -719,7 +794,7 @@
     b.classList.toggle('on', tray.classList.contains(b.dataset.v));
   });
 
-  load();
+  seed();
   draw();
 })();
 </script>
@@ -769,6 +844,8 @@
     { "type": "checkbox", "id": "bar_follow", "label": "Ride the bottom menu", "default": true,
       "info": "Off = the bar sits at the very bottom of the screen." },
     { "type": "range", "id": "bar_offset", "min": 0, "max": 120, "step": 2, "unit": "px", "label": "Bottom menu height (fallback)", "default": 62 },
+    { "type": "range", "id": "sync_wait", "min": 200, "max": 1500, "step": 50, "unit": "ms", "label": "Wait before telling the cart", "default": 600,
+      "info": "A tap paints at once; the cart is told once the hand stops, so quick taps cost one request." },
     { "type": "range", "id": "bar_z", "min": 0, "max": 100, "step": 1, "label": "Bar layer", "default": 30,
       "info": "Keep between 21 and 39 so it stays above the page and below the menu." },
     { "type": "range", "id": "bar_big", "min": 13, "max": 26, "step": 0.5, "unit": "px", "label": "Bar figure size", "default": 20 },
@@ -779,7 +856,6 @@
     { "type": "range", "id": "pill_gap", "min": 0, "max": 24, "step": 1, "unit": "px", "label": "Gap above the menu", "default": 9 },
     { "type": "range", "id": "pill_blur", "min": 0, "max": 40, "step": 1, "unit": "px", "label": "Blur behind the glass", "default": 20 },
     { "type": "range", "id": "pill_op", "min": 20, "max": 100, "step": 1, "unit": "%", "label": "Glass opacity", "default": 52 },
-    { "type": "checkbox", "id": "remember", "label": "Remember the box while browsing", "default": true },
 
     { "type": "header", "content": "Colour" },
     { "type": "color", "id": "bg", "label": "Page paper", "default": "#FFFDF8" },
