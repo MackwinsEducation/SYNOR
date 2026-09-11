@@ -61,8 +61,7 @@
 #shopify-section-{{ sid }} .sttray{display:grid;gap:{{ s.gap | default: 8 }}px;
   padding:{{ s.grid_t | default: 10 }}px {{ s.pad_x | default: 12 }}px {{ s.grid_b | default: 16 }}px}
 #shopify-section-{{ sid }} .sttray.v{grid-template-columns:repeat({{ s.cols_v | default: 3 }},1fr)}
-#shopify-section-{{ sid }} .sttray.c{grid-template-columns:repeat({{ s.cols_c | default: 2 }},1fr);
-  gap:{{ s.gap_c | default: 10 }}px}
+#shopify-section-{{ sid }} .sttray.c{grid-template-columns:1fr;gap:{{ s.gap_c | default: 6 }}px}
 
 #shopify-section-{{ sid }} .sttile{position:relative;background:{{ s.card | default: '#FFFFFF' }};
   border-radius:{{ s.radius | default: 11 }}px;overflow:hidden;cursor:pointer;
@@ -88,10 +87,8 @@
 {%- endcomment -%}
 {%- if s.im_mode == 'height' -%}
 #shopify-section-{{ sid }} .sttray.v .im{height:{{ s.im_h_v | default: 74 }}px}
-#shopify-section-{{ sid }} .sttray.c .im{height:{{ s.im_h_c | default: 104 }}px}
 {%- else -%}
 #shopify-section-{{ sid }} .sttray.v .im{height:auto;aspect-ratio:1/{{ s.im_ratio_v | default: 1 }}}
-#shopify-section-{{ sid }} .sttray.c .im{height:auto;aspect-ratio:1/{{ s.im_ratio_c | default: 1 }}}
 {%- endif -%}
 {%- comment -%}
   ── the photo, edge to edge ──
@@ -118,16 +115,6 @@
 #shopify-section-{{ sid }} .sttile .fm{font-size:{{ s.fm_size | default: 7.5 }}px;letter-spacing:.09em;
   text-transform:uppercase;padding:2px 6px 0;font-weight:600;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#shopify-section-{{ sid }} .sttile .ch{display:flex;gap:4px;padding:6px 9px 0;flex-wrap:wrap}
-#shopify-section-{{ sid }} .sttile .ch span{font-size:{{ s.ch_size | default: 7.5 }}px;letter-spacing:.06em;
-  text-transform:uppercase;padding:2px 6px;border-radius:20px;font-weight:600}
-#shopify-section-{{ sid }} .sttile .pr{padding:8px 9px 0;
-  font-family:{{ settings.sa_font_head.family | default: 'Fraunces' }},serif;
-  font-size:{{ s.pr_size | default: 15 }}px;font-weight:600;color:{{ ink }}}
-#shopify-section-{{ sid }} .sttile .pr s{text-decoration:none;font-size:{{ s.pr_note | default: 10 }}px;
-  color:{{ faint }};font-weight:400;margin-left:5px;
-  font-family:{{ settings.sa_font_body.family | default: 'Jost' }},sans-serif}
-
 #shopify-section-{{ sid }} .sttile .add{margin:6px;height:{{ s.add_h | default: 26 }}px;
   border-radius:{{ s.add_radius | default: 7 }}px;
   border:1px solid {{ ink | color_modify: 'alpha', 0.16 }};background:{{ s.card | default: '#FFFFFF' }};
@@ -136,13 +123,6 @@
 #shopify-section-{{ sid }} .sttile.on .add{background:{{ ink }};border-color:{{ ink }};
   color:{{ s.card | default: '#FFFFFF' }}}
 
-#shopify-section-{{ sid }} .sttile .strip{margin-top:9px;padding:8px 9px;display:flex;
-  align-items:center;gap:6px;font-size:{{ s.strip_size | default: 9.5 }}px;font-weight:600;letter-spacing:.05em}
-#shopify-section-{{ sid }} .sttile .strip .bg{margin-left:auto;width:22px;height:22px;border-radius:6px;
-  background:{{ ink }};color:{{ s.card | default: '#FFFFFF' }};
-  display:flex;align-items:center;justify-content:center;font-size:12px}
-#shopify-section-{{ sid }} .sttile.on .strip .bg{background:{{ gold }};color:{{ ink }}}
-
 #shopify-section-{{ sid }} .stqty{position:absolute;top:6px;right:6px;min-width:19px;height:19px;
   padding:0 5px;border-radius:20px;background:{{ gold }};color:{{ ink }};
   font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:5}
@@ -150,13 +130,44 @@
   color:{{ s.card | default: '#FFFFFF' }};font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;
   padding:3px 7px;border-radius:4px;font-weight:600;z-index:3}
 
-{%- comment -%} which half of the tile is on show {%- endcomment -%}
-#shopify-section-{{ sid }} .sttray.v .ch,
-#shopify-section-{{ sid }} .sttray.v .pr,
-#shopify-section-{{ sid }} .sttray.v .strip,
+{%- comment -%}
+  ── ☰, the list ──
+  The old second view was the same grid with bigger cards: the same three
+  columns, the same cropped name, plus chips and a foot strip that said
+  the price a second time. It gave a shopper no new way to look, so it is
+  gone, and the markup that only served it went with it.
+
+  A list gives them one. Fifty scents in a grid can only be read by
+  picture; in a row each name gets the card's whole width, so
+  "Blue Radiance / Like DOLCE & GABBANA Light Blue" arrives whole rather
+  than clipped at two lines. ⊞ is for browsing by bottle, ☰ for finding by
+  name — and ☰ finally means what its icon has always drawn.
+
+  It is one grid, not a flex row, so no wrapper had to be added to the
+  tile: the photo spans both rows down the left, the name and its muse
+  line stack in the middle, and the button sits at the right. The two
+  middle rows are equal halves that the name and the muse hug from either
+  side, so the pair stays centred against a photo taller than both.
+{%- endcomment -%}
 #shopify-section-{{ sid }} .sttray.v .stribbon{display:none}
-#shopify-section-{{ sid }} .sttray.c .fm,
-#shopify-section-{{ sid }} .sttray.c .add{display:none}
+#shopify-section-{{ sid }} .sttray.c .fm{display:none}
+
+#shopify-section-{{ sid }} .sttray.c .sttile{display:grid;align-items:center;
+  grid-template-columns:{{ s.row_im | default: 66 }}px 1fr auto;grid-template-rows:1fr 1fr;
+  min-height:{{ s.row_im | default: 66 }}px;column-gap:11px;padding-right:10px}
+#shopify-section-{{ sid }} .sttray.c .sttile .im{grid-column:1;grid-row:1/3;align-self:stretch;
+  width:{{ s.row_im | default: 66 }}px;height:100%;aspect-ratio:auto}
+#shopify-section-{{ sid }} .sttray.c .sttile .stribbon{top:5px;left:5px;padding:2px 5px;font-size:6.5px}
+#shopify-section-{{ sid }} .sttray.c .nm{grid-column:2;grid-row:1;align-self:end;padding:0;height:auto;
+  font-size:{{ s.nm_c | default: 13 }}px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+{%- comment -%}
+  the buy button is the third column whether or not sa-try-detail has
+  wrapped it in a split button — whichever of the two is the tile's own
+  child is the one that gets placed
+{%- endcomment -%}
+#shopify-section-{{ sid }} .sttray.c .sttile > .add,
+#shopify-section-{{ sid }} .sttray.c .sttile > .stbtn{grid-column:3;grid-row:1/3;align-self:center}
 {%- unless s.ribbon_on -%}
 #shopify-section-{{ sid }} .stribbon{display:none}
 {%- endunless -%}
@@ -196,7 +207,6 @@
 @media(min-width:{{ s.desk_from | default: 750 }}px){
   #shopify-section-{{ sid }} .stwrap{max-width:{{ s.desk_max | default: 720 }}px;margin:0 auto}
   #shopify-section-{{ sid }} .sttray.v{grid-template-columns:repeat({{ s.cols_v_d | default: 5 }},1fr)}
-  #shopify-section-{{ sid }} .sttray.c{grid-template-columns:repeat({{ s.cols_c_d | default: 4 }},1fr)}
   #shopify-section-{{ sid }} .stbar{max-width:{{ s.desk_max | default: 720 }}px;left:50%;
     transform:translateX(-50%);border-radius:14px 14px 0 0}
   #shopify-section-{{ sid }} .stbar.down{transform:translate(-50%,100%)}
@@ -209,7 +219,7 @@
     {%- if s.switch_on -%}
     <span class="stsw" data-stsw>
       <button type="button" data-v="v" aria-label="Small">{{ s.icon_v | default: '⊞' }}</button>
-      <button type="button" data-v="c" aria-label="Cards">{{ s.icon_c | default: '☰' }}</button>
+      <button type="button" data-v="c" aria-label="List">{{ s.icon_c | default: '☰' }}</button>
     </span>
     {%- endif -%}
   </div>
@@ -241,21 +251,12 @@
         {%- else -%}{%- assign fac = s.f_amber | default: '#B8843F' -%}{%- assign faw = s.f_amberw | default: '#F7EAD2' -%}{%- assign famw = s.fm_fallback | default: 'Tester' -%}
       {%- endcase -%}
 
-      {%- comment -%} the scent words {%- endcomment -%}
-      {%- assign scents = '' -%}
-      {%- for t in product.tags -%}
-        {%- if t contains 'scent-' -%}
-          {%- assign w = t | remove: 'scent-' | capitalize -%}
-          {%- assign scents = scents | append: w | append: ',' -%}
-        {%- endif -%}
-      {%- endfor -%}
-      {%- assign slist = scents | split: ',' -%}
-
       <article class="sttile"
                data-stp
                data-id="{{ tv.id }}"
                data-nm="{{ product.title | replace: 'SYNOR ', '' | escape }}"
                data-fc="{{ fac }}"
+               data-fw="{{ faw }}"
                data-img="{% if product.featured_image %}{{ product.featured_image | image_url: width: 90 }}{% endif %}"
                {% unless tv.available %}data-out="1"{% endunless %}>
 
@@ -272,20 +273,7 @@
 
         <div class="fm" style="color:{{ fac }}">{{ famw }}</div>
 
-        <div class="ch">
-          {%- for w in slist limit: 2 -%}
-            <span style="background:{{ faw }};color:{{ fac }}">{{ w }}</span>
-          {%- endfor -%}
-        </div>
-
-        <div class="pr">{{ tv.price | money }}<s>{{ s.pr_note_text | default: '3ml' }}</s></div>
-
         <div class="add">{{ s.add_text | default: '+ ₹49' }}</div>
-
-        <div class="strip" style="background:{{ faw }};color:{{ fac }}">
-          <span class="stw">{{ s.strip_text | default: 'TRY 3ML · ₹49' }}</span>
-          <span class="bg">+</span>
-        </div>
       </article>
 
     {%- else -%}
@@ -317,8 +305,6 @@
     cur       : {{ s.currency | default: '₹' | json }},
     onWord    : {{ s.add_on_text | default: '✓ Added' | json }},
     offWord   : {{ s.add_text | default: '+ ₹49' | json }},
-    stripOn   : {{ s.strip_on_text | default: 'IN THE BOX' | json }},
-    stripOff  : {{ s.strip_text | default: 'TRY 3ML · ₹49' | json }},
     barEmpty  : {{ s.bar_empty | default: 'Your tray is empty' | json }},
     barEmptyS : {{ s.bar_empty_sub | default: 'Pick any scent below · ₹49 each' | json }},
     barEmptyB : {{ s.bar_empty_btn | default: 'Start' | json }},
@@ -475,11 +461,6 @@
       var add = t.querySelector('.add');
       if(add) add.textContent = c ? CFG.onWord : CFG.offWord;
 
-      var sw = t.querySelector('.stw');
-      if(sw) sw.textContent = c ? CFG.stripOn : CFG.stripOff;
-      var bg = t.querySelector('.strip .bg');
-      if(bg) bg.textContent = c ? '✓' : '+';
-
       var q = t.querySelector('.stqty');
       if(c > 1){
         if(!q){ q = document.createElement('span'); q.className = 'stqty'; t.appendChild(q) }
@@ -631,11 +612,8 @@
     { "type": "text", "id": "vrow_text", "label": "Line above the grid", "default": "All testers · ₹49 each" },
     { "type": "text", "id": "add_text", "label": "Button · not picked", "default": "+ ₹49" },
     { "type": "text", "id": "add_on_text", "label": "Button · picked", "default": "✓ Added" },
-    { "type": "text", "id": "strip_text", "label": "Card strip · not picked", "default": "TRY 3ML · ₹49" },
-    { "type": "text", "id": "strip_on_text", "label": "Card strip · picked", "default": "IN THE BOX" },
     { "type": "text", "id": "ribbon_text", "label": "Corner mark", "default": "Tester" },
     { "type": "checkbox", "id": "ribbon_on", "label": "Show the corner mark", "default": true },
-    { "type": "text", "id": "pr_note_text", "label": "Note beside the price", "default": "3ml" },
     { "type": "text", "id": "fm_fallback", "label": "Word when a product has no family tag", "default": "Tester" },
     { "type": "text", "id": "empty_text", "label": "When the collection is empty", "default": "No testers here yet." },
 
@@ -647,9 +625,8 @@
         { "value": "c", "label": "Full cards (2 across)" }
       ], "default": "v" },
     { "type": "text", "id": "icon_v", "label": "Switch · small icon", "default": "⊞" },
-    { "type": "text", "id": "icon_c", "label": "Switch · card icon", "default": "☰" },
+    { "type": "text", "id": "icon_c", "label": "Switch · list icon", "default": "☰" },
     { "type": "range", "id": "cols_v", "min": 2, "max": 5, "step": 1, "label": "Small view · per row", "default": 3 },
-    { "type": "range", "id": "cols_c", "min": 1, "max": 4, "step": 1, "label": "Card view · per row", "default": 3 },
 
     { "type": "header", "content": "Which variant is the tester" },
     { "type": "text", "id": "match", "label": "Size word to look for", "default": "3ml",
@@ -721,7 +698,8 @@
     { "type": "range", "id": "grid_t", "min": 0, "max": 30, "step": 1, "unit": "px", "label": "Space above the grid", "default": 10 },
     { "type": "range", "id": "grid_b", "min": 0, "max": 40, "step": 1, "unit": "px", "label": "Space under the grid", "default": 16 },
     { "type": "range", "id": "gap", "min": 2, "max": 20, "step": 1, "unit": "px", "label": "Gap · small view", "default": 8 },
-    { "type": "range", "id": "gap_c", "min": 2, "max": 20, "step": 1, "unit": "px", "label": "Gap · card view", "default": 10 },
+    { "type": "range", "id": "gap_c", "min": 0, "max": 20, "step": 1, "unit": "px", "label": "Gap · list view", "default": 6 },
+    { "type": "range", "id": "row_im", "min": 48, "max": 96, "step": 2, "unit": "px", "label": "Photo size · list view", "default": 66 },
     { "type": "range", "id": "radius", "min": 0, "max": 22, "step": 1, "unit": "px", "label": "Tile corner", "default": 11 },
     { "type": "range", "id": "on_ring", "min": 1, "max": 3, "step": 0.5, "unit": "px", "label": "Picked ring", "default": 1.5 },
     { "type": "select", "id": "im_mode", "label": "How tall the photo well is",
@@ -732,9 +710,7 @@
       "info": "Shape is safer: a fixed height turns into a letterbox when the tiles are wide, and the crop eats the bottle." },
     { "type": "range", "id": "im_ratio_v", "min": 0.6, "max": 1.8, "step": 0.1, "label": "Photo shape · small view", "default": 1,
       "info": "1 = square. Below 1 = wide, above 1 = tall." },
-    { "type": "range", "id": "im_ratio_c", "min": 0.6, "max": 1.8, "step": 0.1, "label": "Photo shape · card view", "default": 1 },
     { "type": "range", "id": "im_h_v", "min": 50, "max": 130, "step": 1, "unit": "px", "label": "Photo height · small view", "default": 74 },
-    { "type": "range", "id": "im_h_c", "min": 70, "max": 200, "step": 2, "unit": "px", "label": "Photo height · card view", "default": 104 },
     { "type": "select", "id": "im_fit", "label": "How the photo fills the well",
       "options": [
         { "value": "cover", "label": "Fill it — edge to edge, cropped" },
@@ -746,23 +722,18 @@
       "info": "Only sensible for photos on a plain white background." },
     { "type": "range", "id": "im_pad", "min": 0, "max": 20, "step": 1, "unit": "px", "label": "Photo padding", "default": 0 },
     { "type": "range", "id": "nm_v", "min": 8, "max": 15, "step": 0.5, "unit": "px", "label": "Name · small view", "default": 10.5 },
-    { "type": "range", "id": "nm_c", "min": 9, "max": 18, "step": 0.5, "unit": "px", "label": "Name · card view", "default": 12.5 },
+    { "type": "range", "id": "nm_c", "min": 9, "max": 18, "step": 0.5, "unit": "px", "label": "Name · list view", "default": 13 },
     { "type": "range", "id": "nm_h", "min": 20, "max": 50, "step": 1, "unit": "px", "label": "Name height · small view", "default": 31 },
     { "type": "range", "id": "fm_size", "min": 6, "max": 12, "step": 0.5, "unit": "px", "label": "Family word size", "default": 7.5 },
-    { "type": "range", "id": "ch_size", "min": 6, "max": 12, "step": 0.5, "unit": "px", "label": "Chip size", "default": 7.5 },
-    { "type": "range", "id": "pr_size", "min": 10, "max": 22, "step": 0.5, "unit": "px", "label": "Price size", "default": 15 },
-    { "type": "range", "id": "pr_note", "min": 7, "max": 14, "step": 0.5, "unit": "px", "label": "Price note size", "default": 10 },
     { "type": "range", "id": "add_h", "min": 18, "max": 40, "step": 1, "unit": "px", "label": "Button height", "default": 26 },
     { "type": "range", "id": "add_radius", "min": 0, "max": 16, "step": 1, "unit": "px", "label": "Button corner", "default": 7 },
     { "type": "range", "id": "add_size", "min": 8, "max": 14, "step": 0.5, "unit": "px", "label": "Button text size", "default": 10.5 },
-    { "type": "range", "id": "strip_size", "min": 7, "max": 13, "step": 0.5, "unit": "px", "label": "Card strip size", "default": 9.5 },
     { "type": "range", "id": "tail", "min": 0, "max": 200, "step": 2, "unit": "px", "label": "Space under everything", "default": 84 },
 
     { "type": "header", "content": "Desktop" },
     { "type": "range", "id": "desk_from", "min": 600, "max": 1100, "step": 10, "unit": "px", "label": "Desktop starts at", "default": 750 },
     { "type": "range", "id": "desk_max", "min": 480, "max": 1000, "step": 10, "unit": "px", "label": "Desktop width", "default": 720 },
-    { "type": "range", "id": "cols_v_d", "min": 3, "max": 8, "step": 1, "label": "Desktop · small view per row", "default": 5 },
-    { "type": "range", "id": "cols_c_d", "min": 2, "max": 6, "step": 1, "label": "Desktop · card view per row", "default": 4 }
+    { "type": "range", "id": "cols_v_d", "min": 3, "max": 8, "step": 1, "label": "Desktop · small view per row", "default": 5 }
   ],
   "presets": [{ "name": "Try · the tray" }]
 }
