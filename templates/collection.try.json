@@ -209,9 +209,9 @@
         "bar_follow": true,
         "bar_offset": 62,
         "bar_z": 30,
-        "bar_big": 20,
-        "bar_small": 8,
-        "bar_btn": 12.5,
+        "bar_big": 19,
+        "bar_small": 7,
+        "bar_btn": 11.5,
         "bg": "#fffdf8",
         "card": "#ffffff",
         "im_a": "#f4eee0",
@@ -265,8 +265,9 @@
         "pill_glass": "#ffffff",
         "pill_edge": "#ffffff",
         "cash": "#0c6b52",
-        "cash_bg": "#e8f3ee",
-        "sync_wait": 600
+        "sync_wait": 600,
+        "cash_ink": "#eaf6f0",
+        "gold_lt": "#d8bc82"
       }
     },
     "freeat": {

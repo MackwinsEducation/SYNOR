@@ -203,53 +203,78 @@
   green, same round button.
 {%- endcomment -%}
 {%- assign pill_a = s.pill_op | default: 52 | divided_by: 100.0 -%}
+{%- assign pill_bg = s.pill_glass | default: '#FFFFFF' | color_modify: 'alpha', pill_a -%}
+{%- assign pill_ed = s.pill_edge  | default: '#FFFFFF' | color_modify: 'alpha', 0.62 -%}
 #shopify-section-{{ sid }} .stbar{position:fixed;
   left:{{ s.pill_side | default: 12 }}px;right:{{ s.pill_side | default: 12 }}px;bottom:0;
   z-index:{{ s.bar_z | default: 30 }};
-  display:flex;align-items:center;gap:9px;padding:7px 7px 7px 15px;border-radius:100px;
-  background:{{ s.pill_glass | default: '#FFFFFF' | color_modify: 'alpha', pill_a }};
-  -webkit-backdrop-filter:blur({{ s.pill_blur | default: 20 }}px) saturate(170%);
-  backdrop-filter:blur({{ s.pill_blur | default: 20 }}px) saturate(170%);
-  border:1px solid {{ s.pill_edge | default: '#FFFFFF' | color_modify: 'alpha', 0.55 }};
-  box-shadow:0 10px 32px {{ ink | color_modify: 'alpha', 0.16 }},
-             inset 0 1px 0 {{ s.pill_edge | default: '#FFFFFF' | color_modify: 'alpha', 0.6 }};
-  color:{{ ink }};
-  transform:translateY(0);transition:transform .3s cubic-bezier(.22,.9,.26,1),
+  display:flex;align-items:center;border-radius:100px;padding:0;color:{{ ink }};
+  background:{{ pill_bg }};
+  -webkit-backdrop-filter:blur({{ s.pill_blur | default: 20 }}px) saturate(1.6);
+  backdrop-filter:blur({{ s.pill_blur | default: 20 }}px) saturate(1.6);
+  border:1px solid {{ pill_ed }};
+  box-shadow:0 14px 30px -16px {{ ink | color_modify: 'alpha', 0.62 }};
+  transition:transform .34s cubic-bezier(.32,.9,.36,1),
              box-shadow .3s ease,border-color .3s ease}
-#shopify-section-{{ sid }} .stbar.down{transform:translateY(calc(100% + {{ s.pill_gap | default: 9 }}px))}
-{%- comment -%} the free-delivery line is a rim of gold, not a repaint {%- endcomment -%}
+{%- comment -%} it drops into the menu's space, as the product page's does {%- endcomment -%}
+#shopify-section-{{ sid }} .stbar.down{transform:translateY(var(--navh,64px))}
+{%- comment -%} free delivery is a rim of gold, not a repaint {%- endcomment -%}
 #shopify-section-{{ sid }} .stbar.done{border-color:{{ gold | color_modify: 'alpha', 0.85 }};
-  box-shadow:0 10px 32px {{ gold | color_modify: 'alpha', 0.26 }},
-             inset 0 1px 0 {{ s.pill_edge | default: '#FFFFFF' | color_modify: 'alpha', 0.6 }}}
-#shopify-section-{{ sid }} .stbar .tx{min-width:0}
+  box-shadow:0 14px 30px -16px {{ gold | color_modify: 'alpha', 0.75 }}}
+
+#shopify-section-{{ sid }} .stbar .tx{flex:none;min-width:0;display:flex;flex-direction:column;
+  justify-content:center;gap:2px;padding:8px 11px 8px 17px}
 #shopify-section-{{ sid }} .stbar .c{
   font-family:{{ settings.sa_font_head.family | default: 'Fraunces' }},serif;
-  font-size:{{ s.bar_big | default: 20 }}px;font-weight:600;line-height:1.05;letter-spacing:-.01em;
+  font-size:{{ s.bar_big | default: 19 }}px;font-weight:700;line-height:1;letter-spacing:-.01em;
   white-space:nowrap}
-#shopify-section-{{ sid }} .stbar .s{font-size:{{ s.bar_small | default: 8 }}px;font-weight:600;
-  letter-spacing:.13em;text-transform:uppercase;color:{{ faint }};
-  line-height:1.3;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#shopify-section-{{ sid }} .stbar .chip{margin-left:auto;flex:none;
-  font-size:8.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  padding:5px 9px;border-radius:100px;white-space:nowrap;
-  background:{{ s.cash_bg | default: '#E8F3EE' }};color:{{ s.cash | default: '#0C6B52' }}}
-#shopify-section-{{ sid }} .stbar .stgo{flex:none;appearance:none;border:0;font:inherit;cursor:pointer;
+{%- comment -%}
+  This line was set in the faint ink the tray uses for asides, and at that
+  weight on glass it all but disappeared - the product page sets the same
+  line in the readable soft ink, so it does too.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .stbar .s{font-size:{{ s.bar_small | default: 7 }}px;color:{{ soft }};
+  letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+{%- comment -%} solid green, the way the product page prints it {%- endcomment -%}
+#shopify-section-{{ sid }} .stbar .chip{flex:none;margin-right:9px;white-space:nowrap;line-height:1;
+  display:flex;align-items:center;border-radius:100px;padding:4px 9px;
+  background:{{ s.cash | default: '#0C6B52' }};color:{{ s.cash_ink | default: '#EAF6F0' }};
+  font-size:7.5px;font-weight:700;letter-spacing:.04em}
+{%- comment -%}
+  The button takes the rest of the pill and is pulled a pixel out on every
+  side, so it forms the pill's own right-hand cap rather than floating
+  inside it. That is where the bar gets its height.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .stbar .stgo{flex:1;min-width:104px;margin:-1px;border:0;cursor:pointer;
+  border-radius:100px;padding:12px 14px;
   background:{{ ink }};color:{{ s.bar_ink | default: '#F6EDDA' }};
-  font-size:{{ s.bar_btn | default: 12.5 }}px;font-weight:700;letter-spacing:.01em;
-  padding:12px 19px;border-radius:100px;white-space:nowrap;min-height:42px;
-  transition:transform .16s ease}
-#shopify-section-{{ sid }} .stbar .stgo:active{transform:scale(.96)}
-{%- comment -%} an empty tray has no figure to set in Fraunces and nothing
-  to hand back, so it speaks in the body face and drops the chip {%- endcomment -%}
+  font-family:{{ settings.sa_font_body.family | default: 'Jost' }},sans-serif;
+  font-size:{{ s.bar_btn | default: 11.5 }}px;font-weight:600;letter-spacing:.03em;
+  display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;
+  transition:transform .18s ease}
+#shopify-section-{{ sid }} .stbar .stgo:active{transform:scale(.985)}
+#shopify-section-{{ sid }} .stbar .stgo .ic{width:15px;height:15px;flex:none;display:block}
+#shopify-section-{{ sid }} .stbar .stgo .ic .fill{fill:{{ s.gold_lt | default: '#D8BC82' }};
+  stroke:none;opacity:.3}
+#shopify-section-{{ sid }} .stbar .stgo .ic .line{fill:none;stroke:{{ s.bar_ink | default: '#F6EDDA' }};
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#shopify-section-{{ sid }} .stbar .stgo .ic .hand{fill:none;stroke:{{ s.gold_lt | default: '#D8BC82' }};
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+{%- comment -%}
+  An empty tray has no figure worth setting in the display face and nothing
+  to hand back, so it speaks in the body face, drops the chip, and lets the
+  words take the room the button no longer needs.
+{%- endcomment -%}
+#shopify-section-{{ sid }} .stbar.empty .tx{flex:1;padding-right:9px}
 #shopify-section-{{ sid }} .stbar.empty .c{
   font-family:{{ settings.sa_font_body.family | default: 'Jost' }},sans-serif;
-  font-size:13px;font-weight:600;letter-spacing:0}
-#shopify-section-{{ sid }} .stbar.empty .s{text-transform:none;letter-spacing:0;
-  font-weight:400;font-size:10.5px;color:{{ soft }}}
+  font-size:12.5px;font-weight:600;letter-spacing:0;overflow:hidden;text-overflow:ellipsis}
+#shopify-section-{{ sid }} .stbar.empty .s{text-transform:none;letter-spacing:.01em;
+  font-size:9.5px;font-weight:400;overflow:hidden;text-overflow:ellipsis}
 #shopify-section-{{ sid }} .stbar.empty .chip{display:none}
-#shopify-section-{{ sid }} .stbar.empty .tx{margin-right:auto}
-#shopify-section-{{ sid }} .stbar.empty .stgo{background:none;color:{{ ink }};
-  border:1px solid {{ ink | color_modify: 'alpha', 0.18 }};padding:11px 18px}
+#shopify-section-{{ sid }} .stbar.empty .stgo{flex:none;min-width:0;padding:12px 20px}
+#shopify-section-{{ sid }} .stbar.empty .stgo .ic{display:none}
 #shopify-section-{{ sid }} .stbar.busy{pointer-events:none;opacity:.75}
 
 #shopify-section-{{ sid }} .sttail{height:{{ s.tail | default: 84 }}px}
@@ -259,8 +284,7 @@
   #shopify-section-{{ sid }} .sttray.v{grid-template-columns:repeat({{ s.cols_v_d | default: 5 }},1fr)}
   #shopify-section-{{ sid }} .stbar{max-width:{{ s.desk_max | default: 720 }}px;left:50%;right:auto;
     transform:translateX(-50%)}
-  #shopify-section-{{ sid }} .stbar.down{
-    transform:translate(-50%,calc(100% + {{ s.pill_gap | default: 9 }}px))}
+  #shopify-section-{{ sid }} .stbar.down{transform:translate(-50%,var(--navh,64px))}
 }
 </style>
 
@@ -348,7 +372,18 @@
     <div class="s" data-stbs></div>
   </div>
   <span class="chip" data-stbk></span>
-  <button type="button" class="stgo" data-stbg></button>
+  {%- comment -%}
+    The label sits in its own span because the bar rewrites it on every
+    change - written straight onto the button it would take the icon with it.
+  {%- endcomment -%}
+  <button type="button" class="stgo" data-stbg>
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path class="fill" d="M4.6 7.5h14.8l-1 12.1A1.9 1.9 0 0 1 16.5 21h-9a1.9 1.9 0 0 1-1.9-1.4z"/>
+      <path class="line" d="M4.6 7.5h14.8l-1 12.1A1.9 1.9 0 0 1 16.5 21h-9a1.9 1.9 0 0 1-1.9-1.4z"/>
+      <path class="hand" d="M8.8 7.5V6a3.2 3.2 0 0 1 6.4 0v1.5"/>
+    </svg>
+    <span data-stbt></span>
+  </button>
 </div>
 
 <script>
@@ -381,6 +416,7 @@
   var tray = SEC.querySelector('[data-sttray]');
   var bar  = SEC.querySelector('[data-stbar]');
   var go   = SEC.querySelector('[data-stbg]');
+  var goT  = SEC.querySelector('[data-stbt]');
   var wk   = document.querySelector('[data-stweek]');
 
   {%- comment -%}
@@ -640,7 +676,7 @@
     if(!picks.length){
       c.textContent  = CFG.barEmpty;
       sb.textContent = CFG.barEmptyS;
-      go.textContent = CFG.barEmptyB;
+      goT.textContent = CFG.barEmptyB;
       return;
     }
 
@@ -655,7 +691,7 @@
       (picks.length === 1 ? CFG.barOne : CFG.barMany) +
       (full ? ' · ' + CFG.barFull : '');
     k.textContent  = fill(CFG.barBack || '+{money} back', { money: money(tot) });
-    go.textContent = busy ? CFG.btnBusy : CFG.btnOpen;
+    goT.textContent = busy ? CFG.btnBusy : CFG.btnOpen;
   }
 
   function draw(){ drawWeek(); drawTiles(); drawBar() }
@@ -766,6 +802,7 @@
       var h = nav ? (nav.offsetHeight || CFG.navFb) : 0;
       if(h === 0) h = CFG.navFb;
       bar.style.bottom = (h + GAP) + 'px';
+      bar.style.setProperty('--navh', (h + GAP) + 'px');
     }
     function bind(nav){
       place(nav);
@@ -848,9 +885,9 @@
       "info": "A tap paints at once; the cart is told once the hand stops, so quick taps cost one request." },
     { "type": "range", "id": "bar_z", "min": 0, "max": 100, "step": 1, "label": "Bar layer", "default": 30,
       "info": "Keep between 21 and 39 so it stays above the page and below the menu." },
-    { "type": "range", "id": "bar_big", "min": 13, "max": 26, "step": 0.5, "unit": "px", "label": "Bar figure size", "default": 20 },
-    { "type": "range", "id": "bar_small", "min": 6.5, "max": 12, "step": 0.5, "unit": "px", "label": "Bar small line size", "default": 8 },
-    { "type": "range", "id": "bar_btn", "min": 9, "max": 16, "step": 0.5, "unit": "px", "label": "Bar button size", "default": 12.5 }
+    { "type": "range", "id": "bar_big", "min": 13, "max": 26, "step": 0.5, "unit": "px", "label": "Bar figure size", "default": 19 },
+    { "type": "range", "id": "bar_small", "min": 6, "max": 12, "step": 0.5, "unit": "px", "label": "Bar small line size", "default": 7 },
+    { "type": "range", "id": "bar_btn", "min": 9, "max": 16, "step": 0.5, "unit": "px", "label": "Bar button size", "default": 11.5 }
     ,{ "type": "header", "content": "The bar's glass" },
     { "type": "range", "id": "pill_side", "min": 0, "max": 28, "step": 1, "unit": "px", "label": "Inset from the edges", "default": 12 },
     { "type": "range", "id": "pill_gap", "min": 0, "max": 24, "step": 1, "unit": "px", "label": "Gap above the menu", "default": 9 },
@@ -870,8 +907,9 @@
     { "type": "color", "id": "bar_ink", "label": "Bar button text", "default": "#F6EDDA" },
     { "type": "color", "id": "pill_glass", "label": "Bar glass", "default": "#FFFFFF" },
     { "type": "color", "id": "pill_edge", "label": "Bar glass rim", "default": "#FFFFFF" },
-    { "type": "color", "id": "cash", "label": "Cashback chip text", "default": "#0C6B52" },
-    { "type": "color", "id": "cash_bg", "label": "Cashback chip", "default": "#E8F3EE" },
+    { "type": "color", "id": "cash", "label": "Cashback chip", "default": "#0C6B52" },
+    { "type": "color", "id": "cash_ink", "label": "Cashback chip text", "default": "#EAF6F0" },
+    { "type": "color", "id": "gold_lt", "label": "Bag icon on the button", "default": "#D8BC82" },
 
     { "type": "header", "content": "Family colours" },
     { "type": "color", "id": "f_aqua", "label": "Fresh Aquatic", "default": "#3F8296" },
