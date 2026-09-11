@@ -1,0 +1,24 @@
+{%- comment -%}
+  SYNOR — the free-delivery figure, for the tray's bar.
+
+  sa-try-tray reads the threshold off the discovery box:
+
+    var full = WK ? (tot >= WK.freeAt && picks.length > 0) : false
+
+  The box was taken off this page, so WK is null, full can never be true,
+  and the bar never reaches its gold state — the one moment the page is
+  building towards. The figure was only ever carried in the box's data
+  attributes, so it left with it.
+
+  This carries it instead. The tray looks the element up document-wide
+  ([data-stweek]) and guards every paint behind its own element lookups
+  (WK.grid, WK.say, WK.fillEl, WK.pill, WK.spares), all of which are absent
+  here, so drawWeek does nothing and drawBar gets its threshold back.
+
+  Delete this the day the discovery box comes back, or the day the tray
+  carries a free_at setting of its own.
+{%- endcomment -%}
+<div data-stweek hidden
+     data-free="{{ free | default: 299 }}"
+     data-rate="{{ rate | default: 49 }}"
+     data-cur="{{ cur | default: '₹' }}"></div>

@@ -1,0 +1,117 @@
+{%- comment -%} SYNOR — collection header (H1). Colour wash + watermark word, chosen from the collection itself. {%- endcomment -%}
+{%- liquid
+  assign h = collection.handle | default: ''
+  assign acc = s.c_head_default
+  assign wm = s.wm_default
+
+  case h
+    when 'fresh-aquatic' or 'aquatic' or 'fresh'
+      assign acc = s.a_aqua
+      assign wm = s.w_aqua
+    when 'woody-oud'
+      assign acc = s.a_wood
+      assign wm = s.w_wood
+    when 'amber-sweet' or 'oriental' or 'gourmand'
+      assign acc = s.a_amber
+      assign wm = s.w_amber
+    when 'floral-fruity' or 'floral'
+      assign acc = s.a_floral
+      assign wm = s.w_floral
+    when 'party-wear'
+      assign acc = s.oc_party_d
+      assign wm = s.o_party
+    when 'date-night'
+      assign acc = s.oc_date_d
+      assign wm = s.o_date
+    when 'office-wear'
+      assign acc = s.oc_office_d
+      assign wm = s.o_office
+    when 'festive-wear'
+      assign acc = s.oc_wedding_d
+      assign wm = s.o_wedding
+    when 'gym-active'
+      assign acc = s.oc_gym_d
+      assign wm = s.o_gym
+    when 'daily-wear'
+      assign acc = s.oc_daily_d
+      assign wm = s.o_daily
+    when 'men'
+      assign acc = s.c_men
+      assign wm = s.wm_men
+    when 'women'
+      assign acc = s.c_women
+      assign wm = s.wm_women
+    when 'unisex'
+      assign acc = s.c_uni
+      assign wm = s.wm_uni
+    when 'summer-season'
+      assign wm = s.wm_summer
+    when 'winter-season'
+      assign wm = s.wm_winter
+    when 'all-season'
+      assign wm = s.wm_allseason
+    when 'new-arrivals'
+      assign wm = s.wm_new
+    when 'gift-sets'
+      assign wm = s.wm_gift
+    when 'try-anything-49-testers'
+      assign wm = s.wm_try
+    when 'start-here-best-picks'
+      assign wm = s.wm_start
+    when 'longest-lasting'
+      assign wm = s.wm_lasting
+    when 'all-products' or 'frontpage'
+      assign wm = s.wm_all
+  endcase
+-%}
+<header class="sahd{% if s.head_bleed %} sableed{% endif %}" style="--hacc:{{ acc }}">
+  {%- if s.wm_head_show and wm != blank -%}<span class="sahwm" aria-hidden="true">{{ wm }}</span>{%- endif -%}
+  <div class="sahin">
+    {%- if s.eyebrow != blank -%}<span class="sakick">{{ s.eyebrow }}</span>{%- endif -%}
+    <h2>{{ collection.title | default: s.fallback_title }}</h2>
+    {%- if s.show_desc and collection.description != blank -%}
+      {%- comment -%}
+        strip_html deletes a tag and puts nothing in its place, so a description
+        written as "captivating.<br>This collection" came out as
+        "captivating.This collection" — two sentences run together. Every tag
+        that means a break is turned into a space before the tags are stripped,
+        then the runs of space that leaves are collapsed back to one.
+
+        Two lines, then a toggle. This used to be truncate: 150, which on a
+        phone is five lines that end mid-word and push the products off the
+        screen. The clamp is CSS, so the whole text is in the page for search
+        engines and for anyone reading with the styles off; the checkbox opens
+        it. Anything short enough to fit inside the clamp is rendered plainly —
+        a "More" that reveals nothing is worse than no "More" at all. 90
+        characters is about two lines at 13px in this column.
+
+        The toggle is laid over the end of the last visible line rather than
+        put under it, so it costs no height at all. It cannot sit inside the
+        paragraph — the clamp needs overflow:hidden and would cut it off — so
+        the two share a positioned wrapper.
+      {%- endcomment -%}
+      {%- liquid
+        assign dtext = collection.description
+        assign dtext = dtext | replace: '<br>', ' ' | replace: '<br/>', ' ' | replace: '<br />', ' '
+        assign dtext = dtext | replace: '</p>', ' ' | replace: '</div>', ' ' | replace: '</li>', ' '
+        assign dtext = dtext | strip_html | replace: '&nbsp;', ' ' | replace: ' ', ' '
+        assign dtext = dtext | strip_newlines
+        assign dtext = dtext | replace: '  ', ' ' | replace: '  ', ' ' | replace: '  ', ' '
+        assign dtext = dtext | strip | truncate: 600
+        assign dlen = dtext | size
+      -%}
+      {%- if dlen > 90 -%}
+        <input class="sasub-t" type="checkbox" id="sasub-{{ collection.id }}">
+        <div class="sasub-w">
+          <p class="sasub sasub-clamp">{{ dtext }}</p>
+          <label class="sasub-m" for="sasub-{{ collection.id }}"><span class="sasub-more">More</span><span class="sasub-less">Less</span></label>
+        </div>
+      {%- else -%}
+        <p class="sasub">{{ dtext }}</p>
+      {%- endif -%}
+    {%- endif -%}
+    {%- if s.cnt_show -%}
+      <span class="sacnt"><i></i>{{ collection.products_count }} {{ s.count_word }}</span>
+    {%- endif -%}
+  </div>
+</header>
