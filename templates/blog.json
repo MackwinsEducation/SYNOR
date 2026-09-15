@@ -2,7 +2,9 @@
   "sections": {
     "main": {
       "type": "sa-blog-list",
-      "settings": {}
+      "settings": {
+        "empty_link": "/collections/all"
+      }
     }
   },
   "order": [

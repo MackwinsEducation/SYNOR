@@ -10,6 +10,10 @@ This layer is the blog: a listing page, an article page, and the three
 snippets they share. It is additive — new files only, nothing existing was
 edited — in the same way the desktop layer was added.
 
+(The live theme is `SYNOR work copy 4`. `desktop-layer.md` still calls it
+`Updated copy of gokwikbundler`, which was its name when that layer was
+written.)
+
 The vision behind it is four words: **rank, SEO, sell, content**. The article
 page is where those meet. It has to read like an editorial page, carry video
 without wrecking page speed, put the product within one tap of the paragraph
@@ -136,18 +140,53 @@ first thing a visitor's eye lands on should be the newest thing written.
 so without it the page would read as broken on the day it goes live. It says
 the first post is coming and points at the shelf.
 
-## Installing it
+## How it was installed
 
-1. Upload the seven files to the live theme (`Updated copy of gokwikbundler`).
-2. `templates/blog.json` and `templates/article.json` **replace** whatever
-   the theme currently has at those paths. Since neither blog has any posts,
-   there is nothing to lose — but download the existing two first if you want
-   a way back.
-3. In the theme editor, open the blog page and the article page once and save.
-   The section settings — every word, colour, size and spacing above — are
-   editable there; nothing is hard-coded.
-4. Set the two button links that ship blank: the closing offer on the article
-   page, and the empty-state button on the listing.
+The seven files were written straight into Shopify through the Admin API,
+into a **duplicate of the live theme** named `SYNOR blog preview`, not into
+the live theme itself. The live theme (`SYNOR work copy 4`) was not touched.
+
+A copy rather than the live theme for two reasons. The obvious one: nobody
+should find out a page is broken by being a customer looking at it. The less
+obvious one: the person who has to approve this design cannot read Liquid, so
+"it is correct" has to mean "you can look at it", and looking at it needs a
+URL that is not the shop.
+
+Each upload returned the file's MD5, and every one matched the working copy in
+this repository byte for byte. The files in the preview theme are the files
+here — not a close retyping of them.
+
+Two validation errors came back from Shopify during the upload, both real:
+
+- `templates/blog.json` was rejected before the sections existed, because a
+  template cannot name a section type that is not in the theme yet. Sections
+  and snippets first, templates last.
+- `sa-blog-list.liquid` was rejected for `"default": ""` on a text setting.
+  Shopify does not allow an empty-string default — the key has to be omitted.
+  The Liquid already falls back to the blog's own name with a `default`
+  filter, so nothing was lost by dropping it.
+
+Both are the sort of thing a local checker should have caught, and the
+checker now does.
+
+### What is left to do by hand
+
+1. **Publish** `SYNOR blog preview` in Shopify admin → Online Store → Themes.
+   Theme publishing cannot be done through the API from here, by design, so
+   this is a deliberate human step. Publishing the copy makes it live; any
+   edit made to the current live theme in the meantime would be left behind
+   in it, so publish while nothing else is in flight.
+2. **At least one article has to exist** before the article page can be seen
+   at all. Both blogs are empty, so `/blogs/*/…` has nothing to render.
+3. Optionally adjust the section settings in the theme editor. Every word,
+   colour, size and spacing is a setting; nothing is hard-coded.
+
+The two buttons that would otherwise ship pointing nowhere are set in the
+template files: the article's closing offer goes to `/pages/try-before-you-buy`,
+and the listing's empty-state button to `/collections/all`. Shopify rewrites
+`templates/*.json` whenever the theme editor saves, so those two values are
+defaults, not settled facts — expect the files here and in the theme to drift
+once the editor has been used.
 
 ## Not in this layer
 
