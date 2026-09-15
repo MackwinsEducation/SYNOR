@@ -1,0 +1,94 @@
+{%- comment -%}
+  SYNOR — blog structured data (JSON-LD).
+
+  Dawn no `meta-tags` snippet pehle thi j og: ane twitter: tags kaade chhe, etle
+  ahiya e repeat karvana nathi. Aa snippet khali e JSON-LD aape chhe je Dawn
+  nathi aapto — BlogPosting, BreadcrumbList ane (video hoy to) VideoObject.
+
+  Google na rich results mate: BlogPosting → article card, VideoObject → video
+  thumbnail search ma dekhaay. Bije video wala blog ne double reach male.
+
+  Vaapar:
+    {% render 'sa-blog-seo', article: article, blog: blog, yt: first_video_id %}
+{%- endcomment -%}
+
+{%- liquid
+  assign origin = request.origin
+  assign excerpt = article.excerpt_or_content | strip_html | strip_newlines | truncatewords: 40
+  assign writer = article.author | default: shop.name
+
+  assign hero = ''
+  if article.image
+    assign hero = article.image | image_url: width: 1200
+    assign lead = hero | slice: 0, 2
+    if lead == '//'
+      assign hero = hero | prepend: 'https:'
+    endif
+  endif
+
+  assign crest = ''
+  if settings.logo
+    assign crest = settings.logo | image_url: width: 400
+    assign lead2 = crest | slice: 0, 2
+    if lead2 == '//'
+      assign crest = crest | prepend: 'https:'
+    endif
+  endif
+-%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": {{ origin | append: article.url | json }}
+  },
+  "url": {{ origin | append: article.url | json }},
+  "headline": {{ article.title | truncate: 110 | json }},
+  "description": {{ excerpt | json }},
+  {% if hero != blank %}"image": [{{ hero | json }}],{% endif %}
+  "datePublished": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
+  "dateModified": {{ article.updated_at | default: article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
+  "author": { "@type": "Organization", "name": {{ writer | json }} },
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    "url": {{ origin | json }}
+    {% if crest != blank %},"logo": { "@type": "ImageObject", "url": {{ crest | json }} }{% endif %}
+  },
+  "isPartOf": {
+    "@type": "Blog",
+    "name": {{ blog.title | json }},
+    "url": {{ origin | append: blog.url | json }}
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": {{ origin | json }} },
+    { "@type": "ListItem", "position": 2, "name": {{ blog.title | json }}, "item": {{ origin | append: blog.url | json }} },
+    { "@type": "ListItem", "position": 3, "name": {{ article.title | truncate: 110 | json }} }
+  ]
+}
+</script>
+
+{%- if yt != blank -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "name": {{ article.title | truncate: 110 | json }},
+  "description": {{ excerpt | json }},
+  "thumbnailUrl": [{{ yt | prepend: 'https://i.ytimg.com/vi/' | append: '/hqdefault.jpg' | json }}],
+  "uploadDate": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
+  "embedUrl": {{ yt | prepend: 'https://www.youtube.com/embed/' | json }},
+  "contentUrl": {{ yt | prepend: 'https://www.youtube.com/watch?v=' | json }},
+  "publisher": { "@type": "Organization", "name": {{ shop.name | json }} }
+}
+</script>
+{%- endif -%}

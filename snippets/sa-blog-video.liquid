@@ -1,0 +1,29 @@
+{%- comment -%}
+  SYNOR — YouTube video, pan lazy.
+
+  Shuru ma khali thumbnail ane ek play button mukaay chhe — YouTube nu koi pan
+  script load thatu nathi. Click kare tyare j iframe andar aave. Aathi page
+  speed bagde nahi (ek YouTube iframe ~1.5MB lai aave chhe, ane page speed
+  Google nu ranking factor chhe).
+
+  hqdefault.jpg vaapryu chhe, maxresdefault nahi — maxres badha video par
+  hoti nathi, hqdefault sada hoy chhe. E 480x360 chhe jema 16:9 frame vacche
+  chhe, etle object-fit:cover thi kaali patti crop thai jaay.
+
+  nocookie domain — visitor par cookie na nakhe tya sudhi e play na kare.
+
+  Vaapar: {% render 'sa-blog-video', id: 'dQw4w9WgXcQ', title: article.title %}
+{%- endcomment -%}
+
+{%- if id != blank -%}
+  <div class="ar-yt" data-yt="{{ id }}">
+    <img class="ar-yt-th"
+         src="https://i.ytimg.com/vi/{{ id }}/hqdefault.jpg"
+         alt="{{ title | default: 'Video' | escape }}"
+         width="480" height="270" loading="lazy" decoding="async">
+    <button type="button" class="ar-yt-play" aria-label="{{ 'Play video' }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l11-6.5z"/></svg>
+    </button>
+    {%- if label != blank -%}<span class="ar-yt-cap">{{ label }}</span>{%- endif -%}
+  </div>
+{%- endif -%}

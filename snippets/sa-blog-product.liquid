@@ -1,0 +1,63 @@
+{%- comment -%}
+  SYNOR — blog ni andar product card.
+
+  Blog vaanchi rahela mansh ne tyaa j kharidi karvani jagya aapvi — aa j "Sell"
+  no bhaag chhe. Card ma 3ml ₹49 vali try CTA agal rakhi chhe: ₹1299 ni bottle
+  karta ₹49 ma haa padvu sahelu chhe, ane e j customer pachho aave chhe.
+
+  Cart ma sidho nakhvana badle product page par lai jaay chhe (variant select
+  thayelu), jethi GoKwik / bundlr no flow kyay tute nahi.
+
+  Vaapar: {% render 'sa-blog-product', product: p, try_label: 'Try 3ml' %}
+{%- endcomment -%}
+
+{%- if product != blank and product.available -%}
+  {%- liquid
+    assign fam = ''
+    assign v_try = null
+    assign v_full = null
+
+    for t in product.tags
+      assign low = t | downcase
+      assign p7 = low | slice: 0, 7
+      if p7 == 'family-' and fam == ''
+        assign fam = low | remove_first: 'family-' | replace: '-', ' & '
+      endif
+    endfor
+
+    for v in product.variants
+      assign vt = v.title | downcase
+      if vt contains '3ml' and v_try == null
+        assign v_try = v
+      endif
+      if vt contains '100ml' and v_full == null
+        assign v_full = v
+      endif
+    endfor
+
+    assign v_try = v_try | default: product.selected_or_first_available_variant
+    assign v_full = v_full | default: product.selected_or_first_available_variant
+  -%}
+
+  <div class="ar-pc">
+    <a class="ar-pc-img" href="{{ product.url }}" aria-hidden="true" tabindex="-1">
+      {%- if product.featured_image -%}
+        {{ product.featured_image | image_url: width: 300 | image_tag:
+             loading: 'lazy', widths: '150,300,450', alt: product.title | escape }}
+      {%- endif -%}
+    </a>
+    <div class="ar-pc-body">
+      {%- if fam != blank -%}<span class="ar-pc-fam">{{ fam }}</span>{%- endif -%}
+      <h4 class="ar-pc-name"><a href="{{ product.url }}">{{ product.title | remove_first: 'SYNOR ' }}</a></h4>
+      <p class="ar-pc-price">
+        {{ v_full.price | money }}<span> · 100ml</span>
+      </p>
+      <div class="ar-pc-act">
+        <a class="ar-pc-try" href="{{ product.url }}?variant={{ v_try.id }}">
+          {{ try_label | default: 'Try 3ml' }} · {{ v_try.price | money }}
+        </a>
+        <a class="ar-pc-full" href="{{ product.url }}">{{ open_label | default: 'Full page' }} →</a>
+      </div>
+    </div>
+  </div>
+{%- endif -%}

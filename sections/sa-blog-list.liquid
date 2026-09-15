@@ -1,0 +1,327 @@
+{%- comment -%}
+  SYNOR — blog listing. Badha posts ni ek jagya.
+
+  Aa page nu kaam ek j chhe: aavela mansh ne bijo post kholvani ichchha thaay.
+  Etle sauthi navo post moto rakhyo chhe, ane upar tag ni pills — jethi koi
+  "winter" ke "office" ke "vlog" par tap kari ne potane joiye e j vaanchi shake.
+
+  Tag pills blog na articles na tags par thi jate bane chhe. Internal tags
+  (yt-, pick-, series-) chhupavi didha chhe — e bot mate chhe, vaanchak mate nahi.
+
+  Blog ma ek pan post na hoy (aaje evu j chhe) to page tutelu na lagse —
+  niche ek shaanti thi lakhelu "have aavse" nu block dekhaay chhe.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+{%- assign sid = section.id -%}
+{%- liquid
+  assign filtered = false
+  if current_tags and current_tags.size > 0
+    assign filtered = true
+  endif
+-%}
+
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="bl">
+  <header class="bl-head">
+    {%- if s.eyebrow != blank -%}
+      <span class="bl-eye"><i class="bl-blip" aria-hidden="true"></i>{{ s.eyebrow }}</span>
+    {%- endif -%}
+    <h1>
+      {%- if filtered -%}
+        {{ current_tags | first | replace: '-', ' ' }}
+      {%- else -%}
+        {{ s.title | default: blog.title }}
+      {%- endif -%}
+    </h1>
+    {%- unless filtered -%}{%- if s.intro != blank -%}
+      <p class="bl-intro">{{ s.intro }}</p>
+    {%- endif -%}{%- endunless -%}
+    {%- if filtered -%}
+      <p class="bl-intro"><a class="bl-clear" href="{{ blog.url }}">← {{ s.word_clear }}</a></p>
+    {%- endif -%}
+  </header>
+
+  {%- comment -%} Tag pills — bot je tags lakhe chhe e j ahiya filter bani jaay chhe. {%- endcomment -%}
+  {%- if s.show_tags and blog.all_tags.size > 0 -%}
+    {%- capture pills -%}
+      {%- for t in blog.all_tags -%}
+        {%- liquid
+          assign low = t | downcase
+          assign k3 = low | slice: 0, 3
+          assign k5 = low | slice: 0, 5
+          assign k7 = low | slice: 0, 7
+          assign skip = false
+          if k3 == 'yt-' or k5 == 'pick-' or k7 == 'series-'
+            assign skip = true
+          endif
+        -%}
+        {%- unless skip -%}
+          {%- if current_tags contains t -%}
+            <a class="bl-pill on" href="{{ blog.url }}">{{ t | replace: '-', ' ' }} ×</a>
+          {%- else -%}
+            <a class="bl-pill" href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ t | replace: '-', ' ' }}</a>
+          {%- endif -%}
+        {%- endunless -%}
+      {%- endfor -%}
+    {%- endcapture -%}
+    {%- assign pills_t = pills | strip -%}
+    {%- if pills_t != blank -%}
+      <nav class="bl-tags" aria-label="{{ s.word_topics | escape }}">{{ pills }}</nav>
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- paginate blog.articles by s.per_page -%}
+
+    {%- if blog.articles.size == 0 -%}
+      <div class="bl-empty">
+        <p class="bl-empty-h">{{ s.empty_title }}</p>
+        <p class="bl-empty-p">{{ s.empty_text }}</p>
+        {%- if s.empty_link != blank -%}
+          <a class="bl-empty-b" href="{{ s.empty_link }}">{{ s.empty_btn }}</a>
+        {%- endif -%}
+      </div>
+    {%- else -%}
+
+      <div class="bl-grid">
+        {%- for a in blog.articles -%}
+          {%- liquid
+            assign yt = ''
+            assign is_vlog = false
+            assign kind = ''
+            for t in a.tags
+              assign low = t | downcase
+              if low == 'vlog' or low == 'live'
+                assign is_vlog = true
+              elsif low == 'guide' or low == 'review' or low == 'story' or low == 'news'
+                assign kind = low
+              endif
+              assign k3 = low | slice: 0, 3
+              if k3 == 'yt-' and yt == ''
+                assign yt = t | slice: 3, 40
+              endif
+            endfor
+
+            assign words = a.content | strip_html | split: ' ' | size
+            assign rt = words | divided_by: 200 | at_least: 1
+
+            assign badge = ''
+            if is_vlog
+              assign badge = s.word_vlog
+            elsif kind != ''
+              assign badge = kind
+            endif
+
+            assign big = false
+            if s.feature_first and forloop.first and paginate.current_page == 1 and filtered == false
+              assign big = true
+            endif
+          -%}
+
+          <a class="bl-card{% if big %} big{% endif %}" href="{{ a.url }}">
+            <span class="bl-shot">
+              {%- if a.image -%}
+                {{ a.image | image_url: width: 900 | image_tag:
+                     widths: '300,500,700,900',
+                     sizes: '(min-width: 900px) 420px, 92vw',
+                     loading: 'lazy', alt: a.title | escape }}
+              {%- elsif yt != blank -%}
+                <img src="https://i.ytimg.com/vi/{{ yt }}/hqdefault.jpg"
+                     alt="{{ a.title | escape }}" width="480" height="270" loading="lazy" decoding="async">
+              {%- else -%}
+                <span class="bl-noshot" aria-hidden="true">{{ s.mark }}</span>
+              {%- endif -%}
+
+              {%- if yt != blank -%}
+                <span class="bl-play" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M8 5.5v13l11-6.5z"/></svg>
+                </span>
+              {%- endif -%}
+              {%- if badge != blank -%}<span class="bl-badge">{{ badge }}</span>{%- endif -%}
+            </span>
+
+            <span class="bl-body">
+              <span class="bl-t">{{ a.title }}</span>
+              {%- if a.excerpt_or_content != blank -%}
+                <span class="bl-x">{{ a.excerpt_or_content | strip_html | truncatewords: 22 }}</span>
+              {%- endif -%}
+              <span class="bl-m">
+                <time datetime="{{ a.published_at | date: '%Y-%m-%d' }}">{{ a.published_at | date: s.date_fmt }}</time>
+                <i aria-hidden="true">·</i>{{ rt }} {{ s.word_read }}
+              </span>
+            </span>
+          </a>
+        {%- endfor -%}
+      </div>
+
+      {%- if paginate.pages > 1 -%}
+        <nav class="bl-page" aria-label="{{ s.word_pages | escape }}">
+          {%- if paginate.previous -%}
+            <a href="{{ paginate.previous.url }}">← {{ s.word_prev }}</a>
+          {%- endif -%}
+          <span>{{ paginate.current_page }} / {{ paginate.pages }}</span>
+          {%- if paginate.next -%}
+            <a href="{{ paginate.next.url }}">{{ s.word_next }} →</a>
+          {%- endif -%}
+        </nav>
+      {%- endif -%}
+
+    {%- endif -%}
+  {%- endpaginate -%}
+</div>
+
+<style>
+#shopify-section-{{ sid }}{background:{{ s.bg }}}
+#shopify-section-{{ sid }} .bl{font-family:"Space Grotesk",system-ui,sans-serif;color:{{ s.ink }};
+  max-width:{{ s.max }}px;margin:0 auto;padding:{{ s.pad_top }}px {{ s.gutter }}px {{ s.pad_bottom }}px}
+#shopify-section-{{ sid }} .bl *{box-sizing:border-box}
+
+#shopify-section-{{ sid }} .bl-eye{display:inline-flex;align-items:center;gap:7px;font-size:9px;
+  letter-spacing:.22em;text-transform:uppercase;color:{{ s.gold }};font-weight:700}
+#shopify-section-{{ sid }} .bl-blip{width:6px;height:6px;border-radius:50%;background:{{ s.gold }};
+  display:block;flex:none;animation:blBlip{{ sid }} 2.4s ease-in-out infinite}
+@keyframes blBlip{{ sid }}{50%{opacity:.3;transform:scale(.8)}}
+#shopify-section-{{ sid }} .bl-head h1{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h_m }}px;
+  font-weight:600;letter-spacing:-.02em;line-height:1.08;margin:8px 0 0;text-transform:capitalize}
+#shopify-section-{{ sid }} .bl-intro{font-size:13px;line-height:1.6;color:{{ s.soft }};margin:9px 0 0;
+  max-width:60ch}
+#shopify-section-{{ sid }} .bl-clear{color:{{ s.link }};text-decoration:none;font-weight:600}
+
+/* ---- tag pills ---- */
+#shopify-section-{{ sid }} .bl-tags{display:flex;gap:7px;margin:16px 0 0;overflow-x:auto;
+  scrollbar-width:none;padding-bottom:2px}
+#shopify-section-{{ sid }} .bl-tags::-webkit-scrollbar{display:none}
+#shopify-section-{{ sid }} .bl-pill{flex:none;font-size:11px;color:{{ s.ink }};text-decoration:none;
+  background:{{ s.tint }};border:1px solid {{ s.line }};padding:6px 11px;border-radius:99px;
+  text-transform:capitalize;white-space:nowrap}
+#shopify-section-{{ sid }} .bl-pill:hover{border-color:{{ s.gold }};color:{{ s.link }}}
+#shopify-section-{{ sid }} .bl-pill.on{background:{{ s.ink }};color:{{ s.bg }};border-color:{{ s.ink }}}
+
+/* ---- grid ---- */
+#shopify-section-{{ sid }} .bl-grid{display:grid;grid-template-columns:1fr;gap:{{ s.gap }}px;
+  margin:{{ s.head_gap }}px 0 0}
+#shopify-section-{{ sid }} .bl-card{text-decoration:none;color:{{ s.ink }};display:flex;
+  flex-direction:column;gap:11px}
+#shopify-section-{{ sid }} .bl-shot{position:relative;display:block;width:100%;aspect-ratio:16/10;
+  overflow:hidden;border-radius:{{ s.radius }}px;border:1px solid {{ s.line }};background:{{ s.tint }}}
+#shopify-section-{{ sid }} .bl-shot img{width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .5s ease}
+#shopify-section-{{ sid }} .bl-card:hover .bl-shot img{transform:scale(1.035)}
+#shopify-section-{{ sid }} .bl-noshot{position:absolute;inset:0;display:grid;place-items:center;
+  font-family:"Fraunces",Georgia,serif;font-size:34px;color:{{ s.gold }};opacity:.5}
+#shopify-section-{{ sid }} .bl-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.55);
+  background:rgba(26,23,18,.5);display:grid;place-items:center}
+#shopify-section-{{ sid }} .bl-play svg{width:21px;height:21px;fill:#fff;margin-left:2px}
+#shopify-section-{{ sid }} .bl-badge{position:absolute;left:9px;top:9px;font-size:8.5px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;color:{{ s.on_gold }};background:{{ s.gold }};
+  padding:4px 9px;border-radius:99px}
+
+#shopify-section-{{ sid }} .bl-body{display:flex;flex-direction:column;gap:5px;min-width:0}
+#shopify-section-{{ sid }} .bl-t{font-family:"Fraunces",Georgia,serif;font-size:{{ s.card_t_m }}px;
+  font-weight:600;line-height:1.24;letter-spacing:-.01em}
+#shopify-section-{{ sid }} .bl-x{font-size:12.5px;line-height:1.55;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .bl-m{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:{{ s.soft }};margin-top:2px}
+#shopify-section-{{ sid }} .bl-m i{margin:0 6px;opacity:.55;font-style:normal}
+
+/* ---- empty ---- */
+#shopify-section-{{ sid }} .bl-empty{margin:{{ s.head_gap }}px 0 0;padding:44px 22px;text-align:center;
+  background:{{ s.tint }};border:1px solid {{ s.line }};border-radius:{{ s.radius }}px}
+#shopify-section-{{ sid }} .bl-empty-h{font-family:"Fraunces",Georgia,serif;font-size:21px;font-weight:600;
+  margin:0;line-height:1.25}
+#shopify-section-{{ sid }} .bl-empty-p{font-size:13px;color:{{ s.soft }};margin:9px auto 0;max-width:42ch;
+  line-height:1.6}
+#shopify-section-{{ sid }} .bl-empty-b{display:inline-block;margin-top:18px;background:{{ s.gold }};
+  color:{{ s.on_gold }};font-size:12.5px;font-weight:700;letter-spacing:.03em;padding:11px 24px;
+  border-radius:99px;text-decoration:none}
+
+/* ---- pagination ---- */
+#shopify-section-{{ sid }} .bl-page{display:flex;align-items:center;justify-content:center;gap:16px;
+  margin:34px 0 0;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .bl-page a{color:{{ s.link }};text-decoration:none;font-weight:700}
+
+/* ---------- desktop ---------- */
+@media (min-width:900px){
+  #shopify-section-{{ sid }} .bl{padding:{{ s.pad_top | times: 1.7 | round }}px {{ s.gutter_d }}px {{ s.pad_bottom | times: 1.4 | round }}px}
+  #shopify-section-{{ sid }} .bl-head h1{font-size:{{ s.h_d }}px}
+  #shopify-section-{{ sid }} .bl-intro{font-size:15px}
+  #shopify-section-{{ sid }} .bl-tags{margin-top:20px;flex-wrap:wrap;overflow:visible}
+  #shopify-section-{{ sid }} .bl-pill{font-size:12px;padding:7px 13px}
+  #shopify-section-{{ sid }} .bl-grid{grid-template-columns:repeat({{ s.cols }},minmax(0,1fr));
+    gap:{{ s.gap_d }}px {{ s.gap_d | minus: 4 }}px}
+  #shopify-section-{{ sid }} .bl-t{font-size:{{ s.card_t_d }}px}
+  #shopify-section-{{ sid }} .bl-x{font-size:13.5px}
+
+  /* Sauthi navo post poori pahoLai ma — aankh tya j pehla jaay. */
+  #shopify-section-{{ sid }} .bl-card.big{grid-column:1/-1;flex-direction:row;align-items:center;
+    gap:30px;padding-bottom:{{ s.gap_d }}px;border-bottom:1px solid {{ s.line }}}
+  #shopify-section-{{ sid }} .bl-card.big .bl-shot{width:58%;flex:none;aspect-ratio:16/9}
+  #shopify-section-{{ sid }} .bl-card.big .bl-t{font-size:{{ s.card_t_d | plus: 12 }}px;line-height:1.14}
+  #shopify-section-{{ sid }} .bl-card.big .bl-x{font-size:15px;line-height:1.6}
+  #shopify-section-{{ sid }} .bl-card.big .bl-play{width:60px;height:60px}
+  #shopify-section-{{ sid }} .bl-card.big .bl-play svg{width:28px;height:28px}
+  #shopify-section-{{ sid }} .bl-empty{padding:70px 30px}
+}
+</style>
+
+{% schema %}
+{
+  "name": "Blog list — SYNOR",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The SYNOR journal" },
+    { "type": "text", "id": "title", "label": "Title (blank = blog name)", "default": "" },
+    { "type": "textarea", "id": "intro", "label": "Intro line", "default": "Scent notes, honest reviews and whatever we find on the road." },
+    { "type": "text", "id": "mark", "label": "Mark when a post has no picture", "default": "◆" },
+    { "type": "text", "id": "date_fmt", "label": "Date format", "default": "%d %b %Y" },
+
+    { "type": "header", "content": "Words" },
+    { "type": "text", "id": "word_read", "label": "Reading time word", "default": "min read" },
+    { "type": "text", "id": "word_vlog", "label": "Vlog badge", "default": "Live" },
+    { "type": "text", "id": "word_topics", "label": "Topics label", "default": "Topics" },
+    { "type": "text", "id": "word_clear", "label": "Clear filter", "default": "All posts" },
+    { "type": "text", "id": "word_pages", "label": "Pagination label", "default": "Pages" },
+    { "type": "text", "id": "word_prev", "label": "Previous", "default": "Newer" },
+    { "type": "text", "id": "word_next", "label": "Next", "default": "Older" },
+
+    { "type": "header", "content": "Layout" },
+    { "type": "checkbox", "id": "show_tags", "label": "Topic pills", "default": true },
+    { "type": "checkbox", "id": "feature_first", "label": "Newest post gets the full width", "default": true },
+    { "type": "range", "id": "per_page", "min": 6, "max": 24, "step": 2, "label": "Posts per page", "default": 12 },
+    { "type": "range", "id": "cols", "min": 2, "max": 4, "step": 1, "label": "Columns · desktop", "default": 3 },
+
+    { "type": "header", "content": "Size and spacing" },
+    { "type": "range", "id": "max", "min": 900, "max": 1400, "step": 20, "unit": "px", "label": "Page width", "default": 1200 },
+    { "type": "range", "id": "gutter", "min": 12, "max": 40, "step": 2, "unit": "px", "label": "Side margin · mobile", "default": 18 },
+    { "type": "range", "id": "gutter_d", "min": 16, "max": 64, "step": 2, "unit": "px", "label": "Side margin · desktop", "default": 28 },
+    { "type": "range", "id": "pad_top", "min": 0, "max": 60, "step": 2, "unit": "px", "label": "Top", "default": 22 },
+    { "type": "range", "id": "pad_bottom", "min": 0, "max": 80, "step": 2, "unit": "px", "label": "Bottom", "default": 40 },
+    { "type": "range", "id": "head_gap", "min": 12, "max": 56, "step": 2, "unit": "px", "label": "Space below the heading", "default": 26 },
+    { "type": "range", "id": "gap", "min": 12, "max": 44, "step": 2, "unit": "px", "label": "Gap between cards · mobile", "default": 26 },
+    { "type": "range", "id": "gap_d", "min": 16, "max": 56, "step": 2, "unit": "px", "label": "Gap between cards · desktop", "default": 32 },
+    { "type": "range", "id": "radius", "min": 0, "max": 18, "step": 1, "unit": "px", "label": "Corner radius", "default": 8 },
+    { "type": "range", "id": "h_m", "min": 20, "max": 44, "step": 1, "unit": "px", "label": "Page title · mobile", "default": 28 },
+    { "type": "range", "id": "h_d", "min": 26, "max": 64, "step": 1, "unit": "px", "label": "Page title · desktop", "default": 42 },
+    { "type": "range", "id": "card_t_m", "min": 14, "max": 24, "step": 1, "unit": "px", "label": "Card title · mobile", "default": 17 },
+    { "type": "range", "id": "card_t_d", "min": 15, "max": 28, "step": 1, "unit": "px", "label": "Card title · desktop", "default": 19 },
+
+    { "type": "header", "content": "When there are no posts yet" },
+    { "type": "text", "id": "empty_title", "label": "Title", "default": "The first post is on its way" },
+    { "type": "textarea", "id": "empty_text", "label": "Text", "default": "Scent guides, layering notes and live reviews from the road — all of it lands here. Meanwhile, the shelf is open." },
+    { "type": "text", "id": "empty_btn", "label": "Button", "default": "See the perfumes" },
+    { "type": "url", "id": "empty_link", "label": "Button link" },
+
+    { "type": "header", "content": "Colours" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#FFFDF9" },
+    { "type": "color", "id": "tint", "label": "Soft panel", "default": "#F7F4EC" },
+    { "type": "color", "id": "line", "label": "Lines", "default": "#E5DFD1" },
+    { "type": "color", "id": "ink", "label": "Text", "default": "#1A1712" },
+    { "type": "color", "id": "soft", "label": "Muted text", "default": "#6E6656" },
+    { "type": "color", "id": "gold", "label": "Gold", "default": "#BE9A54" },
+    { "type": "color", "id": "on_gold", "label": "Text on gold", "default": "#FFFDF9" },
+    { "type": "color", "id": "link", "label": "Links", "default": "#A8873F" }
+  ]
+}
+{% endschema %}

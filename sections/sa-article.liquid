@@ -1,0 +1,602 @@
+{%- comment -%}
+  SYNOR — article page. Ek blog post vaanchvani jagya, ane tyaa j kharidvani jagya.
+
+  Aakhi section article na TAGS par chale chhe. Kem? Karan ke tag j evi ek vastu
+  chhe je bot Admin API thi ek line ma lakhi shake — koi metafield banavva ni,
+  koi app ni, koi setup ni jarur nahi. Store na products pan aaj rite tag-driven
+  chhe (family-, occasion-, season-), etle blog e j bhasha bole chhe.
+
+  TAG NI BHASHA (bot pan aaj lakhe, tu pan admin ma aaj lakhi shake):
+
+    vlog                  → video-first layout. Video upar, lakhan niche.
+    yt-<VIDEOID>          → YouTube video. Ek thi vadhare chalse, tag na kram ma.
+    pick-<product-handle> → e product nu buy card niche aavse (max 6).
+    series-<slug>         → aa post kai series no bhaag chhe (e.g. series-matheran).
+    guide | review | story | news → upar no eyebrow shabd.
+    family-* occasion-* season-* gender-* → topic pills, products jevi j bhasha.
+
+  Tag ma case bagde to? Shopify tags no case saachvi rakhe chhe, pan jo kyay
+  bagde to YouTube ID case-sensitive chhe. Etle metafield `custom.youtube_ids`
+  (comma thi alag) hoy to e jite chhe — e rasto sada saacho rahe.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+{%- assign sid = section.id -%}
+
+{%- liquid
+  assign kind = ''
+  assign series = ''
+  assign is_vlog = false
+  assign yt_raw = ''
+  assign pick_raw = ''
+  assign topic_raw = ''
+
+  for t in article.tags
+    assign low = t | downcase
+
+    if low == 'vlog' or low == 'live'
+      assign is_vlog = true
+    elsif low == 'guide' or low == 'review' or low == 'story' or low == 'news'
+      assign kind = low
+    endif
+
+    assign h3 = low | slice: 0, 3
+    if h3 == 'yt-'
+      assign vid = t | slice: 3, 40
+      assign yt_raw = yt_raw | append: ',' | append: vid
+    endif
+
+    assign h5 = low | slice: 0, 5
+    if h5 == 'pick-'
+      assign ph = low | slice: 5, 120
+      assign pick_raw = pick_raw | append: ',' | append: ph
+    endif
+
+    assign h7 = low | slice: 0, 7
+    if h7 == 'series-'
+      assign series = low | slice: 7, 120
+    elsif h7 == 'family-' or h7 == 'season-'
+      assign topic_raw = topic_raw | append: ',' | append: t
+    endif
+
+    assign h6 = low | slice: 0, 6
+    assign h9 = low | slice: 0, 9
+    if h6 == 'scent-' or h5 == 'mood-' or h9 == 'occasion-' or h6 == 'gender'
+      assign topic_raw = topic_raw | append: ',' | append: t
+    endif
+  endfor
+
+  assign yts = yt_raw | remove_first: ',' | split: ','
+  assign mf_yt = article.metafields.custom.youtube_ids.value
+  if mf_yt != blank
+    assign yts = mf_yt | replace: ' ', '' | split: ','
+  endif
+
+  assign picks = pick_raw | remove_first: ',' | split: ','
+  assign topics = topic_raw | remove_first: ',' | split: ','
+
+  assign words = article.content | strip_html | split: ' ' | size
+  assign rt = words | divided_by: 200 | at_least: 1
+
+  assign eyebrow = kind
+  if is_vlog
+    assign eyebrow = s.word_vlog
+  elsif kind == 'guide'
+    assign eyebrow = s.word_guide
+  elsif kind == 'review'
+    assign eyebrow = s.word_review
+  elsif kind == 'story'
+    assign eyebrow = s.word_story
+  elsif kind == 'news'
+    assign eyebrow = s.word_news
+  else
+    assign eyebrow = blog.title
+  endif
+
+  assign lead_yt = yts | first
+-%}
+
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+{%- render 'sa-blog-seo', article: article, blog: blog, yt: lead_yt -%}
+
+<article class="ar">
+
+  <nav class="ar-crumb" aria-label="Breadcrumb">
+    <a href="{{ routes.root_url }}">{{ s.word_home }}</a>
+    <i aria-hidden="true">/</i>
+    <a href="{{ blog.url }}">{{ blog.title }}</a>
+  </nav>
+
+  <header class="ar-head">
+    <span class="ar-eye">
+      <i class="ar-blip" aria-hidden="true"></i>{{ eyebrow }}
+    </span>
+    <h1>{{ article.title }}</h1>
+    {%- if article.excerpt != blank -%}
+      <p class="ar-dek">{{ article.excerpt | strip_html }}</p>
+    {%- endif -%}
+    <p class="ar-meta">
+      <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: s.date_fmt }}</time>
+      <span aria-hidden="true">·</span>
+      <span>{{ rt }} {{ s.word_read }}</span>
+      {%- if series != blank -%}
+        <span aria-hidden="true">·</span>
+        <a class="ar-ser" href="{{ blog.url }}/tagged/series-{{ series | handleize }}">{{ series | replace: '-', ' ' }}</a>
+      {%- endif -%}
+    </p>
+  </header>
+
+  {%- comment -%} Vlog hoy to video pehla. Nahi to hero image pehla. {%- endcomment -%}
+  {%- if is_vlog and lead_yt != blank -%}
+    <div class="ar-lead ar-lead-v">
+      {%- render 'sa-blog-video', id: lead_yt, title: article.title -%}
+    </div>
+  {%- elsif article.image -%}
+    <figure class="ar-lead">
+      {{ article.image | image_url: width: 1400 | image_tag:
+           widths: '480,720,1000,1400', sizes: '(min-width: 900px) 760px, 100vw',
+           loading: 'eager', fetchpriority: 'high', alt: article.title | escape }}
+    </figure>
+  {%- endif -%}
+
+  <div class="ar-wrap">
+
+    {%- if s.show_toc -%}
+      <aside class="ar-toc" id="ar-toc-{{ sid }}" hidden>
+        <p class="ar-toc-t">{{ s.word_toc }}</p>
+        <ol></ol>
+      </aside>
+    {%- endif -%}
+
+    <div class="ar-main">
+      <div class="ar-body rte">
+        {{ article.content }}
+      </div>
+
+      {%- comment -%} Vlog ma bija badha video — ek trip na 3-4 clip ne ek j post ma. {%- endcomment -%}
+      {%- if yts.size > 1 -%}
+        <section class="ar-reel">
+          <h2 class="ar-h">{{ s.word_more_clips }}</h2>
+          <div class="ar-reel-row">
+            {%- for v in yts -%}
+              {%- unless is_vlog and forloop.first -%}
+                {%- render 'sa-blog-video', id: v, title: article.title, label: forloop.index -%}
+              {%- endunless -%}
+            {%- endfor -%}
+          </div>
+        </section>
+      {%- elsif is_vlog == false and lead_yt != blank -%}
+        <section class="ar-reel">
+          {%- render 'sa-blog-video', id: lead_yt, title: article.title -%}
+        </section>
+      {%- endif -%}
+
+      {%- comment -%} pick- tags → tya j kharidi karvani jagya. {%- endcomment -%}
+      {%- if picks.size > 0 -%}
+        <section class="ar-picks">
+          <h2 class="ar-h">{{ s.word_picks }}</h2>
+          {%- if s.picks_note != blank -%}<p class="ar-picks-n">{{ s.picks_note }}</p>{%- endif -%}
+          <div class="ar-picks-grid">
+            {%- for h in picks limit: 6 -%}
+              {%- assign p = all_products[h] -%}
+              {%- render 'sa-blog-product', product: p,
+                    try_label: s.try_label, open_label: s.open_label -%}
+            {%- endfor -%}
+          </div>
+        </section>
+      {%- endif -%}
+
+      {%- if topics.size > 0 -%}
+        <nav class="ar-topics" aria-label="{{ s.word_topics | escape }}">
+          <span class="ar-topics-t">{{ s.word_topics }}</span>
+          {%- for t in topics limit: 10 -%}
+            <a href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ t | replace: '-', ' ' }}</a>
+          {%- endfor -%}
+        </nav>
+      {%- endif -%}
+
+      {%- if s.show_share -%}
+        {%- assign a_url = request.origin | append: article.url -%}
+        {%- assign a_txt = article.title | url_encode -%}
+        <div class="ar-share">
+          <span class="ar-share-t">{{ s.word_share }}</span>
+          <a class="ar-wa" href="https://wa.me/?text={{ a_txt }}%20{{ a_url | url_encode }}"
+             target="_blank" rel="noopener nofollow">WhatsApp</a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ a_url | url_encode }}"
+             target="_blank" rel="noopener nofollow">Facebook</a>
+          <a href="https://pinterest.com/pin/create/button/?url={{ a_url | url_encode }}&description={{ a_txt }}"
+             target="_blank" rel="noopener nofollow">Pinterest</a>
+          <button type="button" class="ar-copy" data-url="{{ a_url }}">{{ s.word_copy }}</button>
+        </div>
+      {%- endif -%}
+
+      {%- if s.show_cta -%}
+        <aside class="ar-cta">
+          <p class="ar-cta-h">{{ s.cta_title }}</p>
+          <p class="ar-cta-p">{{ s.cta_text }}</p>
+          <a class="ar-cta-b" href="{{ s.cta_link }}">{{ s.cta_btn }}</a>
+        </aside>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} E j series na bija post — perfume series ne ek saathe bandhi rakhe. {%- endcomment -%}
+  {%- if series != blank -%}
+    {%- assign sib = 0 -%}
+    {%- assign ser_tag = 'series-' | append: series -%}
+    <section class="ar-rel">
+      <h2 class="ar-h ar-h-c">{{ s.word_series }}</h2>
+      <div class="ar-rel-row">
+        {%- for a in blog.articles limit: 50 -%}
+          {%- if a.handle != article.handle and sib < 4 -%}
+            {%- assign hit = false -%}
+            {%- for t in a.tags -%}
+              {%- assign tl = t | downcase -%}
+              {%- if tl == ser_tag -%}{%- assign hit = true -%}{%- endif -%}
+            {%- endfor -%}
+            {%- if hit -%}
+              {%- assign sib = sib | plus: 1 -%}
+              <a class="ar-rc" href="{{ a.url }}">
+                {%- if a.image -%}
+                  {{ a.image | image_url: width: 400 | image_tag: loading: 'lazy', widths: '200,400', alt: a.title | escape }}
+                {%- endif -%}
+                <span>{{ a.title }}</span>
+              </a>
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} Aakhra ma: blog ma bija post. Mansh ne page chhodva na devo. {%- endcomment -%}
+  {%- assign nxt = 0 -%}
+  <section class="ar-rel ar-rel-more">
+    <h2 class="ar-h ar-h-c">{{ s.word_next }}</h2>
+    <div class="ar-rel-row">
+      {%- for a in blog.articles limit: 12 -%}
+        {%- if a.handle != article.handle and nxt < 3 -%}
+          {%- assign nxt = nxt | plus: 1 -%}
+          <a class="ar-rc" href="{{ a.url }}">
+            {%- if a.image -%}
+              {{ a.image | image_url: width: 400 | image_tag: loading: 'lazy', widths: '200,400', alt: a.title | escape }}
+            {%- endif -%}
+            <span>{{ a.title }}</span>
+          </a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    <a class="ar-all" href="{{ blog.url }}">{{ s.word_all }} →</a>
+  </section>
+</article>
+
+<script>
+(function () {
+  var root = document.getElementById('shopify-section-{{ sid }}');
+  if (!root) return;
+
+  /* Lazy YouTube: click thay tyare j iframe andar aave. */
+  root.addEventListener('click', function (e) {
+    var box = e.target.closest('.ar-yt');
+    if (!box || box.dataset.on) return;
+    var id = box.dataset.yt;
+    if (!id) return;
+    box.dataset.on = '1';
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1';
+    f.title = {{ article.title | json }};
+    f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    f.allowFullscreen = true;
+    f.loading = 'lazy';
+    box.appendChild(f);
+  });
+
+  /* Copy link. */
+  root.addEventListener('click', function (e) {
+    var b = e.target.closest('.ar-copy');
+    if (!b) return;
+    var done = function () { var o = b.textContent; b.textContent = {{ s.word_copied | json }}; setTimeout(function () { b.textContent = o; }, 1600); };
+    if (navigator.clipboard) { navigator.clipboard.writeText(b.dataset.url).then(done, function(){}); }
+  });
+
+  {% if s.show_toc %}
+  /* Contents — article na h2 par thi jate banave. Liquid ma HTML parse
+     karvu shakya nathi, etle aa kaam browser ne aapyu chhe. */
+  var toc = document.getElementById('ar-toc-{{ sid }}');
+  var body = root.querySelector('.ar-body');
+  if (toc && body) {
+    var hs = body.querySelectorAll('h2');
+    if (hs.length >= {{ s.toc_min }}) {
+      var ol = toc.querySelector('ol');
+      for (var i = 0; i < hs.length; i++) {
+        var h = hs[i];
+        if (!h.id) h.id = 'sec-' + (i + 1);
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent;
+        li.appendChild(a);
+        ol.appendChild(li);
+      }
+      toc.hidden = false;
+    }
+  }
+  {% endif %}
+})();
+</script>
+
+<style>
+#shopify-section-{{ sid }}{background:{{ s.bg }}}
+#shopify-section-{{ sid }} .ar{font-family:"Space Grotesk",system-ui,sans-serif;
+  color:{{ s.ink }};padding:{{ s.pad_top }}px 0 {{ s.pad_bottom }}px}
+#shopify-section-{{ sid }} .ar *{box-sizing:border-box}
+
+/* ---- breadcrumb ---- */
+#shopify-section-{{ sid }} .ar-crumb{max-width:{{ s.col }}px;margin:0 auto;padding:0 {{ s.gutter }}px 12px;
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .ar-crumb a{color:{{ s.soft }};text-decoration:none}
+#shopify-section-{{ sid }} .ar-crumb i{margin:0 6px;opacity:.5;font-style:normal}
+
+/* ---- head ---- */
+#shopify-section-{{ sid }} .ar-head{max-width:{{ s.col }}px;margin:0 auto;padding:0 {{ s.gutter }}px}
+#shopify-section-{{ sid }} .ar-eye{display:inline-flex;align-items:center;gap:7px;font-size:9px;
+  letter-spacing:.22em;text-transform:uppercase;color:{{ s.gold }};font-weight:700}
+#shopify-section-{{ sid }} .ar-blip{width:6px;height:6px;border-radius:50%;background:{{ s.gold }};
+  display:block;flex:none;animation:arBlip{{ sid }} 2.4s ease-in-out infinite}
+@keyframes arBlip{{ sid }}{50%{opacity:.3;transform:scale(.8)}}
+#shopify-section-{{ sid }} .ar-head h1{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h1_m }}px;
+  font-weight:600;letter-spacing:-.02em;line-height:1.12;margin:8px 0 0;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .ar-dek{font-size:14px;line-height:1.6;color:{{ s.soft }};margin:10px 0 0}
+#shopify-section-{{ sid }} .ar-meta{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:{{ s.soft }};margin:12px 0 0;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+#shopify-section-{{ sid }} .ar-ser{color:{{ s.link }};text-decoration:none;font-weight:600}
+
+/* ---- lead ---- */
+#shopify-section-{{ sid }} .ar-lead{max-width:{{ s.col }}px;margin:{{ s.lead_gap }}px auto 0;
+  padding:0 {{ s.gutter }}px}
+#shopify-section-{{ sid }} .ar-lead img{width:100%;height:auto;display:block;
+  border-radius:{{ s.radius }}px;border:1px solid {{ s.line }}}
+
+/* ---- youtube facade ---- */
+#shopify-section-{{ sid }} .ar-yt{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;
+  border-radius:{{ s.radius }}px;border:1px solid {{ s.line }};background:#000;cursor:pointer}
+#shopify-section-{{ sid }} .ar-yt-th{width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .5s ease,opacity .3s ease}
+#shopify-section-{{ sid }} .ar-yt:hover .ar-yt-th{transform:scale(1.03)}
+#shopify-section-{{ sid }} .ar-yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#shopify-section-{{ sid }} .ar-yt[data-on] .ar-yt-th,
+#shopify-section-{{ sid }} .ar-yt[data-on] .ar-yt-play,
+#shopify-section-{{ sid }} .ar-yt[data-on] .ar-yt-cap{display:none}
+#shopify-section-{{ sid }} .ar-yt-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:56px;height:56px;border-radius:50%;border:1px solid rgba(255,255,255,.55);
+  background:rgba(26,23,18,.55);backdrop-filter:blur(3px);color:#fff;cursor:pointer;
+  display:grid;place-items:center;padding:0;transition:background .2s ease,transform .2s ease}
+#shopify-section-{{ sid }} .ar-yt:hover .ar-yt-play{background:{{ s.gold }};transform:translate(-50%,-50%) scale(1.06)}
+#shopify-section-{{ sid }} .ar-yt-play svg{width:26px;height:26px;fill:currentColor;margin-left:2px}
+#shopify-section-{{ sid }} .ar-yt-cap{position:absolute;left:10px;top:10px;font-size:9px;font-weight:700;
+  letter-spacing:.14em;color:#fff;background:rgba(26,23,18,.6);padding:4px 8px;border-radius:99px}
+
+/* ---- layout ---- */
+#shopify-section-{{ sid }} .ar-wrap{max-width:{{ s.col }}px;margin:0 auto;padding:0 {{ s.gutter }}px}
+#shopify-section-{{ sid }} .ar-main{min-width:0}
+
+/* ---- contents ---- */
+#shopify-section-{{ sid }} .ar-toc{margin:{{ s.body_gap }}px 0 0;padding:14px 16px;
+  background:{{ s.tint }};border:1px solid {{ s.line }};border-left:2px solid {{ s.gold }};
+  border-radius:{{ s.radius }}px}
+#shopify-section-{{ sid }} .ar-toc-t{font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:{{ s.gold }};font-weight:700;margin:0 0 8px}
+#shopify-section-{{ sid }} .ar-toc ol{margin:0;padding-left:18px;font-size:13px;line-height:1.7}
+#shopify-section-{{ sid }} .ar-toc a{color:{{ s.ink }};text-decoration:none}
+#shopify-section-{{ sid }} .ar-toc a:hover{color:{{ s.link }}}
+
+/* ---- body ---- */
+#shopify-section-{{ sid }} .ar-body{margin:{{ s.body_gap }}px 0 0;font-size:{{ s.body_m }}px;
+  line-height:1.78;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .ar-body > *:first-child{margin-top:0}
+#shopify-section-{{ sid }} .ar-body p{margin:0 0 1.15em}
+#shopify-section-{{ sid }} .ar-body h2{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h2_m }}px;
+  font-weight:600;line-height:1.22;letter-spacing:-.01em;margin:1.9em 0 .55em;scroll-margin-top:90px}
+#shopify-section-{{ sid }} .ar-body h3{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h2_m | minus: 3 }}px;
+  font-weight:600;line-height:1.3;margin:1.5em 0 .45em}
+#shopify-section-{{ sid }} .ar-body a{color:{{ s.link }};text-decoration:underline;text-underline-offset:2px}
+#shopify-section-{{ sid }} .ar-body ul,#shopify-section-{{ sid }} .ar-body ol{margin:0 0 1.15em;padding-left:22px}
+#shopify-section-{{ sid }} .ar-body li{margin:0 0 .45em}
+#shopify-section-{{ sid }} .ar-body img{max-width:100%;height:auto;border-radius:{{ s.radius }}px;
+  border:1px solid {{ s.line }};margin:.6em 0}
+#shopify-section-{{ sid }} .ar-body blockquote{margin:1.5em 0;padding:2px 0 2px 16px;
+  border-left:2px solid {{ s.gold }};font-family:"Fraunces",Georgia,serif;font-size:{{ s.body_m | plus: 2 }}px;
+  line-height:1.5;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .ar-body blockquote p:last-child{margin:0}
+#shopify-section-{{ sid }} .ar-body table{width:100%;border-collapse:collapse;font-size:13px;margin:1.3em 0;display:block;overflow-x:auto}
+#shopify-section-{{ sid }} .ar-body th,#shopify-section-{{ sid }} .ar-body td{
+  border:1px solid {{ s.line }};padding:8px 10px;text-align:left}
+#shopify-section-{{ sid }} .ar-body th{background:{{ s.tint }};font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+
+/* ---- section headings ---- */
+#shopify-section-{{ sid }} .ar-h{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h2_m }}px;
+  font-weight:600;letter-spacing:-.01em;margin:0 0 12px;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .ar-h-c{text-align:center}
+
+/* ---- reel ---- */
+#shopify-section-{{ sid }} .ar-reel{margin:{{ s.blk_gap }}px 0 0}
+#shopify-section-{{ sid }} .ar-reel-row{display:grid;gap:10px}
+
+/* ---- picks ---- */
+#shopify-section-{{ sid }} .ar-picks{margin:{{ s.blk_gap }}px 0 0;padding:{{ s.blk_gap }}px 0 0;
+  border-top:1px solid {{ s.line }}}
+#shopify-section-{{ sid }} .ar-picks-n{font-size:12px;color:{{ s.soft }};margin:-6px 0 14px}
+#shopify-section-{{ sid }} .ar-picks-grid{display:grid;grid-template-columns:1fr;gap:10px}
+#shopify-section-{{ sid }} .ar-pc{display:flex;gap:12px;padding:10px;background:{{ s.card }};
+  border:1px solid {{ s.line }};border-radius:{{ s.radius }}px}
+#shopify-section-{{ sid }} .ar-pc-img{flex:none;width:76px;aspect-ratio:3/4;border-radius:6px;
+  overflow:hidden;background:{{ s.tint }};display:block}
+#shopify-section-{{ sid }} .ar-pc-img img{width:100%;height:100%;object-fit:cover;display:block}
+#shopify-section-{{ sid }} .ar-pc-body{min-width:0;display:flex;flex-direction:column;gap:3px;flex:1}
+#shopify-section-{{ sid }} .ar-pc-fam{font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:{{ s.gold }};font-weight:700}
+#shopify-section-{{ sid }} .ar-pc-name{font-family:"Fraunces",Georgia,serif;font-size:15px;font-weight:600;
+  margin:0;line-height:1.2}
+#shopify-section-{{ sid }} .ar-pc-name a{color:{{ s.ink }};text-decoration:none}
+#shopify-section-{{ sid }} .ar-pc-price{font-size:12px;color:{{ s.soft }};margin:0}
+#shopify-section-{{ sid }} .ar-pc-price span{opacity:.75}
+#shopify-section-{{ sid }} .ar-pc-act{display:flex;align-items:center;gap:10px;margin-top:auto;flex-wrap:wrap}
+#shopify-section-{{ sid }} .ar-pc-try{background:{{ s.gold }};color:{{ s.on_gold }};font-size:11.5px;
+  font-weight:700;letter-spacing:.02em;padding:7px 12px;border-radius:99px;text-decoration:none;white-space:nowrap}
+#shopify-section-{{ sid }} .ar-pc-full{font-size:11px;color:{{ s.link }};text-decoration:none;font-weight:600}
+
+/* ---- topics ---- */
+#shopify-section-{{ sid }} .ar-topics{margin:{{ s.blk_gap }}px 0 0;display:flex;flex-wrap:wrap;gap:7px;
+  align-items:center}
+#shopify-section-{{ sid }} .ar-topics-t{font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:{{ s.soft }};font-weight:700;margin-right:2px}
+#shopify-section-{{ sid }} .ar-topics a{font-size:11px;color:{{ s.ink }};text-decoration:none;
+  background:{{ s.tint }};border:1px solid {{ s.line }};padding:5px 10px;border-radius:99px;
+  text-transform:capitalize}
+#shopify-section-{{ sid }} .ar-topics a:hover{border-color:{{ s.gold }};color:{{ s.link }}}
+
+/* ---- share ---- */
+#shopify-section-{{ sid }} .ar-share{margin:{{ s.blk_gap }}px 0 0;padding:14px 0;
+  border-top:1px solid {{ s.line }};border-bottom:1px solid {{ s.line }};
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#shopify-section-{{ sid }} .ar-share-t{font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:{{ s.soft }};font-weight:700}
+#shopify-section-{{ sid }} .ar-share a,#shopify-section-{{ sid }} .ar-share button{
+  font-family:inherit;font-size:11.5px;font-weight:600;color:{{ s.ink }};text-decoration:none;
+  background:none;border:1px solid {{ s.line }};padding:6px 11px;border-radius:99px;cursor:pointer}
+#shopify-section-{{ sid }} .ar-share a:hover,#shopify-section-{{ sid }} .ar-share button:hover{border-color:{{ s.gold }}}
+#shopify-section-{{ sid }} .ar-wa{border-color:#25d36640 !important;color:#128c48 !important}
+
+/* ---- cta ---- */
+#shopify-section-{{ sid }} .ar-cta{margin:{{ s.blk_gap }}px 0 0;padding:20px 18px;text-align:center;
+  background:{{ s.tint }};border:1px solid {{ s.line }};border-radius:{{ s.radius }}px}
+#shopify-section-{{ sid }} .ar-cta-h{font-family:"Fraunces",Georgia,serif;font-size:19px;font-weight:600;
+  margin:0;line-height:1.2}
+#shopify-section-{{ sid }} .ar-cta-p{font-size:12.5px;color:{{ s.soft }};margin:7px 0 14px;line-height:1.5}
+#shopify-section-{{ sid }} .ar-cta-b{display:inline-block;background:{{ s.gold }};color:{{ s.on_gold }};
+  font-size:12.5px;font-weight:700;letter-spacing:.03em;padding:11px 24px;border-radius:99px;text-decoration:none}
+
+/* ---- related ---- */
+#shopify-section-{{ sid }} .ar-rel{max-width:{{ s.col }}px;margin:{{ s.blk_gap }}px auto 0;
+  padding:{{ s.blk_gap }}px {{ s.gutter }}px 0;border-top:1px solid {{ s.line }};text-align:center}
+#shopify-section-{{ sid }} .ar-rel-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;text-align:left}
+#shopify-section-{{ sid }} .ar-rc{text-decoration:none;color:{{ s.ink }};display:block}
+#shopify-section-{{ sid }} .ar-rc img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
+  border-radius:6px;border:1px solid {{ s.line }};margin-bottom:6px}
+#shopify-section-{{ sid }} .ar-rc span{font-family:"Fraunces",Georgia,serif;font-size:12.5px;
+  font-weight:600;line-height:1.28;display:block}
+#shopify-section-{{ sid }} .ar-all{display:inline-block;margin-top:16px;font-size:11.5px;font-weight:600;
+  color:{{ s.link }};text-decoration:none;letter-spacing:.04em}
+
+/* ---------- desktop ---------- */
+@media (min-width:900px){
+  #shopify-section-{{ sid }} .ar{padding:{{ s.pad_top | times: 1.6 | round }}px 0 {{ s.pad_bottom | times: 1.5 | round }}px}
+  #shopify-section-{{ sid }} .ar-head h1{font-size:{{ s.h1_d }}px}
+  #shopify-section-{{ sid }} .ar-dek{font-size:16.5px}
+  #shopify-section-{{ sid }} .ar-meta{font-size:11.5px;gap:9px}
+  #shopify-section-{{ sid }} .ar-body{font-size:{{ s.body_d }}px;line-height:1.8}
+  #shopify-section-{{ sid }} .ar-body h2{font-size:{{ s.h2_d }}px}
+  #shopify-section-{{ sid }} .ar-body h3{font-size:{{ s.h2_d | minus: 5 }}px}
+  #shopify-section-{{ sid }} .ar-h{font-size:{{ s.h2_d }}px}
+  #shopify-section-{{ sid }} .ar-picks-grid{grid-template-columns:1fr 1fr;gap:12px}
+  #shopify-section-{{ sid }} .ar-reel-row{grid-template-columns:1fr 1fr;gap:14px}
+  #shopify-section-{{ sid }} .ar-rc span{font-size:15px}
+  #shopify-section-{{ sid }} .ar-rel-row{gap:18px}
+  #shopify-section-{{ sid }} .ar-cta{padding:30px 26px}
+  #shopify-section-{{ sid }} .ar-cta-h{font-size:24px}
+  #shopify-section-{{ sid }} .ar-cta-p{font-size:14px}
+}
+
+/* Contents sidebar — ghani jagya hoy tyare j, nahi to lakhan sankdu thai jaay.
+   Rail (230px) + gap (50px) etli jagya dabi baaju rakhvi pade chhe, ane e j
+   offset title, image ane niche na blocks par pan lagaadvo pade — nahi to
+   lakhan ni dabi kinaar ane title ni kinaar alag alag jagya par bese. Ek j
+   ganit banne jagya vaapre chhe, etle e kyay drift na thai shake. */
+@media (min-width:1140px){
+  #shopify-section-{{ sid }} .ar-wrap{max-width:{{ s.col | plus: 280 }}px;display:grid;
+    grid-template-columns:230px minmax(0,1fr);gap:50px;
+    padding:0 {{ s.gutter }}px;margin:0 auto}
+  #shopify-section-{{ sid }} .ar-toc{position:sticky;top:96px;margin:{{ s.body_gap }}px 0 0;
+    align-self:start;max-height:calc(100vh - 130px);overflow-y:auto}
+  #shopify-section-{{ sid }} .ar-crumb,
+  #shopify-section-{{ sid }} .ar-head,
+  #shopify-section-{{ sid }} .ar-lead,
+  #shopify-section-{{ sid }} .ar-rel{max-width:{{ s.col | plus: 280 }}px;
+    padding-left:{{ s.gutter | plus: 280 }}px;padding-right:{{ s.gutter }}px}
+}
+</style>
+
+{% schema %}
+{
+  "name": "Article — SYNOR",
+  "tag": "section",
+  "settings": [
+    { "type": "paragraph", "content": "Aa page article na tags par chale chhe. vlog · yt-VIDEOID · pick-product-handle · series-name · guide/review/story/news · family-* occasion-* season-*" },
+
+    { "type": "header", "content": "Words" },
+    { "type": "text", "id": "word_home", "label": "Home", "default": "Home" },
+    { "type": "text", "id": "word_vlog", "label": "Vlog eyebrow", "default": "Live from the road" },
+    { "type": "text", "id": "word_guide", "label": "Guide eyebrow", "default": "Guide" },
+    { "type": "text", "id": "word_review", "label": "Review eyebrow", "default": "Review" },
+    { "type": "text", "id": "word_story", "label": "Story eyebrow", "default": "Story" },
+    { "type": "text", "id": "word_news", "label": "News eyebrow", "default": "News" },
+    { "type": "text", "id": "word_read", "label": "Reading time word", "default": "min read" },
+    { "type": "text", "id": "date_fmt", "label": "Date format", "default": "%d %B %Y" },
+    { "type": "text", "id": "word_toc", "label": "Contents title", "default": "In this post" },
+    { "type": "text", "id": "word_more_clips", "label": "Extra videos title", "default": "More from this trip" },
+    { "type": "text", "id": "word_picks", "label": "Products title", "default": "Worn in this post" },
+    { "type": "text", "id": "picks_note", "label": "Line under it", "default": "Every bottle has a 3ml tester. Try before you commit." },
+    { "type": "text", "id": "try_label", "label": "Tester button", "default": "Try 3ml" },
+    { "type": "text", "id": "open_label", "label": "Link next to it", "default": "Full page" },
+    { "type": "text", "id": "word_topics", "label": "Topics label", "default": "Topics" },
+    { "type": "text", "id": "word_share", "label": "Share label", "default": "Share" },
+    { "type": "text", "id": "word_copy", "label": "Copy button", "default": "Copy link" },
+    { "type": "text", "id": "word_copied", "label": "After copying", "default": "Copied" },
+    { "type": "text", "id": "word_series", "label": "Series title", "default": "More in this series" },
+    { "type": "text", "id": "word_next", "label": "Related title", "default": "Read next" },
+    { "type": "text", "id": "word_all", "label": "See-all link", "default": "All posts" },
+
+    { "type": "header", "content": "Blocks on or off" },
+    { "type": "checkbox", "id": "show_toc", "label": "Contents box", "default": true },
+    { "type": "range", "id": "toc_min", "min": 2, "max": 8, "step": 1, "label": "Show contents only if headings are at least", "default": 3 },
+    { "type": "checkbox", "id": "show_share", "label": "Share row", "default": true },
+    { "type": "checkbox", "id": "show_cta", "label": "Closing offer", "default": true },
+
+    { "type": "header", "content": "Closing offer" },
+    { "type": "text", "id": "cta_title", "label": "Title", "default": "Smell it before you buy it" },
+    { "type": "text", "id": "cta_text", "label": "Text", "default": "Any SYNOR in a 3ml tester for ₹49. One spray tells you more than any review." },
+    { "type": "text", "id": "cta_btn", "label": "Button", "default": "Pick a 3ml for ₹49" },
+    { "type": "url", "id": "cta_link", "label": "Button link" },
+
+    { "type": "header", "content": "Size and spacing" },
+    { "type": "range", "id": "col", "min": 600, "max": 900, "step": 20, "unit": "px", "label": "Reading column", "default": 760 },
+    { "type": "range", "id": "gutter", "min": 12, "max": 40, "step": 2, "unit": "px", "label": "Side margin", "default": 18 },
+    { "type": "range", "id": "pad_top", "min": 0, "max": 60, "step": 2, "unit": "px", "label": "Top", "default": 20 },
+    { "type": "range", "id": "pad_bottom", "min": 0, "max": 80, "step": 2, "unit": "px", "label": "Bottom", "default": 36 },
+    { "type": "range", "id": "lead_gap", "min": 8, "max": 44, "step": 2, "unit": "px", "label": "Space above the image or video", "default": 20 },
+    { "type": "range", "id": "body_gap", "min": 8, "max": 44, "step": 2, "unit": "px", "label": "Space above the text", "default": 22 },
+    { "type": "range", "id": "blk_gap", "min": 16, "max": 64, "step": 2, "unit": "px", "label": "Space between blocks", "default": 32 },
+    { "type": "range", "id": "radius", "min": 0, "max": 18, "step": 1, "unit": "px", "label": "Corner radius", "default": 8 },
+
+    { "type": "header", "content": "Type sizes" },
+    { "type": "range", "id": "h1_m", "min": 20, "max": 40, "step": 1, "unit": "px", "label": "Title · mobile", "default": 27 },
+    { "type": "range", "id": "h1_d", "min": 28, "max": 60, "step": 1, "unit": "px", "label": "Title · desktop", "default": 42 },
+    { "type": "range", "id": "h2_m", "min": 15, "max": 28, "step": 1, "unit": "px", "label": "Heading · mobile", "default": 19 },
+    { "type": "range", "id": "h2_d", "min": 18, "max": 36, "step": 1, "unit": "px", "label": "Heading · desktop", "default": 25 },
+    { "type": "range", "id": "body_m", "min": 13, "max": 19, "step": 1, "unit": "px", "label": "Text · mobile", "default": 15 },
+    { "type": "range", "id": "body_d", "min": 15, "max": 22, "step": 1, "unit": "px", "label": "Text · desktop", "default": 17 },
+
+    { "type": "header", "content": "Colours" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#FFFDF9" },
+    { "type": "color", "id": "card", "label": "Card face", "default": "#FFFFFF" },
+    { "type": "color", "id": "tint", "label": "Soft panel", "default": "#F7F4EC" },
+    { "type": "color", "id": "line", "label": "Lines", "default": "#E5DFD1" },
+    { "type": "color", "id": "ink", "label": "Text", "default": "#1A1712" },
+    { "type": "color", "id": "soft", "label": "Muted text", "default": "#6E6656" },
+    { "type": "color", "id": "gold", "label": "Gold", "default": "#BE9A54" },
+    { "type": "color", "id": "on_gold", "label": "Text on gold", "default": "#FFFDF9" },
+    { "type": "color", "id": "link", "label": "Links", "default": "#A8873F" }
+  ]
+}
+{% endschema %}

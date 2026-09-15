@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "main": {
+      "type": "sa-blog-list",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main"
+  ]
+}
