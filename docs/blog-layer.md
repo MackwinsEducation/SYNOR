@@ -49,14 +49,37 @@ kind — is read off the article's **tags**.
 | `pick-<product-handle>` | That product gets a buy card under the post. Up to 6. |
 | `series-<slug>` | Marks the post as part of a series, and links the others in it. |
 | `guide` `review` `story` `news` | Sets the eyebrow word above the title. |
-| `family-*` `occasion-*` `season-*` `scent-*` `mood-*` `gender-*` | Topic pills, linking to the filtered listing. |
+| `gender-*` `occasion-*` `family-*` `brand-*` | Topic pills, linking to the filtered listing. |
 
 Tags, rather than metafields, because a tag is one field on the article that
 the Admin API can write in the same call that creates the post — no metafield
 definitions, no app, no second request. It also means the blog speaks the
 same language the catalogue already speaks: the 50 products are tagged
-`family-woody-oud`, `occasion-wedding`, `season-winter` today, so a post
-tagged the same way is filed beside them without a new vocabulary.
+`family-woody-oud`, `occasion-office`, `brand-creed` today, so a post tagged
+the same way is filed beside them without a new vocabulary.
+
+### Only four of those namespaces are the shop's
+
+The products carry more tag namespaces than the store actually sells by.
+`season-*`, `mood-*` and `scent-*` exist on every product, and there are
+collections built on them — Winter Season, Bold & Powerful, Elegant — but the
+storefront's navigation does not use any of them. What it uses is four:
+
+| | |
+| --- | --- |
+| Gender | 3 — Men, Women, Unisex |
+| Occasion | 6 — Daily & Casual, Office & Formal, Date & Dinner, Party & Night Out, Wedding & Festive, Gym & Active |
+| Fragrance type | 4 — Fresh & Aquatic, Floral & Fruity, Woody & Oud, Amber & Sweet |
+| Inspired house | the `brand-*` tags; no collections, 17 houses |
+
+So the topic pills are an allowlist of exactly those four, not a blocklist of
+the internal tags. A reader should meet the same handful of words on a post
+that they meet in the menu; offering them "winter" or "seductive" as a way in
+sends them somewhere the shop does not sort by.
+
+The pills also drop the namespace before printing — `occasion-office` reads
+as "office", `brand-creed` as "creed". The prefix is how the bot addresses
+the theme, not language for a customer.
 
 Internal tags (`yt-`, `pick-`, `series-`) are hidden from the listing's pill
 row. They are instructions, not topics.

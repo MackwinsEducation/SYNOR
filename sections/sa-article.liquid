@@ -13,7 +13,12 @@
     pick-<product-handle> → e product nu buy card niche aavse (max 6).
     series-<slug>         → aa post kai series no bhaag chhe (e.g. series-matheran).
     guide | review | story | news → upar no eyebrow shabd.
-    family-* occasion-* season-* gender-* → topic pills, products jevi j bhasha.
+    gender-* occasion-* family-* brand-* → topic pills.
+
+  Topic pills ma FAKT e char shreni chhe je store ma live vaparaay chhe:
+  gender (3), occasion (6), fragrance type (4), ane inspired house (brand).
+  season-, mood-, scent- tags products par chhe pan store ni navigation ma
+  vaparaata nathi, etle blog ma pan nathi — blog e j bhasha bole je dukan bole.
 
   Tag ma case bagde to? Shopify tags no case saachvi rakhe chhe, pan jo kyay
   bagde to YouTube ID case-sensitive chhe. Etle metafield `custom.youtube_ids`
@@ -55,13 +60,13 @@
     assign h7 = low | slice: 0, 7
     if h7 == 'series-'
       assign series = low | slice: 7, 120
-    elsif h7 == 'family-' or h7 == 'season-'
+    elsif h7 == 'family-'
       assign topic_raw = topic_raw | append: ',' | append: t
     endif
 
     assign h6 = low | slice: 0, 6
     assign h9 = low | slice: 0, 9
-    if h6 == 'scent-' or h5 == 'mood-' or h9 == 'occasion-' or h6 == 'gender'
+    if h6 == 'gender' or h6 == 'brand-' or h9 == 'occasion-'
       assign topic_raw = topic_raw | append: ',' | append: t
     endif
   endfor
@@ -191,7 +196,11 @@
         <nav class="ar-topics" aria-label="{{ s.word_topics | escape }}">
           <span class="ar-topics-t">{{ s.word_topics }}</span>
           {%- for t in topics limit: 10 -%}
-            <a href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ t | replace: '-', ' ' }}</a>
+            {%- liquid
+              assign lbl = t | downcase | remove_first: 'occasion-' | remove_first: 'family-'
+              assign lbl = lbl | remove_first: 'gender-' | remove_first: 'brand-' | replace: '-', ' '
+            -%}
+            <a href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ lbl }}</a>
           {%- endfor -%}
         </nav>
       {%- endif -%}

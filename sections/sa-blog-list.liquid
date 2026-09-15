@@ -5,8 +5,11 @@
   Etle sauthi navo post moto rakhyo chhe, ane upar tag ni pills — jethi koi
   "winter" ke "office" ke "vlog" par tap kari ne potane joiye e j vaanchi shake.
 
-  Tag pills blog na articles na tags par thi jate bane chhe. Internal tags
-  (yt-, pick-, series-) chhupavi didha chhe — e bot mate chhe, vaanchak mate nahi.
+  Tag pills blog na articles na tags par thi jate bane chhe, pan FAKT e char
+  shreni ni je store ma live vaparaay chhe: gender, occasion, fragrance type,
+  ane inspired house (brand). Baki badhu — season, mood, scent, ane bot na
+  internal tags (yt-, pick-, series-) — chhupayelu rahe chhe. Vaanchak ne e j
+  shabdo dekhaay je dukan ma pan e vaapre chhe.
 
   Blog ma ek pan post na hoy (aaje evu j chhe) to page tutelu na lagse —
   niche ek shaanti thi lakhelu "have aavse" nu block dekhaay chhe.
@@ -49,21 +52,27 @@
       {%- for t in blog.all_tags -%}
         {%- liquid
           assign low = t | downcase
-          assign k3 = low | slice: 0, 3
-          assign k5 = low | slice: 0, 5
+          assign k6 = low | slice: 0, 6
           assign k7 = low | slice: 0, 7
-          assign skip = false
-          if k3 == 'yt-' or k5 == 'pick-' or k7 == 'series-'
-            assign skip = true
+          assign k9 = low | slice: 0, 9
+
+          assign keep = false
+          if k7 == 'family-' or k9 == 'occasion-' or k6 == 'gender' or k6 == 'brand-'
+            assign keep = true
+          elsif low == 'vlog' or low == 'guide' or low == 'review' or low == 'story' or low == 'news'
+            assign keep = true
           endif
+
+          assign lbl = low | remove_first: 'occasion-' | remove_first: 'family-'
+          assign lbl = lbl | remove_first: 'gender-' | remove_first: 'brand-' | replace: '-', ' '
         -%}
-        {%- unless skip -%}
+        {%- if keep -%}
           {%- if current_tags contains t -%}
-            <a class="bl-pill on" href="{{ blog.url }}">{{ t | replace: '-', ' ' }} ×</a>
+            <a class="bl-pill on" href="{{ blog.url }}">{{ lbl }} ×</a>
           {%- else -%}
-            <a class="bl-pill" href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ t | replace: '-', ' ' }}</a>
+            <a class="bl-pill" href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ lbl }}</a>
           {%- endif -%}
-        {%- endunless -%}
+        {%- endif -%}
       {%- endfor -%}
     {%- endcapture -%}
     {%- assign pills_t = pills | strip -%}
