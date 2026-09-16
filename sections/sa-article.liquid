@@ -28,6 +28,102 @@
 {%- assign s = section.settings -%}
 {%- assign sid = section.id -%}
 
+{%- comment -%}
+  FONT SET.
+
+  Traan khana: dh = matthaa, d = lakhan, s = nanu uppercase sarjaam.
+  Default 'now' e j Fraunces + Space Grotesk chhe, etle setting na badle
+  paanu akshare akshar pehla jevu j dekhaay chhe.
+
+  Aa badlaav fakt blog na paana ne j lage chhe: aa section potaano
+  stylesheet jaate maange chhe, etle baaki no store adto nathi.
+
+  font-synthesis-weight:none — jene 700 nu kharu akshar na hoy, e
+  browser jaate jaadu kari aape chhe ane e kharaab dekhaay. Etle nahi.
+{%- endcomment -%}
+
+{%- liquid
+  assign f_head = '"Fraunces",Georgia,serif'
+  assign f_body = '"Fraunces",Georgia,serif'
+  assign f_furn = '"Space Grotesk",system-ui,sans-serif'
+  assign gf = 'family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&amp;family=Space+Grotesk:wght@400;500;600;700'
+
+  case s.font_set
+    when 'caslon'
+      assign f_head = '"Libre Caslon Display",Georgia,serif'
+      assign f_body = '"Libre Caslon Text",Georgia,serif'
+      assign f_furn = '"Libre Franklin",system-ui,sans-serif'
+      assign gf = 'family=Libre+Caslon+Display&amp;family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Libre+Franklin:wght@400;500;600;700;800'
+    when 'bodoni'
+      assign f_head = '"Bodoni Moda",Didot,Georgia,serif'
+      assign f_body = '"Bodoni Moda",Didot,Georgia,serif'
+      assign f_furn = '"Archivo",system-ui,sans-serif'
+      assign gf = 'family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Archivo:wght@400;500;600;700;800;900'
+    when 'newsreader'
+      assign f_head = '"Newsreader",Georgia,serif'
+      assign f_body = '"Newsreader",Georgia,serif'
+      assign f_furn = '"Public Sans",system-ui,sans-serif'
+      assign gf = 'family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Public+Sans:wght@400;500;600;700;800'
+    when 'instrument'
+      assign f_head = '"Instrument Serif",Georgia,serif'
+      assign f_body = '"Instrument Serif",Georgia,serif'
+      assign f_furn = '"Inter Tight",system-ui,sans-serif'
+      assign gf = 'family=Instrument+Serif:ital@0;1&amp;family=Inter+Tight:wght@400;500;600;700;800;900'
+    when 'tabloid'
+      assign f_head = '"Anton",Impact,sans-serif'
+      assign f_body = '"Newsreader",Georgia,serif'
+      assign f_furn = '"Archivo",system-ui,sans-serif'
+      assign gf = 'family=Anton&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Archivo:wght@400;500;600;700;800;900'
+    when 'bricolage'
+      assign f_head = '"Bricolage Grotesque",system-ui,sans-serif'
+      assign f_body = '"Bricolage Grotesque",system-ui,sans-serif'
+      assign f_furn = '"Instrument Sans",system-ui,sans-serif'
+      assign gf = 'family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=Instrument+Sans:wght@400;500;600;700'
+    when 'custom'
+      assign gf = ''
+      if s.cf_head != blank
+        assign nh = s.cf_head | strip
+        assign f_head = nh | prepend: '"' | append: '",Georgia,serif'
+        assign gf = nh | replace: ' ', '+' | prepend: 'family='
+      endif
+      if s.cf_body != blank
+        assign nb = s.cf_body | strip
+        assign f_body = nb | prepend: '"' | append: '",Georgia,serif'
+        assign one = nb | replace: ' ', '+' | prepend: 'family='
+        if gf == ''
+          assign gf = one
+        else
+          assign gf = gf | append: '&amp;' | append: one
+        endif
+      endif
+      if s.cf_furn != blank
+        assign nf = s.cf_furn | strip
+        assign f_furn = nf | prepend: '"' | append: '",system-ui,sans-serif'
+        assign one = nf | replace: ' ', '+' | prepend: 'family='
+        if gf == ''
+          assign gf = one
+        else
+          assign gf = gf | append: '&amp;' | append: one
+        endif
+      endif
+      comment
+        Koi pan khanu khali hoy to eno ghar no font joishe, etle e
+        stylesheet pan maangvo pade.
+      endcomment
+      assign need_house = false
+      if s.cf_head == blank or s.cf_body == blank or s.cf_furn == blank
+        assign need_house = true
+      endif
+      if need_house
+        if gf == ''
+          assign gf = 'family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&amp;family=Space+Grotesk:wght@400;500;600;700'
+        else
+          assign gf = gf | append: '&amp;family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&amp;family=Space+Grotesk:wght@400;500;600;700'
+        endif
+      endif
+  endcase
+-%}
+
 {%- liquid
   assign kind = ''
   assign series = ''
@@ -133,7 +229,9 @@
   endif
 -%}
 
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+{%- if gf != blank -%}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?{{ gf }}&amp;display=swap">
+{%- endif -%}
 
 {%- render 'sa-blog-seo', article: article, blog: blog, yt: lead_yt -%}
 
@@ -293,8 +391,10 @@
 </article>
 
 <style>
-#shopify-section-{{ sid }}{background:{{ s.paper }}}
-#shopify-section-{{ sid }} .nd{font-family:"Fraunces",Georgia,serif;font-variation-settings:'opsz' 14;
+#shopify-section-{{ sid }}{background:{{ s.paper }};
+  --dh:{{ f_head }};--d:{{ f_body }};--s:{{ f_furn }};
+  font-synthesis-weight:none}
+#shopify-section-{{ sid }} .nd{font-family:var(--d);font-variation-settings:'opsz' 14;
   color:{{ s.ink }};max-width:{{ s.max }}px;margin:0 auto;padding:0 0 {{ s.pad_bottom }}px}
 #shopify-section-{{ sid }} .nd *{box-sizing:border-box}
 #shopify-section-{{ sid }} .nd[data-fam="fresh"]{--c:{{ s.c_fresh }}}
@@ -306,29 +406,29 @@
 /* ---- upar ni patti ---- */
 #shopify-section-{{ sid }} .nd-strip{display:flex;justify-content:space-between;align-items:center;
   gap:10px;padding:11px {{ s.gutter }}px;border-bottom:2px solid {{ s.ink }};
-  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.22em;
+  font-family:var(--s);font-size:7px;letter-spacing:.22em;
   text-transform:uppercase;color:{{ s.ink2 }};font-variant-numeric:tabular-nums}
 #shopify-section-{{ sid }} .nd-strip a{text-decoration:none;color:{{ s.ink }}}
-#shopify-section-{{ sid }} .nd-strip b{font-family:"Fraunces",Georgia,serif;
+#shopify-section-{{ sid }} .nd-strip b{font-family:var(--dh);
   font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 96;font-size:15px;font-weight:700;
   letter-spacing:-.02em;text-transform:uppercase}
 #shopify-section-{{ sid }} .nd-rib{display:flex;justify-content:space-between;align-items:center;
   gap:10px;padding:8px {{ s.gutter }}px;background:{{ s.ink }};color:{{ s.paper }};
-  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.22em;
+  font-family:var(--s);font-size:7px;letter-spacing:.22em;
   text-transform:uppercase}
 #shopify-section-{{ sid }} .nd-rib span{display:flex;align-items:center;gap:8px}
 #shopify-section-{{ sid }} .nd-rib i{width:7px;height:7px;background:var(--c,{{ s.gold }});display:block;flex:none}
 
 /* ---- matthu ---- */
 #shopify-section-{{ sid }} .nd-head{padding:20px {{ s.gutter }}px 0}
-#shopify-section-{{ sid }} .nd-kick{display:inline-block;font-family:"Space Grotesk",system-ui,sans-serif;
+#shopify-section-{{ sid }} .nd-kick{display:inline-block;font-family:var(--s);
   font-size:7.5px;letter-spacing:.22em;text-transform:uppercase;color:{{ s.paper }};
   background:var(--c,{{ s.gold }});padding:4px 9px;font-weight:700;
   font-variant-numeric:tabular-nums}
-#shopify-section-{{ sid }} .nd-head h1{font-family:"Fraunces",Georgia,serif;
+#shopify-section-{{ sid }} .nd-head h1{font-family:var(--dh);
   font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:{{ s.h1_m }}px;font-weight:900;
   line-height:.87;letter-spacing:-.05em;margin:13px 0 0;text-transform:uppercase;color:{{ s.ink }}}
-#shopify-section-{{ sid }} .nd-dek{font-family:"Fraunces",Georgia,serif;
+#shopify-section-{{ sid }} .nd-dek{font-family:var(--d);
   font-variation-settings:'opsz' 24;font-size:15px;font-style:italic;line-height:1.45;
   color:{{ s.ink2 }};margin:14px 0 0}
 
@@ -352,15 +452,15 @@
 #shopify-section-{{ sid }} .ncut-go svg{width:23px;height:23px;fill:{{ s.ink }};margin-left:2px;display:block}
 #shopify-section-{{ sid }} .ncut-film:hover .ncut-go svg{fill:{{ s.paper }}}
 #shopify-section-{{ sid }} .ncut-mark{position:absolute;left:0;top:0;
-  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.2em;
+  font-family:var(--s);font-size:7px;letter-spacing:.2em;
   text-transform:uppercase;color:{{ s.paper }};background:{{ s.ink }};padding:5px 9px;font-weight:700}
 #shopify-section-{{ sid }} .ncut-cr{position:absolute;bottom:0;right:0;
-  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.16em;
+  font-family:var(--s);font-size:7px;letter-spacing:.16em;
   text-transform:uppercase;color:{{ s.ink2 }};background:{{ s.paper }};padding:4px 8px}
 
 /* ---- field log ---- */
 #shopify-section-{{ sid }} .nfield{display:flex;margin:0 {{ s.gutter }}px;
-  border:2px solid {{ s.ink }};font-family:"Space Grotesk",system-ui,sans-serif;flex-wrap:wrap}
+  border:2px solid {{ s.ink }};font-family:var(--s);flex-wrap:wrap}
 #shopify-section-{{ sid }} .ncut + .nfield{border-top:0}
 #shopify-section-{{ sid }} .nfield div{flex:1 1 33%;padding:8px 3px 9px;text-align:center;
   border-right:1px solid {{ s.rule }};border-top:1px solid {{ s.rule }};min-width:0}
@@ -368,12 +468,12 @@
 #shopify-section-{{ sid }} .nfield div:nth-child(3n){border-right:0}
 #shopify-section-{{ sid }} .nfield b{display:block;font-size:6px;letter-spacing:.16em;
   text-transform:uppercase;color:{{ s.soft }};font-weight:500}
-#shopify-section-{{ sid }} .nfield s{display:block;text-decoration:none;font-family:"Fraunces",Georgia,serif;
+#shopify-section-{{ sid }} .nfield s{display:block;text-decoration:none;font-family:var(--dh);
   font-variation-settings:'opsz' 36,'WONK' 1;font-size:14px;font-weight:700;margin-top:3px;
   font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:{{ s.ink }}}
 
 #shopify-section-{{ sid }} .nd-byl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-  padding:14px {{ s.gutter }}px 0;font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;
+  padding:14px {{ s.gutter }}px 0;font-family:var(--s);font-size:7px;
   letter-spacing:.2em;text-transform:uppercase;color:{{ s.soft }};margin:0}
 
 /* ---- lakhan ---- */
@@ -384,11 +484,11 @@
 #shopify-section-{{ sid }} .nd-body > p:first-of-type::first-letter{
   font-variation-settings:'opsz' 144,'WONK' 1;font-size:{{ s.body_m | times: 2.9 | round }}px;
   line-height:.82;float:left;margin:4px 8px 0 0;font-weight:900;color:var(--c,{{ s.gold }})}
-#shopify-section-{{ sid }} .nd-body h2{font-family:"Fraunces",Georgia,serif;
+#shopify-section-{{ sid }} .nd-body h2{font-family:var(--dh);
   font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 72;font-size:{{ s.h2_m }}px;font-weight:900;
   line-height:1.08;letter-spacing:-.035em;margin:1.5em 0 .45em;text-transform:uppercase;
   scroll-margin-top:90px}
-#shopify-section-{{ sid }} .nd-body h3{font-family:"Fraunces",Georgia,serif;
+#shopify-section-{{ sid }} .nd-body h3{font-family:var(--dh);
   font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 48;font-size:{{ s.h2_m | minus: 3 }}px;
   font-weight:700;line-height:1.16;margin:1.3em 0 .4em}
 #shopify-section-{{ sid }} .nd-body a{color:{{ s.ink }};text-decoration:underline;
@@ -409,7 +509,7 @@
 #shopify-section-{{ sid }} .nd-body th{background:{{ s.ink }};color:{{ s.paper }};font-size:10px;
   letter-spacing:.14em;text-transform:uppercase}
 
-#shopify-section-{{ sid }} .nd-h{font-family:"Fraunces",Georgia,serif;
+#shopify-section-{{ sid }} .nd-h{font-family:var(--dh);
   font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 96;font-size:{{ s.h2_m | plus: 1 }}px;
   font-weight:900;letter-spacing:-.032em;margin:0 0 4px;text-transform:uppercase}
 
@@ -421,12 +521,12 @@
 /* ---- notes ---- */
 #shopify-section-{{ sid }} .nd-tbl{margin:{{ s.blk }}px {{ s.gutter }}px 0;border:2px solid {{ s.ink }}}
 #shopify-section-{{ sid }} .nd-tbl-h{margin:0;padding:6px 10px;background:{{ s.ink }};color:{{ s.paper }};
-  font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;letter-spacing:.22em;
+  font-family:var(--s);font-size:6.5px;letter-spacing:.22em;
   text-transform:uppercase}
 #shopify-section-{{ sid }} .nd-tbl-r{display:grid;grid-template-columns:48px 1fr;gap:11px;padding:9px 10px;
   border-bottom:1px solid {{ s.rule2 }};align-items:baseline}
 #shopify-section-{{ sid }} .nd-tbl-r:last-child{border-bottom:0}
-#shopify-section-{{ sid }} .nd-tbl-r b{font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;
+#shopify-section-{{ sid }} .nd-tbl-r b{font-family:var(--s);font-size:6.5px;
   letter-spacing:.16em;text-transform:uppercase;color:{{ s.soft }};font-weight:700}
 #shopify-section-{{ sid }} .nd-tbl-r span{font-variation-settings:'opsz' 36,'WONK' 1;font-size:14px;
   font-weight:700}
@@ -434,7 +534,7 @@
 /* ---- classified ads ---- */
 #shopify-section-{{ sid }} .nd-ads{margin:{{ s.blk }}px 0 0;padding:{{ s.blk }}px {{ s.gutter }}px 0;
   border-top:2px solid {{ s.ink }}}
-#shopify-section-{{ sid }} .nd-ads-n{font-family:"Space Grotesk",system-ui,sans-serif;font-size:8.5px;
+#shopify-section-{{ sid }} .nd-ads-n{font-family:var(--s);font-size:8.5px;
   color:{{ s.soft }};margin:6px 0 2px;line-height:1.6;letter-spacing:.04em}
 #shopify-section-{{ sid }} .nad{display:grid;grid-template-columns:auto 1fr auto;gap:11px;
   align-items:center;padding:12px 0;border-bottom:1px solid {{ s.rule2 }}}
@@ -444,23 +544,23 @@
 #shopify-section-{{ sid }} .nad[data-fam="amber"]{--c:{{ s.c_amber }}}
 #shopify-section-{{ sid }} .nad[data-fam="default"]{--c:{{ s.gold }}}
 #shopify-section-{{ sid }} .nad-sq{width:9px;height:9px;background:var(--c,{{ s.gold }});display:block}
-#shopify-section-{{ sid }} .nad-w b{font-family:"Fraunces",Georgia,serif;
+#shopify-section-{{ sid }} .nad-w b{font-family:var(--dh);
   font-variation-settings:'opsz' 48,'WONK' 1;font-size:17px;font-weight:700;display:block;
   line-height:1.12;letter-spacing:-.025em}
-#shopify-section-{{ sid }} .nad-w s{text-decoration:none;font-family:"Space Grotesk",system-ui,sans-serif;
+#shopify-section-{{ sid }} .nad-w s{text-decoration:none;font-family:var(--s);
   font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:{{ s.soft }};display:block;
   margin-top:5px;text-transform:capitalize}
 #shopify-section-{{ sid }} .nad-b{text-align:right}
 #shopify-section-{{ sid }} .nad-b a{text-decoration:none;display:block;
-  font-family:"Space Grotesk",system-ui,sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;
+  font-family:var(--s);font-size:10px;font-weight:700;letter-spacing:.1em;
   text-transform:uppercase;background:{{ s.ink }};color:{{ s.paper }};padding:8px 11px;white-space:nowrap}
 #shopify-section-{{ sid }} .nad-b s{text-decoration:none;display:block;
-  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7.5px;color:{{ s.soft }};margin-top:5px;
+  font-family:var(--s);font-size:7.5px;color:{{ s.soft }};margin-top:5px;
   letter-spacing:.1em;font-variant-numeric:tabular-nums}
 
 /* ---- topics ane share ---- */
 #shopify-section-{{ sid }} .nd-top{margin:{{ s.blk }}px {{ s.gutter }}px 0;display:flex;flex-wrap:wrap;
-  gap:8px;align-items:center;font-family:"Space Grotesk",system-ui,sans-serif}
+  gap:8px;align-items:center;font-family:var(--s)}
 #shopify-section-{{ sid }} .nd-top > span{font-size:7px;letter-spacing:.22em;text-transform:uppercase;
   color:{{ s.soft }};font-weight:700}
 #shopify-section-{{ sid }} .nd-top a{font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
@@ -468,7 +568,7 @@
 #shopify-section-{{ sid }} .nd-top a:hover{border-color:{{ s.ink }};color:{{ s.ink }}}
 #shopify-section-{{ sid }} .nd-share{margin:{{ s.blk }}px {{ s.gutter }}px 0;padding:14px 0;
   border-top:1px solid {{ s.rule }};border-bottom:1px solid {{ s.rule }};display:flex;flex-wrap:wrap;
-  gap:9px;align-items:center;font-family:"Space Grotesk",system-ui,sans-serif}
+  gap:9px;align-items:center;font-family:var(--s)}
 #shopify-section-{{ sid }} .nd-share > span{font-size:7px;letter-spacing:.22em;text-transform:uppercase;
   color:{{ s.soft }};font-weight:700}
 #shopify-section-{{ sid }} .nd-share a,#shopify-section-{{ sid }} .nd-share button{
@@ -482,21 +582,21 @@
 /* ---- house notice ---- */
 #shopify-section-{{ sid }} .nd-house{margin:{{ s.blk }}px {{ s.gutter }}px 0;border:2px solid {{ s.ink }};
   padding:24px 18px;text-align:center}
-#shopify-section-{{ sid }} .nd-house .m{font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;
+#shopify-section-{{ sid }} .nd-house .m{font-family:var(--s);font-size:7px;
   letter-spacing:.3em;text-transform:uppercase;color:{{ s.soft }}}
-#shopify-section-{{ sid }} .nd-house b{font-family:"Fraunces",Georgia,serif;
+#shopify-section-{{ sid }} .nd-house b{font-family:var(--dh);
   font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:27px;font-weight:900;line-height:1;
   letter-spacing:-.045em;display:block;margin:12px auto 0;max-width:20ch;text-transform:uppercase}
 #shopify-section-{{ sid }} .nd-house p{font-variation-settings:'opsz' 18;font-size:13.5px;line-height:1.5;
   color:{{ s.ink2 }};margin:12px auto 17px;max-width:30ch;font-style:italic}
 #shopify-section-{{ sid }} .nd-house a{text-decoration:none;display:inline-block;
-  font-family:"Space Grotesk",system-ui,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.16em;
+  font-family:var(--s);font-size:10.5px;font-weight:700;letter-spacing:.16em;
   text-transform:uppercase;background:{{ s.ink }};color:{{ s.paper }};padding:13px 24px}
 
 /* ---- also in this issue ---- */
 #shopify-section-{{ sid }} .nd-also{margin:{{ s.blk }}px {{ s.gutter }}px 0;padding-top:{{ s.blk }}px;
   border-top:2px solid {{ s.ink }}}
-#shopify-section-{{ sid }} .nd-also-h{font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;
+#shopify-section-{{ sid }} .nd-also-h{font-family:var(--s);font-size:7px;
   letter-spacing:.24em;text-transform:uppercase;color:{{ s.soft }};margin:0 0 4px}
 #shopify-section-{{ sid }} .nalso{display:grid;grid-template-columns:1fr auto;gap:4px 10px;
   align-items:center;padding:12px 0;border-top:1px solid {{ s.rule2 }};text-decoration:none;
@@ -506,18 +606,18 @@
 #shopify-section-{{ sid }} .nalso[data-fam="woody"]{--c:{{ s.c_woody }}}
 #shopify-section-{{ sid }} .nalso[data-fam="amber"]{--c:{{ s.c_amber }}}
 #shopify-section-{{ sid }} .nalso[data-fam="default"]{--c:{{ s.gold }}}
-#shopify-section-{{ sid }} .nalso b{font-family:"Fraunces",Georgia,serif;
+#shopify-section-{{ sid }} .nalso b{font-family:var(--dh);
   font-variation-settings:'opsz' 36,'WONK' 1;font-size:16px;font-weight:700;line-height:1.16;
   display:block;letter-spacing:-.025em}
 #shopify-section-{{ sid }} .nalso .sq{width:8px;height:8px;background:var(--c,{{ s.gold }});display:block}
 #shopify-section-{{ sid }} .nalso s{grid-column:1/-1;text-decoration:none;
-  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.2em;
+  font-family:var(--s);font-size:7px;letter-spacing:.2em;
   text-transform:uppercase;color:{{ s.soft }}}
 #shopify-section-{{ sid }} .nd-all{display:inline-block;margin-top:18px;
-  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7.5px;letter-spacing:.24em;
+  font-family:var(--s);font-size:7.5px;letter-spacing:.24em;
   text-transform:uppercase;color:{{ s.ink }};font-weight:700;text-decoration:none;
   border-bottom:1px solid {{ s.ink }};padding-bottom:2px}
-#shopify-section-{{ sid }} .nd-folio{font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;
+#shopify-section-{{ sid }} .nd-folio{font-family:var(--s);font-size:6.5px;
   letter-spacing:.28em;text-transform:uppercase;color:{{ s.soft }};text-align:center;
   padding:30px {{ s.gutter }}px 0;margin:0}
 
@@ -660,6 +760,23 @@
     { "type": "range", "id": "h2_d", "min": 18, "max": 40, "step": 1, "unit": "px", "label": "Sub-heading · desktop", "default": 26 },
     { "type": "range", "id": "body_m", "min": 13, "max": 19, "step": 1, "unit": "px", "label": "Text · mobile", "default": 15 },
     { "type": "range", "id": "body_d", "min": 15, "max": 22, "step": 1, "unit": "px", "label": "Text · desktop", "default": 17 },
+
+    { "type": "header", "content": "Fonts" },
+    { "type": "select", "id": "font_set", "label": "Font set", "default": "now",
+      "options": [
+        { "value": "now", "label": "House \u2014 Fraunces + Space Grotesk" },
+        { "value": "caslon", "label": "Caslon & Franklin \u2014 old newspaper" },
+        { "value": "bodoni", "label": "Bodoni \u2014 perfume counter" },
+        { "value": "newsreader", "label": "Newsreader \u2014 quiet news" },
+        { "value": "instrument", "label": "Instrument \u2014 modern editorial" },
+        { "value": "tabloid", "label": "Tabloid \u2014 Anton headlines" },
+        { "value": "bricolage", "label": "Bricolage \u2014 the odd one" },
+        { "value": "custom", "label": "Custom \u2014 type your own below" }
+      ] },
+    { "type": "paragraph", "content": "Custom only. Type the Google Fonts family name exactly, e.g. Playfair Display. Leave a box empty to keep the house font in that slot. Custom fonts are fetched at their regular weight only." },
+    { "type": "text", "id": "cf_head", "label": "Custom \u00b7 headlines" },
+    { "type": "text", "id": "cf_body", "label": "Custom \u00b7 body text" },
+    { "type": "text", "id": "cf_furn", "label": "Custom \u00b7 small labels" },
 
     { "type": "header", "content": "Paper and ink" },
     { "type": "color", "id": "paper", "label": "Paper", "default": "#F6F2E7" },

@@ -125,6 +125,42 @@ A sort control would therefore have to lie, or reorder only the current page,
 which is worse. So the index states its order as a fact and the real filters
 — kind and topic — are the ones that work.
 
+## Fonts are a setting, not a decision baked into the code
+
+The type is Fraunces plus Space Grotesk and that is the default, but it is a
+dropdown, not a fact. Each section carries a **Font set** setting with seven
+ready pairings and a Custom option, so the type can be changed from the theme
+editor without touching a file.
+
+The CSS reads three variables rather than naming families directly:
+
+| Variable | Used by |
+|---|---|
+| `--dh` | the nameplate, headlines, sub-headings, index titles, product names, the numbers in the field log |
+| `--d`  | body text, standfirsts, the italic dek |
+| `--s`  | every small uppercase label — kickers, bylines, furniture |
+
+Three slots rather than two is what makes a set like *Tabloid* usable: Anton
+can carry the headline while Newsreader carries the paragraph underneath. Two
+slots would force one face to do both, and a display face set at 15px for
+three hundred words is unreadable.
+
+Each section fetches its own stylesheet from Google Fonts, built from the
+chosen set. That is why changing the blog's type cannot affect the rest of the
+store: nothing outside these two sections reads these variables or that link.
+
+`font-synthesis-weight: none` is set on the section root. Several of the sets
+ship only a regular weight, and a browser asked for 700 will otherwise smear
+the outline to fake it. Refusing the fake is the lesser evil — the headline
+renders lighter than the design intends, which reads as a different choice
+rather than as a mistake.
+
+The Custom option takes plain Google Fonts family names and requests only the
+regular weight, because a v2 request naming a weight the family does not have
+fails outright and takes the whole stylesheet down with it. Any slot left
+empty keeps the house font, and the house stylesheet is then requested
+alongside the custom one.
+
 ## Video without the page-speed cost
 
 A YouTube `<iframe>` pulls roughly 1.5MB of player before anyone presses
