@@ -97,6 +97,28 @@ the same handful of words on a post that they meet in the menu; offering them
 the namespace before printing — `occasion-office` reads as "office". The
 prefix is how the bot addresses the theme, not language for a customer.
 
+## A section only exists once something is filed under it
+
+The strip across the top — All, Blog, Vlog, Series, Review, Letters — is built
+from the tags the blog actually carries, not from a fixed list. A section with
+no entries is left out, because a tab that leads to an empty page is worse than
+no tab. **Hide a section with no entries** turns this off while the paper is
+filling up.
+
+Series needs **two** tags, and this is the one place the convention is not
+obvious: a post in a series carries `series` *and* `series-matheran`. The bare
+tag is what the Series tab looks for and what Shopify's tagged URL matches; the
+slugged one is what ties a single trip together at the foot of a report. With
+only the slugged tag the Series tab used to appear and lead nowhere — it now
+stays hidden instead, which is the symptom, not the fix. Write both.
+
+An empty section does not borrow the empty-blog copy. "The first report is on
+its way" is true of a blog with nothing in it and false of a Vlog tab on a
+paper that already has reports, so a filtered page with no entries says so in
+its own words and offers the way back. Its heading is the section's own name,
+which is also what the Index heading becomes on any filtered page: standing on
+the Vlog page, the list is headed VLOG, not Index.
+
 ## Metafields — the field log
 
 Six numbers as six tags would be unreadable, so the field log comes from

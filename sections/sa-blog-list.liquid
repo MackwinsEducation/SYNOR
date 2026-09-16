@@ -18,7 +18,8 @@
 
   TAGS (bot ane tu, banne aaj lakho):
     blog | vlog | review | letter   → Index ma kind, ane upar ni patti no filter
-    series-<slug>                   → series no bhaag
+    series                          → Series nu tab AA tag joi ne dekhaay chhe
+    series-<slug>                   → kaya series no bhaag
     yt-<VIDEOID>                    → film (metafield custom.youtube_ids pan chale)
     family-* gender-* occasion-* brand-*  → niche ni patti na filters
 
@@ -145,6 +146,42 @@
   if n_entries == 1
     assign word_count = s.word_entry
   endif
+
+  comment
+    Ek patti ma badha tags, kor sathe: '|blog|vlog|family-fresh-aquatic|'.
+    Aa thi puchhi shakaay ke koi shreni ma kaik chhe ke nahi — ane khali
+    shreni ni patti ma dekhadvi nathi. Series nu tab aagal hamesha khali
+    rehtu hatu karan post par tag `series-matheran` hoy chhe, `series` nahi.
+    Have e tab dekhaay j nahi jya sudhi koi post 'series' tag na laave.
+  endcomment
+  assign tagset = '|'
+  for t in blog.all_tags
+    assign tl = t | downcase
+    assign tagset = tagset | append: tl | append: '|'
+  endfor
+
+  comment
+    Andar na paana nu matthu "Index" nahi, e shreni nu nam hoy — jethi e
+    yaadi nahi, E SHRENI NU PAANU laage.
+  endcomment
+  assign ix_head = s.word_index
+  if filtered
+    assign ix_head = cur | remove_first: 'occasion-' | remove_first: 'family-'
+    assign ix_head = ix_head | remove_first: 'gender-' | remove_first: 'brand-'
+    assign ix_head = ix_head | remove_first: 'series-' | replace: '-', ' '
+    case cur
+      when 'blog'
+        assign ix_head = s.word_blog
+      when 'vlog'
+        assign ix_head = s.word_vlog
+      when 'series'
+        assign ix_head = s.word_series
+      when 'review'
+        assign ix_head = s.word_review
+      when 'letter'
+        assign ix_head = s.word_letters
+    endcase
+  endif
 -%}
 
 {%- if gf != blank -%}
@@ -206,7 +243,23 @@
             assign kl = s.word_letters
         endcase
       -%}
-      <a href="{{ blog.url }}/tagged/{{ k }}"{% if cur == k %} class="on" aria-current="page"{% endif %}>{{ kl }}</a>
+      {%- liquid
+        assign needle = k | prepend: '|' | append: '|'
+        comment
+          `contains` ane `==` ek j shart ma bhega na lakhaay — Liquid eno
+          bharoso nathi. Etle be step ma.
+        endcomment
+        assign show_kind = true
+        if s.hide_empty_kinds
+          assign show_kind = false
+          if tagset contains needle
+            assign show_kind = true
+          endif
+        endif
+      -%}
+      {%- if show_kind -%}
+        <a href="{{ blog.url }}/tagged/{{ k }}"{% if cur == k %} class="on" aria-current="page"{% endif %}>{{ kl }}</a>
+      {%- endif -%}
     {%- endfor -%}
   </nav>
 
@@ -214,13 +267,27 @@
 
     {%- if blog.articles.size == 0 -%}
 
-      <div class="np-none">
-        <p class="np-none-h">{{ s.empty_title }}</p>
-        <p class="np-none-p">{{ s.empty_text }}</p>
-        {%- if s.empty_link != blank -%}
-          <a class="np-none-b" href="{{ s.empty_link }}">{{ s.empty_btn }}</a>
-        {%- endif -%}
-      </div>
+      {%- comment -%}
+        Be alag khali paana. Aakho blog khali hoy to "pehlo ahevaal aavi
+        rahyo chhe" — e saachu chhe. Pan ek shreni khali hoy tyare e vaakya
+        joothu bole chhe: pehlo ahevaal to aavi gayo chhe, aa shreni ma
+        nathi. Etle alag lakhan ane paachhu javani kadi.
+      {%- endcomment -%}
+      {%- if filtered -%}
+        <div class="np-none">
+          <p class="np-none-h">{{ ix_head }}</p>
+          <p class="np-none-p">{{ s.none_text }}</p>
+          <a class="np-none-b" href="{{ blog.url }}">{{ s.none_btn }}</a>
+        </div>
+      {%- else -%}
+        <div class="np-none">
+          <p class="np-none-h">{{ s.empty_title }}</p>
+          <p class="np-none-p">{{ s.empty_text }}</p>
+          {%- if s.empty_link != blank -%}
+            <a class="np-none-b" href="{{ s.empty_link }}">{{ s.empty_btn }}</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
 
     {%- else -%}
 
@@ -428,7 +495,7 @@
       {%- if rows_t != blank -%}
         <div class="np-cls">
           <div class="np-ix-h">
-            <p>{{ s.word_index }}</p>
+            <p>{{ ix_head }}</p>
             <span>{{ n_entries }} {{ word_count }}</span>
           </div>
           {%- render 'sa-blog-taxbar', blog: blog, current_tags: current_tags, sort_label: s.word_latest -%}
@@ -502,6 +569,8 @@
     { "type": "range", "id": "rule_thick", "min": 1, "max": 6, "step": 1, "unit": "px", "label": "Rule above the name", "default": 3 },
 
     { "type": "header", "content": "Section words" },
+    { "type": "checkbox", "id": "hide_empty_kinds", "label": "Hide a section with no entries", "default": true },
+    { "type": "paragraph", "content": "On by default, so the strip never offers a dead end. Turn it off to show all five while the paper is filling up." },
     { "type": "text", "id": "word_all", "label": "All", "default": "All" },
     { "type": "text", "id": "word_blog", "label": "Blog", "default": "Blog" },
     { "type": "text", "id": "word_vlog", "label": "Vlog", "default": "Vlog" },
@@ -581,7 +650,12 @@
     { "type": "text", "id": "empty_title", "label": "Title", "default": "The first report is on its way" },
     { "type": "textarea", "id": "empty_text", "label": "Text", "default": "Scent guides, layering notes and live reports from the road — all of it lands here. Meanwhile, the shelf is open." },
     { "type": "text", "id": "empty_btn", "label": "Button", "default": "See the perfumes" },
-    { "type": "url", "id": "empty_link", "label": "Button link" }
+    { "type": "url", "id": "empty_link", "label": "Button link" },
+
+    { "type": "header", "content": "When one section is empty" },
+    { "type": "paragraph", "content": "Shown on a filtered page \u2014 /tagged/vlog and the like \u2014 that has no entries. The heading is the section's own name." },
+    { "type": "textarea", "id": "none_text", "label": "Text", "default": "Nothing filed here yet. The rest of the paper is worth a look meanwhile." },
+    { "type": "text", "id": "none_btn", "label": "Button", "default": "Back to the front page" }
   ]
 }
 {% endschema %}
