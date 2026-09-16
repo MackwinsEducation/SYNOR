@@ -1,14 +1,16 @@
 {%- comment -%}
   SYNOR DIARIES — pehlu paanu.
 
-  Blog listing chhapa na pehla paana jem chhe: nameplate, dateline, ek mukhya
-  ahevaal, ane niche Index (chhapa na classifieds jem) — badhi entries ek
-  najar ma.
+  Aa "A" chhe — chhapa nu kharu pehlu paanu, je pasand thayu hatu: nameplate
+  jaadi leeti niche, dateline nu chokathu, section ni patti, havaman nu
+  khanu, ane niche Index (chhapa na classifieds jem).
 
-  "A-fine": chhapu ochhi leetio, vadhare khali jagya ane ochho rang thi
-  monghu laage chhe. Etle ahiya jaadi leetio nathi, chokatha nathi, ane
-  phone par be column nu nanu lakhan nathi (e sauthi sasta newsprint ni
-  nishani chhe). Vaanchvanu post ma chhe, listing ma nathi.
+  Ek vaar aa paanu leetio ane chokatha vagar chhapayu hatu — "vadhare
+  monghu ane minimal" karva. E bhul hati: leetio, chokatha ane havaman nu
+  khanu j aa paana ne chhapu banave chhe. Eni vagar e koi pan blog chhe.
+  Etle e badhu pachhu chhe, ane je vaat par matbhed thai shake — phone par
+  be column, lead ma ketla shabd, leeti ketli jaadi — e settings chhe, code
+  ma bandhayelo mato nathi.
 
   RANG = FRAGRANCE FAMILY. Juna chhapa kaali shahi ane EK rang ma chhapaata.
   Aa chhapa no e ek rang = post ni fragrance family. Index ma paanch chorasa
@@ -20,8 +22,11 @@
     yt-<VIDEOID>                    → film (metafield custom.youtube_ids pan chale)
     family-* gender-* occasion-* brand-*  → niche ni patti na filters
 
+  DEKHAV: snippets/sa-blog-list-css.liquid ma chhe. Assets ma na mukaay —
+  aa na niyamo ID thi bandhayela chhe (docs/desktop-layer.md jo).
+
   LATEST: Shopify no blog sada sauthi navo pehlo aape chhe, ane Liquid ma
-  kram badalvano koi rasto nathi. Etle "Latest first" ek lakhan chhe, button
+  kram badalvano koi rasto nathi. Etle kram no ullekh ek lakhan chhe, button
   nathi — khota control mukava karta saachu lakhvu saru.
 {%- endcomment -%}
 
@@ -521,7 +526,8 @@
     { "type": "header", "content": "Lead report" },
     { "type": "checkbox", "id": "lead_first", "label": "Newest entry as the lead report", "default": true },
     { "type": "text", "id": "lead_fields", "label": "Field box cells", "default": "temp,humidity,alt,held,asked,verdict" },
-    { "type": "range", "id": "lead_cols", "min": 1, "max": 2, "step": 1, "label": "Lead text columns · mobile", "default": 2 },
+    { "type": "select", "id": "lead_cols", "label": "Lead text columns · mobile", "default": "2",
+      "options": [ { "value": "1", "label": "One" }, { "value": "2", "label": "Two" } ] },
     { "type": "range", "id": "lead_words", "min": 16, "max": 90, "step": 2, "label": "Lead text words", "default": 42 },
     { "type": "text", "id": "capt", "label": "Caption under the picture" },
     { "type": "range", "id": "per_page", "min": 6, "max": 30, "step": 2, "label": "Entries per page", "default": 14 },
