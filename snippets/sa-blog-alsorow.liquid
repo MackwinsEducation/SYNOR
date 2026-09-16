@@ -1,0 +1,67 @@
+{%- comment -%}
+  SYNOR Diaries — "Also in this issue" ni ek line.
+
+  Ahevaal na aakhre je bija ahevaal dekhaay chhe. Pehla e j series na, pachhi
+  baki na — jethi ek trip ke ek perfume ni haar potaani mele bandhaay.
+
+  Aa alag snippet chhe karan ke e be jagya thi ek j rite bolvani chhe
+  (series na bhaag, ane baki na), ane be vakhat lakhvu e bhool ne aamantran.
+
+  Vaapar: {% render 'sa-blog-alsorow', a: a, blog: blog, s: s %}
+{%- endcomment -%}
+
+{%- liquid
+  assign kind = ''
+  assign famkey = ''
+  assign yt = ''
+  assign place = a.metafields.custom.field_place.value
+
+  for t in a.tags
+    assign low = t | downcase
+    if low == 'vlog' or low == 'blog' or low == 'review' or low == 'letter'
+      assign kind = low
+    endif
+    assign k3 = low | slice: 0, 3
+    if k3 == 'yt-' and yt == ''
+      assign yt = t | slice: 3, 40
+    endif
+    assign k7 = low | slice: 0, 7
+    if k7 == 'family-' and famkey == ''
+      assign famkey = low | remove_first: 'family-'
+    endif
+  endfor
+
+  assign fam = 'default'
+  if famkey contains 'fresh' or famkey contains 'aquatic'
+    assign fam = 'fresh'
+  elsif famkey contains 'floral' or famkey contains 'fruity'
+    assign fam = 'floral'
+  elsif famkey contains 'woody' or famkey contains 'oud'
+    assign fam = 'woody'
+  elsif famkey contains 'amber' or famkey contains 'sweet'
+    assign fam = 'amber'
+  endif
+
+  assign kl = s.word_blog
+  if kind == 'vlog'
+    assign kl = s.word_vlog
+  elsif kind == 'review'
+    assign kl = s.word_review
+  elsif kind == 'letter'
+    assign kl = s.word_letters
+  endif
+
+  assign words = a.content | strip_html | split: ' ' | size
+  assign rt = words | divided_by: 200 | at_least: 1
+-%}
+
+<a class="nalso" href="{{ a.url }}" data-fam="{{ fam }}">
+  <b>{{ a.title }}</b>
+  <span class="sq" aria-hidden="true"></span>
+  <s>
+    {{ kl }}
+    {%- if yt != blank %} &middot; &#9654;&nbsp;Film{% endif -%}
+    {%- if place != blank %} &middot; {{ place }}{% endif -%}
+    &middot; {{ rt }} {{ s.word_read }}
+  </s>
+</a>

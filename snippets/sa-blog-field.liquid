@@ -1,0 +1,70 @@
+{%- comment -%}
+  SYNOR Diaries — FIELD LOG.
+
+  Chhapa ma khune havaman nu khanu hoy chhe. Aa e j jagya chhe, pan andar
+  havaman nahi — e dispatch nu havaman. Perfume kharekhar bhej ane taapman
+  pramane badlaay chhe, etle aa aankda dekhadva e content chhe, sajavat nahi.
+
+  Aankda metafields ma thi aave chhe (tags ma nahi — chha aankda tag tarike
+  lakhva gandu kaam chhe). Je metafield khali hoy e khanu aavtu j nathi, etle
+  guide post par aakhu field log chhupai jaay — tya eni jarur nathi.
+
+  METAFIELDS (namespace `custom`):
+    field_place · field_alt · field_temp · field_humidity · field_held · field_asked
+
+  Vaapar:
+    {% render 'sa-blog-field', article: article, keys: 'temp,humidity,asked' %}
+    {% render 'sa-blog-field', article: article %}   ← chhaey
+
+  Labels angreji ma j rakhya chhe, section setting tarike nahi: e chhapa nu
+  sarjaam chhe (jem "TEMP", "HUMIDITY"), ane chha label × be section = bar
+  settings, je koi kadi badalse nahi.
+{%- endcomment -%}
+
+{%- liquid
+  assign f_place = article.metafields.custom.field_place.value
+  assign f_alt = article.metafields.custom.field_alt.value
+  assign f_temp = article.metafields.custom.field_temp.value
+  assign f_hum = article.metafields.custom.field_humidity.value
+  assign f_held = article.metafields.custom.field_held.value
+  assign f_asked = article.metafields.custom.field_asked.value
+
+  assign want = keys | default: 'place,alt,temp,humidity,held,asked' | split: ','
+-%}
+
+{%- capture cells -%}
+  {%- for k in want -%}
+    {%- liquid
+      assign lab = ''
+      assign val = ''
+      case k
+        when 'place'
+          assign lab = 'Place'
+          assign val = f_place
+        when 'alt'
+          assign lab = 'Altitude'
+          assign val = f_alt
+        when 'temp'
+          assign lab = 'Temp'
+          assign val = f_temp
+        when 'humidity'
+          assign lab = 'Humidity'
+          assign val = f_hum
+        when 'held'
+          assign lab = 'Held'
+          assign val = f_held
+        when 'asked'
+          assign lab = 'Asked'
+          assign val = f_asked
+      endcase
+    -%}
+    {%- if val != blank -%}
+      <div><b>{{ lab }}</b><s>{{ val }}</s></div>
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- assign cells_t = cells | strip -%}
+{%- if cells_t != blank -%}
+  <div class="nfield">{{ cells }}</div>
+{%- endif -%}

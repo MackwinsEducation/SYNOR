@@ -1,12 +1,20 @@
 {%- comment -%}
-  SYNOR — blog ni andar product card.
+  SYNOR Diaries — post ni andar product, chhapa ni "classified ad" jem.
 
-  Blog vaanchi rahela mansh ne tyaa j kharidi karvani jagya aapvi — aa j "Sell"
-  no bhaag chhe. Card ma 3ml ₹49 vali try CTA agal rakhi chhe: ₹1299 ni bottle
-  karta ₹49 ma haa padvu sahelu chhe, ane e j customer pachho aave chhe.
+  Ek line, ek chorasa, ek kimat, ek button. Chhapa ma classified evi j rite
+  chhapaay chhe — ghaatu, sidhu, koi sajavat nahi. Ane e j aa jagya mate
+  saachu chhe: vaanchnar ne haju vaanchvu chhe, etle card nu moto block
+  aado aave.
 
-  Cart ma sidho nakhvana badle product page par lai jaay chhe (variant select
-  thayelu), jethi GoKwik / bundlr no flow kyay tute nahi.
+  3ml ₹49 agal rakhyu chhe, 100ml pachhal. Hamnaa scent vishe vaanchelo
+  mansh ₹49 ne haa pade chhe; ₹1,499 ne vichare chhe. Ane tester j ene
+  pachho laave chhe.
+
+  Cart ma sidho nakhvana badle product page par lai jaay chhe (variant
+  select thayelu), jethi GoKwik ane bundlr no flow kyay tute nahi.
+
+  Chorasa no rang = product ni fragrance family. E j char rang aakha
+  chhapa ma vaparaay chhe, etle ek j bhasha.
 
   Vaapar: {% render 'sa-blog-product', product: p, try_label: 'Try 3ml' %}
 {%- endcomment -%}
@@ -14,14 +22,21 @@
 {%- if product != blank and product.available -%}
   {%- liquid
     assign fam = ''
+    assign famkey = ''
+    assign gender = ''
     assign v_try = null
     assign v_full = null
 
     for t in product.tags
       assign low = t | downcase
       assign p7 = low | slice: 0, 7
-      if p7 == 'family-' and fam == ''
-        assign fam = low | remove_first: 'family-' | replace: '-', ' & '
+      if p7 == 'family-' and famkey == ''
+        assign famkey = low | remove_first: 'family-'
+        assign fam = famkey | replace: '-', ' & '
+      endif
+      assign p6 = low | slice: 0, 6
+      if p6 == 'gender' and gender == ''
+        assign gender = low | remove_first: 'gender-'
       endif
     endfor
 
@@ -37,27 +52,43 @@
 
     assign v_try = v_try | default: product.selected_or_first_available_variant
     assign v_full = v_full | default: product.selected_or_first_available_variant
+
+    assign who = gender
+    if gender == 'him'
+      assign who = 'Him'
+    elsif gender == 'her'
+      assign who = 'Her'
+    elsif gender == 'unisex'
+      assign who = 'Anyone'
+    endif
+
+    assign swatch = 'default'
+    if famkey contains 'fresh' or famkey contains 'aquatic'
+      assign swatch = 'fresh'
+    elsif famkey contains 'floral' or famkey contains 'fruity'
+      assign swatch = 'floral'
+    elsif famkey contains 'woody' or famkey contains 'oud'
+      assign swatch = 'woody'
+    elsif famkey contains 'amber' or famkey contains 'sweet'
+      assign swatch = 'amber'
+    endif
   -%}
 
-  <div class="ar-pc">
-    <a class="ar-pc-img" href="{{ product.url }}" aria-hidden="true" tabindex="-1">
-      {%- if product.featured_image -%}
-        {{ product.featured_image | image_url: width: 300 | image_tag:
-             loading: 'lazy', widths: '150,300,450', alt: product.title | escape }}
-      {%- endif -%}
-    </a>
-    <div class="ar-pc-body">
-      {%- if fam != blank -%}<span class="ar-pc-fam">{{ fam }}</span>{%- endif -%}
-      <h4 class="ar-pc-name"><a href="{{ product.url }}">{{ product.title | remove_first: 'SYNOR ' }}</a></h4>
-      <p class="ar-pc-price">
-        {{ v_full.price | money }}<span> · 100ml</span>
-      </p>
-      <div class="ar-pc-act">
-        <a class="ar-pc-try" href="{{ product.url }}?variant={{ v_try.id }}">
-          {{ try_label | default: 'Try 3ml' }} · {{ v_try.price | money }}
-        </a>
-        <a class="ar-pc-full" href="{{ product.url }}">{{ open_label | default: 'Full page' }} →</a>
-      </div>
-    </div>
+  <div class="nad" data-fam="{{ swatch }}">
+    <span class="nad-sq" aria-hidden="true"></span>
+    <span class="nad-w">
+      <b>{{ product.title | remove_first: 'SYNOR ' }}</b>
+      <s>
+        {%- if fam != blank -%}{{ fam }}{%- endif -%}
+        {%- if fam != blank and who != blank %} &middot; {% endif -%}
+        {{ who }}
+      </s>
+    </span>
+    <span class="nad-b">
+      <a href="{{ product.url }}?variant={{ v_try.id }}">
+        {{ try_label | default: 'Try 3ml' }} {{ v_try.price | money }}
+      </a>
+      <s>100ml {{ v_full.price | money }}</s>
+    </span>
   </div>
 {%- endif -%}

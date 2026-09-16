@@ -1,0 +1,56 @@
+{%- comment -%}
+  SYNOR Diaries — niche ni filter patti.
+
+  Blog na articles na tags par thi jate bane chhe, pan FAKT e char shreni ni
+  je store ma live vaparaay chhe:
+
+    gender-*    (3)  Him · Her · Anyone
+    occasion-*  (6)  Daily · Office · Date · Party · Wedding · Gym
+    family-*    (4)  Fresh & Aquatic · Floral & Fruity · Woody & Oud · Amber & Sweet
+    brand-*          Inspired house
+
+  season-, mood-, scent- tags products par chhe, ane e par collections pan
+  chhe — pan store ni navigation e rite sort nathi karti. Etle blog ma pan
+  nathi: vaanchak ne e j shabdo dekhaay je menu ma pan chhe.
+
+  Bot na internal tags (yt-, pick-, series-) ane kind tags (blog, vlog,
+  review, letter) ahiya nathi — kind upar ni patti ma chhe.
+
+  Namespace kaadhi nakhyu chhe: `occasion-office` → "office". Prefix e bot
+  ni bhasha chhe, customer ni nahi.
+
+  Vaapar: {% render 'sa-blog-taxbar', blog: blog, current_tags: current_tags %}
+{%- endcomment -%}
+
+{%- if blog.all_tags.size > 0 -%}
+  {%- capture pills -%}
+    {%- for t in blog.all_tags -%}
+      {%- liquid
+        assign low = t | downcase
+        assign k6 = low | slice: 0, 6
+        assign k7 = low | slice: 0, 7
+        assign k9 = low | slice: 0, 9
+
+        assign keep = false
+        if k7 == 'family-' or k9 == 'occasion-' or k6 == 'gender' or k6 == 'brand-'
+          assign keep = true
+        endif
+
+        assign lbl = low | remove_first: 'occasion-' | remove_first: 'family-'
+        assign lbl = lbl | remove_first: 'gender-' | remove_first: 'brand-' | replace: '-', ' '
+      -%}
+      {%- if keep -%}
+        {%- if current_tags contains t -%}
+          <a class="on" href="{{ blog.url }}">{{ lbl }}</a>
+        {%- else -%}
+          <a href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ lbl }}</a>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- assign pills_t = pills | strip -%}
+  {%- if pills_t != blank -%}
+    <nav class="np-tax" aria-label="Topics">{{ pills }}</nav>
+  {%- endif -%}
+{%- endif -%}

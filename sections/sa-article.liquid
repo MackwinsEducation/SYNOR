@@ -1,28 +1,28 @@
 {%- comment -%}
-  SYNOR — article page. Ek blog post vaanchvani jagya, ane tyaa j kharidvani jagya.
+  SYNOR DIARIES — andar nu paanu (ek ahevaal).
 
-  Aakhi section article na TAGS par chale chhe. Kem? Karan ke tag j evi ek vastu
-  chhe je bot Admin API thi ek line ma lakhi shake — koi metafield banavva ni,
-  koi app ni, koi setup ni jarur nahi. Store na products pan aaj rite tag-driven
-  chhe (family-, occasion-, season-), etle blog e j bhasha bole chhe.
+  Listing shaant chhe (A-fine); aa paanu joordaar chhe. Chhapa pan e j kare
+  chhe: pehlu paanu jaher ma bole, andar nu paanu vaanchvaanu hoy — pan
+  ahiya ulto chhe, ane e jaani joine chhe. Karan: vaanchnar ahiya sudhi
+  aavyo chhe, etle hve ene pakadi rakhvano chhe ane vechvanu chhe. Moto
+  matthu, ghaatu chorasa, ane ₹49 sidhu najar ma.
 
-  TAG NI BHASHA (bot pan aaj lakhe, tu pan admin ma aaj lakhi shake):
+  RANG = FRAGRANCE FAMILY. Kicker, drop cap, quote ane product chorasa —
+  badha e j ek rang ma. Ek post = ek rang.
 
-    vlog                  → video-first layout. Video upar, lakhan niche.
-    yt-<VIDEOID>          → YouTube video. Ek thi vadhare chalse, tag na kram ma.
-    pick-<product-handle> → e product nu buy card niche aavse (max 6).
-    series-<slug>         → aa post kai series no bhaag chhe (e.g. series-matheran).
-    guide | review | story | news → upar no eyebrow shabd.
-    gender-* occasion-* family-* brand-* → topic pills.
+  TAGS:
+    blog | vlog | review | letter   → upar no kind
+    series-<slug>                   → series, ane niche "aa series ma"
+    yt-<VIDEOID>                    → film (ek thi vadhare chalse)
+    pick-<product-handle>           → niche product (max 6)
+    family-* gender-* occasion-* brand-*  → niche na topics
 
-  Topic pills ma FAKT e char shreni chhe je store ma live vaparaay chhe:
-  gender (3), occasion (6), fragrance type (4), ane inspired house (brand).
-  season-, mood-, scent- tags products par chhe pan store ni navigation ma
-  vaparaata nathi, etle blog ma pan nathi — blog e j bhasha bole je dukan bole.
+  METAFIELDS (namespace `custom`):
+    field_place · field_alt · field_temp · field_humidity · field_held · field_asked
+    field_coords · youtube_ids · notes_top · notes_heart · notes_base · entry_no
 
-  Tag ma case bagde to? Shopify tags no case saachvi rakhe chhe, pan jo kyay
-  bagde to YouTube ID case-sensitive chhe. Etle metafield `custom.youtube_ids`
-  (comma thi alag) hoy to e jite chhe — e rasto sada saacho rahe.
+  Badhu metafield khali hoy to e block aavto j nathi — guide post saaf rahe,
+  vlog post ma aakhu field log dekhaay.
 {%- endcomment -%}
 
 {%- assign s = section.settings -%}
@@ -31,7 +31,7 @@
 {%- liquid
   assign kind = ''
   assign series = ''
-  assign is_vlog = false
+  assign famkey = ''
   assign yt_raw = ''
   assign pick_raw = ''
   assign topic_raw = ''
@@ -39,9 +39,7 @@
   for t in article.tags
     assign low = t | downcase
 
-    if low == 'vlog' or low == 'live'
-      assign is_vlog = true
-    elsif low == 'guide' or low == 'review' or low == 'story' or low == 'news'
+    if low == 'vlog' or low == 'blog' or low == 'review' or low == 'letter'
       assign kind = low
     endif
 
@@ -61,6 +59,9 @@
     if h7 == 'series-'
       assign series = low | slice: 7, 120
     elsif h7 == 'family-'
+      if famkey == ''
+        assign famkey = low | remove_first: 'family-'
+      endif
       assign topic_raw = topic_raw | append: ',' | append: t
     endif
 
@@ -76,218 +77,501 @@
   if mf_yt != blank
     assign yts = mf_yt | replace: ' ', '' | split: ','
   endif
+  assign lead_yt = yts | first
 
   assign picks = pick_raw | remove_first: ',' | split: ','
   assign topics = topic_raw | remove_first: ',' | split: ','
 
+  assign fam = 'default'
+  if famkey contains 'fresh' or famkey contains 'aquatic'
+    assign fam = 'fresh'
+  elsif famkey contains 'floral' or famkey contains 'fruity'
+    assign fam = 'floral'
+  elsif famkey contains 'woody' or famkey contains 'oud'
+    assign fam = 'woody'
+  elsif famkey contains 'amber' or famkey contains 'sweet'
+    assign fam = 'amber'
+  endif
+
+  assign kl = s.word_blog
+  if kind == 'vlog'
+    assign kl = s.word_vlog
+  elsif kind == 'review'
+    assign kl = s.word_review
+  elsif kind == 'letter'
+    assign kl = s.word_letters
+  endif
+
   assign words = article.content | strip_html | split: ' ' | size
   assign rt = words | divided_by: 200 | at_least: 1
 
-  assign eyebrow = kind
-  if is_vlog
-    assign eyebrow = s.word_vlog
-  elsif kind == 'guide'
-    assign eyebrow = s.word_guide
-  elsif kind == 'review'
-    assign eyebrow = s.word_review
-  elsif kind == 'story'
-    assign eyebrow = s.word_story
-  elsif kind == 'news'
-    assign eyebrow = s.word_news
-  else
-    assign eyebrow = blog.title
-  endif
+  assign coords = article.metafields.custom.field_coords.value
+  assign place = article.metafields.custom.field_place.value
+  assign n_top = article.metafields.custom.notes_top.value
+  assign n_heart = article.metafields.custom.notes_heart.value
+  assign n_base = article.metafields.custom.notes_base.value
 
-  assign lead_yt = yts | first
+  assign no = article.metafields.custom.entry_no.value
+  if no == blank
+    assign found = false
+    assign idx = 0
+    for x in blog.articles limit: 60
+      if x.handle == article.handle
+        assign found = true
+        assign idx = forloop.index0
+      endif
+    endfor
+    if found
+      assign no = blog.articles_count | minus: idx
+    endif
+  endif
+  assign no_pad = no
+  if no != blank
+    if no < 10
+      assign no_pad = no | prepend: '0'
+    endif
+  endif
 -%}
 
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 {%- render 'sa-blog-seo', article: article, blog: blog, yt: lead_yt -%}
 
-<article class="ar">
+<article class="nd" data-fam="{{ fam }}">
 
-  <nav class="ar-crumb" aria-label="Breadcrumb">
-    <a href="{{ routes.root_url }}">{{ s.word_home }}</a>
-    <i aria-hidden="true">/</i>
-    <a href="{{ blog.url }}">{{ blog.title }}</a>
-  </nav>
+  <div class="nd-strip">
+    <span>{%- if no_pad != blank -%}{{ s.word_no }} {{ no_pad }}{%- endif -%}</span>
+    <a href="{{ blog.url }}"><b>{{ s.paper_name | default: blog.title }}</b></a>
+    <span>{{ s.ear_right }}</span>
+  </div>
 
-  <header class="ar-head">
-    <span class="ar-eye">
-      <i class="ar-blip" aria-hidden="true"></i>{{ eyebrow }}
-    </span>
+  <div class="nd-rib">
+    <span><i aria-hidden="true"></i>{{ kl }}{% if series != blank %} &middot; {{ series | replace: '-', ' ' }}{% endif %}</span>
+    {%- if famkey != blank -%}<span>{{ famkey | replace: '-', ' & ' }}</span>{%- endif -%}
+  </div>
+
+  <header class="nd-head">
+    {%- if coords != blank or place != blank -%}
+      <span class="nd-kick">{{ coords | default: place }}</span>
+    {%- endif -%}
     <h1>{{ article.title }}</h1>
     {%- if article.excerpt != blank -%}
-      <p class="ar-dek">{{ article.excerpt | strip_html }}</p>
+      <p class="nd-dek">{{ article.excerpt | strip_html }}</p>
     {%- endif -%}
-    <p class="ar-meta">
-      <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: s.date_fmt }}</time>
-      <span aria-hidden="true">·</span>
-      <span>{{ rt }} {{ s.word_read }}</span>
-      {%- if series != blank -%}
-        <span aria-hidden="true">·</span>
-        <a class="ar-ser" href="{{ blog.url }}/tagged/series-{{ series | handleize }}">{{ series | replace: '-', ' ' }}</a>
-      {%- endif -%}
-    </p>
   </header>
 
-  {%- comment -%} Vlog hoy to video pehla. Nahi to hero image pehla. {%- endcomment -%}
-  {%- if is_vlog and lead_yt != blank -%}
-    <div class="ar-lead ar-lead-v">
-      {%- render 'sa-blog-video', id: lead_yt, title: article.title -%}
-    </div>
+  {%- if lead_yt != blank -%}
+    {%- render 'sa-blog-video', id: lead_yt, title: article.title, credit: s.film_note -%}
   {%- elsif article.image -%}
-    <figure class="ar-lead">
+    <figure class="ncut">
       {{ article.image | image_url: width: 1400 | image_tag:
            widths: '480,720,1000,1400', sizes: '(min-width: 900px) 760px, 100vw',
            loading: 'eager', fetchpriority: 'high', alt: article.title | escape }}
     </figure>
   {%- endif -%}
 
-  <div class="ar-wrap">
+  {%- render 'sa-blog-field', article: article -%}
 
-    {%- if s.show_toc -%}
-      <aside class="ar-toc" id="ar-toc-{{ sid }}" hidden>
-        <p class="ar-toc-t">{{ s.word_toc }}</p>
-        <ol></ol>
-      </aside>
-    {%- endif -%}
+  <p class="nd-byl">
+    <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: s.date_long }}</time>
+    <span>{{ rt }} {{ s.word_read }}</span>
+    {%- if yts.size > 1 -%}<span>{{ yts.size }} {{ s.word_clips }}</span>{%- endif -%}
+  </p>
 
-    <div class="ar-main">
-      <div class="ar-body rte">
-        {{ article.content }}
-      </div>
-
-      {%- comment -%} Vlog ma bija badha video — ek trip na 3-4 clip ne ek j post ma. {%- endcomment -%}
-      {%- if yts.size > 1 -%}
-        <section class="ar-reel">
-          <h2 class="ar-h">{{ s.word_more_clips }}</h2>
-          <div class="ar-reel-row">
-            {%- for v in yts -%}
-              {%- unless is_vlog and forloop.first -%}
-                {%- render 'sa-blog-video', id: v, title: article.title, label: forloop.index -%}
-              {%- endunless -%}
-            {%- endfor -%}
-          </div>
-        </section>
-      {%- elsif is_vlog == false and lead_yt != blank -%}
-        <section class="ar-reel">
-          {%- render 'sa-blog-video', id: lead_yt, title: article.title -%}
-        </section>
-      {%- endif -%}
-
-      {%- comment -%} pick- tags → tya j kharidi karvani jagya. {%- endcomment -%}
-      {%- if picks.size > 0 -%}
-        <section class="ar-picks">
-          <h2 class="ar-h">{{ s.word_picks }}</h2>
-          {%- if s.picks_note != blank -%}<p class="ar-picks-n">{{ s.picks_note }}</p>{%- endif -%}
-          <div class="ar-picks-grid">
-            {%- for h in picks limit: 6 -%}
-              {%- assign p = all_products[h] -%}
-              {%- render 'sa-blog-product', product: p,
-                    try_label: s.try_label, open_label: s.open_label -%}
-            {%- endfor -%}
-          </div>
-        </section>
-      {%- endif -%}
-
-      {%- if topics.size > 0 -%}
-        <nav class="ar-topics" aria-label="{{ s.word_topics | escape }}">
-          <span class="ar-topics-t">{{ s.word_topics }}</span>
-          {%- for t in topics limit: 10 -%}
-            {%- liquid
-              assign lbl = t | downcase | remove_first: 'occasion-' | remove_first: 'family-'
-              assign lbl = lbl | remove_first: 'gender-' | remove_first: 'brand-' | replace: '-', ' '
-            -%}
-            <a href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ lbl }}</a>
-          {%- endfor -%}
-        </nav>
-      {%- endif -%}
-
-      {%- if s.show_share -%}
-        {%- assign a_url = request.origin | append: article.url -%}
-        {%- assign a_txt = article.title | url_encode -%}
-        <div class="ar-share">
-          <span class="ar-share-t">{{ s.word_share }}</span>
-          <a class="ar-wa" href="https://wa.me/?text={{ a_txt }}%20{{ a_url | url_encode }}"
-             target="_blank" rel="noopener nofollow">WhatsApp</a>
-          <a href="https://www.facebook.com/sharer/sharer.php?u={{ a_url | url_encode }}"
-             target="_blank" rel="noopener nofollow">Facebook</a>
-          <a href="https://pinterest.com/pin/create/button/?url={{ a_url | url_encode }}&description={{ a_txt }}"
-             target="_blank" rel="noopener nofollow">Pinterest</a>
-          <button type="button" class="ar-copy" data-url="{{ a_url }}">{{ s.word_copy }}</button>
-        </div>
-      {%- endif -%}
-
-      {%- if s.show_cta -%}
-        <aside class="ar-cta">
-          <p class="ar-cta-h">{{ s.cta_title }}</p>
-          <p class="ar-cta-p">{{ s.cta_text }}</p>
-          <a class="ar-cta-b" href="{{ s.cta_link }}">{{ s.cta_btn }}</a>
-        </aside>
-      {%- endif -%}
-    </div>
+  <div class="nd-body rte">
+    {{ article.content }}
   </div>
 
-  {%- comment -%} E j series na bija post — perfume series ne ek saathe bandhi rakhe. {%- endcomment -%}
-  {%- if series != blank -%}
-    {%- assign sib = 0 -%}
-    {%- assign ser_tag = 'series-' | append: series -%}
-    <section class="ar-rel">
-      <h2 class="ar-h ar-h-c">{{ s.word_series }}</h2>
-      <div class="ar-rel-row">
-        {%- for a in blog.articles limit: 50 -%}
-          {%- if a.handle != article.handle and sib < 4 -%}
-            {%- assign hit = false -%}
-            {%- for t in a.tags -%}
-              {%- assign tl = t | downcase -%}
-              {%- if tl == ser_tag -%}{%- assign hit = true -%}{%- endif -%}
-            {%- endfor -%}
-            {%- if hit -%}
-              {%- assign sib = sib | plus: 1 -%}
-              <a class="ar-rc" href="{{ a.url }}">
-                {%- if a.image -%}
-                  {{ a.image | image_url: width: 400 | image_tag: loading: 'lazy', widths: '200,400', alt: a.title | escape }}
-                {%- endif -%}
-                <span>{{ a.title }}</span>
-              </a>
-            {%- endif -%}
-          {%- endif -%}
-        {%- endfor -%}
-      </div>
+  {%- comment -%} Vlog ma bija clip — ek trip na 3-4 video ek j ahevaal ma. {%- endcomment -%}
+  {%- if yts.size > 1 -%}
+    <section class="nd-reel">
+      <h2 class="nd-h">{{ s.word_more_clips }}</h2>
+      {%- for v in yts -%}
+        {%- unless forloop.first -%}
+          {%- render 'sa-blog-video', id: v, title: article.title -%}
+        {%- endunless -%}
+      {%- endfor -%}
     </section>
   {%- endif -%}
 
-  {%- comment -%} Aakhra ma: blog ma bija post. Mansh ne page chhodva na devo. {%- endcomment -%}
-  {%- assign nxt = 0 -%}
-  <section class="ar-rel ar-rel-more">
-    <h2 class="ar-h ar-h-c">{{ s.word_next }}</h2>
-    <div class="ar-rel-row">
-      {%- for a in blog.articles limit: 12 -%}
-        {%- if a.handle != article.handle and nxt < 3 -%}
-          {%- assign nxt = nxt | plus: 1 -%}
-          <a class="ar-rc" href="{{ a.url }}">
-            {%- if a.image -%}
-              {{ a.image | image_url: width: 400 | image_tag: loading: 'lazy', widths: '200,400', alt: a.title | escape }}
-            {%- endif -%}
-            <span>{{ a.title }}</span>
-          </a>
+  {%- comment -%} Notes — perfume ni khari bhasha: top, heart, base. {%- endcomment -%}
+  {%- if n_top != blank or n_heart != blank or n_base != blank -%}
+    <section class="nd-tbl">
+      <p class="nd-tbl-h">{{ s.word_notes }}</p>
+      {%- if n_top != blank -%}<div class="nd-tbl-r"><b>{{ s.word_top }}</b><span>{{ n_top }}</span></div>{%- endif -%}
+      {%- if n_heart != blank -%}<div class="nd-tbl-r"><b>{{ s.word_heart }}</b><span>{{ n_heart }}</span></div>{%- endif -%}
+      {%- if n_base != blank -%}<div class="nd-tbl-r"><b>{{ s.word_base }}</b><span>{{ n_base }}</span></div>{%- endif -%}
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} pick- tags → chhapa ni classified jem, ₹49 agal. {%- endcomment -%}
+  {%- if picks.size > 0 -%}
+    <section class="nd-ads">
+      <h2 class="nd-h">{{ s.word_worn }}</h2>
+      {%- if s.worn_note != blank -%}<p class="nd-ads-n">{{ s.worn_note }}</p>{%- endif -%}
+      {%- for h in picks limit: 6 -%}
+        {%- assign p = all_products[h] -%}
+        {%- render 'sa-blog-product', product: p, try_label: s.try_label -%}
+      {%- endfor -%}
+    </section>
+  {%- endif -%}
+
+  {%- if topics.size > 0 -%}
+    <nav class="nd-top" aria-label="{{ s.word_topics | escape }}">
+      <span>{{ s.word_topics }}</span>
+      {%- for t in topics limit: 10 -%}
+        {%- liquid
+          assign lbl = t | downcase | remove_first: 'occasion-' | remove_first: 'family-'
+          assign lbl = lbl | remove_first: 'gender-' | remove_first: 'brand-' | replace: '-', ' '
+        -%}
+        <a href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ lbl }}</a>
+      {%- endfor -%}
+    </nav>
+  {%- endif -%}
+
+  {%- if s.show_share -%}
+    {%- assign a_url = request.origin | append: article.url -%}
+    {%- assign a_txt = article.title | url_encode -%}
+    <div class="nd-share">
+      <span>{{ s.word_share }}</span>
+      <a class="wa" href="https://wa.me/?text={{ a_txt }}%20{{ a_url | url_encode }}" target="_blank" rel="noopener nofollow">WhatsApp</a>
+      <a href="https://www.facebook.com/sharer/sharer.php?u={{ a_url | url_encode }}" target="_blank" rel="noopener nofollow">Facebook</a>
+      <a href="https://pinterest.com/pin/create/button/?url={{ a_url | url_encode }}&description={{ a_txt }}" target="_blank" rel="noopener nofollow">Pinterest</a>
+      <button type="button" class="nd-copy" data-url="{{ a_url }}">{{ s.word_copy }}</button>
+    </div>
+  {%- endif -%}
+
+  {%- if s.show_house -%}
+    <aside class="nd-house">
+      <span class="m">{{ s.house_eyebrow }}</span>
+      <b>{{ s.house_title }}</b>
+      <p>{{ s.house_text }}</p>
+      <a href="{{ s.house_link }}">{{ s.house_btn }}</a>
+    </aside>
+  {%- endif -%}
+
+  {%- comment -%} Aa series na bija ahevaal, pachhi baki na. {%- endcomment -%}
+  {%- assign shown = 0 -%}
+  {%- capture also -%}
+    {%- if series != blank -%}
+      {%- assign ser_tag = 'series-' | append: series -%}
+      {%- for a in blog.articles limit: 60 -%}
+        {%- if a.handle != article.handle and shown < 4 -%}
+          {%- assign hit = false -%}
+          {%- for t in a.tags -%}
+            {%- assign tl = t | downcase -%}
+            {%- if tl == ser_tag -%}{%- assign hit = true -%}{%- endif -%}
+          {%- endfor -%}
+          {%- if hit -%}
+            {%- assign shown = shown | plus: 1 -%}
+            {%- render 'sa-blog-alsorow', a: a, blog: blog, s: s -%}
+          {%- endif -%}
         {%- endif -%}
       {%- endfor -%}
-    </div>
-    <a class="ar-all" href="{{ blog.url }}">{{ s.word_all }} →</a>
-  </section>
+    {%- endif -%}
+    {%- for a in blog.articles limit: 20 -%}
+      {%- if a.handle != article.handle and shown < 4 -%}
+        {%- assign shown = shown | plus: 1 -%}
+        {%- render 'sa-blog-alsorow', a: a, blog: blog, s: s -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+  {%- assign also_t = also | strip -%}
+  {%- if also_t != blank -%}
+    <section class="nd-also">
+      <p class="nd-also-h">{{ s.word_also }}</p>
+      {{ also }}
+      <a class="nd-all" href="{{ blog.url }}">{{ s.word_index_link }}</a>
+    </section>
+  {%- endif -%}
+
+  <p class="nd-folio">
+    {{ s.paper_name | default: blog.title }}
+    {%- if no_pad != blank %} &middot; {{ s.word_no }} {{ no_pad }}{% endif -%}
+    &middot; {{ shop.domain }}
+  </p>
 </article>
+
+<style>
+#shopify-section-{{ sid }}{background:{{ s.paper }}}
+#shopify-section-{{ sid }} .nd{font-family:"Fraunces",Georgia,serif;font-variation-settings:'opsz' 14;
+  color:{{ s.ink }};max-width:{{ s.max }}px;margin:0 auto;padding:0 0 {{ s.pad_bottom }}px}
+#shopify-section-{{ sid }} .nd *{box-sizing:border-box}
+#shopify-section-{{ sid }} .nd[data-fam="fresh"]{--c:{{ s.c_fresh }}}
+#shopify-section-{{ sid }} .nd[data-fam="floral"]{--c:{{ s.c_floral }}}
+#shopify-section-{{ sid }} .nd[data-fam="woody"]{--c:{{ s.c_woody }}}
+#shopify-section-{{ sid }} .nd[data-fam="amber"]{--c:{{ s.c_amber }}}
+#shopify-section-{{ sid }} .nd[data-fam="default"]{--c:{{ s.gold }}}
+
+/* ---- upar ni patti ---- */
+#shopify-section-{{ sid }} .nd-strip{display:flex;justify-content:space-between;align-items:center;
+  gap:10px;padding:11px {{ s.gutter }}px;border-bottom:2px solid {{ s.ink }};
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.22em;
+  text-transform:uppercase;color:{{ s.ink2 }};font-variant-numeric:tabular-nums}
+#shopify-section-{{ sid }} .nd-strip a{text-decoration:none;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nd-strip b{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 96;font-size:15px;font-weight:700;
+  letter-spacing:-.02em;text-transform:uppercase}
+#shopify-section-{{ sid }} .nd-rib{display:flex;justify-content:space-between;align-items:center;
+  gap:10px;padding:8px {{ s.gutter }}px;background:{{ s.ink }};color:{{ s.paper }};
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.22em;
+  text-transform:uppercase}
+#shopify-section-{{ sid }} .nd-rib span{display:flex;align-items:center;gap:8px}
+#shopify-section-{{ sid }} .nd-rib i{width:7px;height:7px;background:var(--c,{{ s.gold }});display:block;flex:none}
+
+/* ---- matthu ---- */
+#shopify-section-{{ sid }} .nd-head{padding:20px {{ s.gutter }}px 0}
+#shopify-section-{{ sid }} .nd-kick{display:inline-block;font-family:"Space Grotesk",system-ui,sans-serif;
+  font-size:7.5px;letter-spacing:.22em;text-transform:uppercase;color:{{ s.paper }};
+  background:var(--c,{{ s.gold }});padding:4px 9px;font-weight:700;
+  font-variant-numeric:tabular-nums}
+#shopify-section-{{ sid }} .nd-head h1{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:{{ s.h1_m }}px;font-weight:900;
+  line-height:.87;letter-spacing:-.05em;margin:13px 0 0;text-transform:uppercase;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nd-dek{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'opsz' 24;font-size:15px;font-style:italic;line-height:1.45;
+  color:{{ s.ink2 }};margin:14px 0 0}
+
+/* ---- cut ---- */
+#shopify-section-{{ sid }} .ncut{position:relative;display:block;width:100%;
+  margin:16px {{ s.gutter }}px 0;width:calc(100% - {{ s.gutter | times: 2 }}px);
+  border:2px solid {{ s.ink }};background:{{ s.white }};overflow:hidden}
+#shopify-section-{{ sid }} .ncut img{width:100%;height:auto;display:block}
+#shopify-section-{{ sid }} .ncut-film{aspect-ratio:16/10;cursor:pointer;display:grid;place-items:center}
+#shopify-section-{{ sid }} .ncut-th{width:100%;height:100%;object-fit:cover;display:block}
+#shopify-section-{{ sid }} .ncut-film iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-th,
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-go,
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-mark,
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-cr{display:none}
+#shopify-section-{{ sid }} .ncut-go{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:62px;height:62px;border-radius:50%;border:2px solid {{ s.ink }};background:{{ s.paper }}ee;
+  display:grid;place-items:center;cursor:pointer;padding:0;
+  transition:background .2s ease,transform .2s ease}
+#shopify-section-{{ sid }} .ncut-film:hover .ncut-go{background:{{ s.ink }};transform:translate(-50%,-50%) scale(1.05)}
+#shopify-section-{{ sid }} .ncut-go svg{width:23px;height:23px;fill:{{ s.ink }};margin-left:2px;display:block}
+#shopify-section-{{ sid }} .ncut-film:hover .ncut-go svg{fill:{{ s.paper }}}
+#shopify-section-{{ sid }} .ncut-mark{position:absolute;left:0;top:0;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.2em;
+  text-transform:uppercase;color:{{ s.paper }};background:{{ s.ink }};padding:5px 9px;font-weight:700}
+#shopify-section-{{ sid }} .ncut-cr{position:absolute;bottom:0;right:0;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.16em;
+  text-transform:uppercase;color:{{ s.ink2 }};background:{{ s.paper }};padding:4px 8px}
+
+/* ---- field log ---- */
+#shopify-section-{{ sid }} .nfield{display:flex;margin:0 {{ s.gutter }}px;
+  border:2px solid {{ s.ink }};font-family:"Space Grotesk",system-ui,sans-serif;flex-wrap:wrap}
+#shopify-section-{{ sid }} .ncut + .nfield{border-top:0}
+#shopify-section-{{ sid }} .nfield div{flex:1 1 33%;padding:8px 3px 9px;text-align:center;
+  border-right:1px solid {{ s.rule }};border-top:1px solid {{ s.rule }};min-width:0}
+#shopify-section-{{ sid }} .nfield div:nth-child(-n+3){border-top:0}
+#shopify-section-{{ sid }} .nfield div:nth-child(3n){border-right:0}
+#shopify-section-{{ sid }} .nfield b{display:block;font-size:6px;letter-spacing:.16em;
+  text-transform:uppercase;color:{{ s.soft }};font-weight:500}
+#shopify-section-{{ sid }} .nfield s{display:block;text-decoration:none;font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'opsz' 36,'WONK' 1;font-size:14px;font-weight:700;margin-top:3px;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:{{ s.ink }}}
+
+#shopify-section-{{ sid }} .nd-byl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  padding:14px {{ s.gutter }}px 0;font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;
+  letter-spacing:.2em;text-transform:uppercase;color:{{ s.soft }};margin:0}
+
+/* ---- lakhan ---- */
+#shopify-section-{{ sid }} .nd-body{padding:16px {{ s.gutter }}px 0;
+  font-variation-settings:'opsz' 12;font-size:{{ s.body_m }}px;line-height:1.62;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nd-body > *:first-child{margin-top:0}
+#shopify-section-{{ sid }} .nd-body p{margin:0 0 1em}
+#shopify-section-{{ sid }} .nd-body > p:first-of-type::first-letter{
+  font-variation-settings:'opsz' 144,'WONK' 1;font-size:{{ s.body_m | times: 2.9 | round }}px;
+  line-height:.82;float:left;margin:4px 8px 0 0;font-weight:900;color:var(--c,{{ s.gold }})}
+#shopify-section-{{ sid }} .nd-body h2{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 72;font-size:{{ s.h2_m }}px;font-weight:900;
+  line-height:1.08;letter-spacing:-.035em;margin:1.5em 0 .45em;text-transform:uppercase;
+  scroll-margin-top:90px}
+#shopify-section-{{ sid }} .nd-body h3{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 48;font-size:{{ s.h2_m | minus: 3 }}px;
+  font-weight:700;line-height:1.16;margin:1.3em 0 .4em}
+#shopify-section-{{ sid }} .nd-body a{color:{{ s.ink }};text-decoration:underline;
+  text-decoration-color:var(--c,{{ s.gold }});text-underline-offset:3px;text-decoration-thickness:2px}
+#shopify-section-{{ sid }} .nd-body strong{font-weight:700}
+#shopify-section-{{ sid }} .nd-body ul,#shopify-section-{{ sid }} .nd-body ol{margin:0 0 1em;padding-left:22px}
+#shopify-section-{{ sid }} .nd-body li{margin:0 0 .4em}
+#shopify-section-{{ sid }} .nd-body img{max-width:100%;height:auto;border:2px solid {{ s.ink }};margin:.6em 0}
+#shopify-section-{{ sid }} .nd-body blockquote{margin:1.4em 0;padding:15px 16px;
+  background:var(--c,{{ s.gold }});color:{{ s.paper }};
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 96;font-size:{{ s.body_m | plus: 3 }}px;
+  font-weight:700;line-height:1.26;letter-spacing:-.025em}
+#shopify-section-{{ sid }} .nd-body blockquote p:last-child{margin:0}
+#shopify-section-{{ sid }} .nd-body table{width:100%;border-collapse:collapse;font-size:13px;
+  margin:1.2em 0;display:block;overflow-x:auto}
+#shopify-section-{{ sid }} .nd-body th,#shopify-section-{{ sid }} .nd-body td{
+  border:1px solid {{ s.rule }};padding:8px 10px;text-align:left}
+#shopify-section-{{ sid }} .nd-body th{background:{{ s.ink }};color:{{ s.paper }};font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase}
+
+#shopify-section-{{ sid }} .nd-h{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 96;font-size:{{ s.h2_m | plus: 1 }}px;
+  font-weight:900;letter-spacing:-.032em;margin:0 0 4px;text-transform:uppercase}
+
+/* ---- reel ---- */
+#shopify-section-{{ sid }} .nd-reel{margin:{{ s.blk }}px 0 0;padding:{{ s.blk }}px {{ s.gutter }}px 0;
+  border-top:2px solid {{ s.ink }}}
+#shopify-section-{{ sid }} .nd-reel .ncut{margin:12px 0 0;width:100%}
+
+/* ---- notes ---- */
+#shopify-section-{{ sid }} .nd-tbl{margin:{{ s.blk }}px {{ s.gutter }}px 0;border:2px solid {{ s.ink }}}
+#shopify-section-{{ sid }} .nd-tbl-h{margin:0;padding:6px 10px;background:{{ s.ink }};color:{{ s.paper }};
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;letter-spacing:.22em;
+  text-transform:uppercase}
+#shopify-section-{{ sid }} .nd-tbl-r{display:grid;grid-template-columns:48px 1fr;gap:11px;padding:9px 10px;
+  border-bottom:1px solid {{ s.rule2 }};align-items:baseline}
+#shopify-section-{{ sid }} .nd-tbl-r:last-child{border-bottom:0}
+#shopify-section-{{ sid }} .nd-tbl-r b{font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:{{ s.soft }};font-weight:700}
+#shopify-section-{{ sid }} .nd-tbl-r span{font-variation-settings:'opsz' 36,'WONK' 1;font-size:14px;
+  font-weight:700}
+
+/* ---- classified ads ---- */
+#shopify-section-{{ sid }} .nd-ads{margin:{{ s.blk }}px 0 0;padding:{{ s.blk }}px {{ s.gutter }}px 0;
+  border-top:2px solid {{ s.ink }}}
+#shopify-section-{{ sid }} .nd-ads-n{font-family:"Space Grotesk",system-ui,sans-serif;font-size:8.5px;
+  color:{{ s.soft }};margin:6px 0 2px;line-height:1.6;letter-spacing:.04em}
+#shopify-section-{{ sid }} .nad{display:grid;grid-template-columns:auto 1fr auto;gap:11px;
+  align-items:center;padding:12px 0;border-bottom:1px solid {{ s.rule2 }}}
+#shopify-section-{{ sid }} .nad[data-fam="fresh"]{--c:{{ s.c_fresh }}}
+#shopify-section-{{ sid }} .nad[data-fam="floral"]{--c:{{ s.c_floral }}}
+#shopify-section-{{ sid }} .nad[data-fam="woody"]{--c:{{ s.c_woody }}}
+#shopify-section-{{ sid }} .nad[data-fam="amber"]{--c:{{ s.c_amber }}}
+#shopify-section-{{ sid }} .nad[data-fam="default"]{--c:{{ s.gold }}}
+#shopify-section-{{ sid }} .nad-sq{width:9px;height:9px;background:var(--c,{{ s.gold }});display:block}
+#shopify-section-{{ sid }} .nad-w b{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'opsz' 48,'WONK' 1;font-size:17px;font-weight:700;display:block;
+  line-height:1.12;letter-spacing:-.025em}
+#shopify-section-{{ sid }} .nad-w s{text-decoration:none;font-family:"Space Grotesk",system-ui,sans-serif;
+  font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:{{ s.soft }};display:block;
+  margin-top:5px;text-transform:capitalize}
+#shopify-section-{{ sid }} .nad-b{text-align:right}
+#shopify-section-{{ sid }} .nad-b a{text-decoration:none;display:block;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;background:{{ s.ink }};color:{{ s.paper }};padding:8px 11px;white-space:nowrap}
+#shopify-section-{{ sid }} .nad-b s{text-decoration:none;display:block;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7.5px;color:{{ s.soft }};margin-top:5px;
+  letter-spacing:.1em;font-variant-numeric:tabular-nums}
+
+/* ---- topics ane share ---- */
+#shopify-section-{{ sid }} .nd-top{margin:{{ s.blk }}px {{ s.gutter }}px 0;display:flex;flex-wrap:wrap;
+  gap:8px;align-items:center;font-family:"Space Grotesk",system-ui,sans-serif}
+#shopify-section-{{ sid }} .nd-top > span{font-size:7px;letter-spacing:.22em;text-transform:uppercase;
+  color:{{ s.soft }};font-weight:700}
+#shopify-section-{{ sid }} .nd-top a{font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:{{ s.ink2 }};text-decoration:none;border:1px solid {{ s.rule }};padding:4px 9px;font-weight:600}
+#shopify-section-{{ sid }} .nd-top a:hover{border-color:{{ s.ink }};color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nd-share{margin:{{ s.blk }}px {{ s.gutter }}px 0;padding:14px 0;
+  border-top:1px solid {{ s.rule }};border-bottom:1px solid {{ s.rule }};display:flex;flex-wrap:wrap;
+  gap:9px;align-items:center;font-family:"Space Grotesk",system-ui,sans-serif}
+#shopify-section-{{ sid }} .nd-share > span{font-size:7px;letter-spacing:.22em;text-transform:uppercase;
+  color:{{ s.soft }};font-weight:700}
+#shopify-section-{{ sid }} .nd-share a,#shopify-section-{{ sid }} .nd-share button{
+  font-family:inherit;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:{{ s.ink }};text-decoration:none;background:none;border:1px solid {{ s.rule }};
+  padding:6px 10px;cursor:pointer}
+#shopify-section-{{ sid }} .nd-share a:hover,#shopify-section-{{ sid }} .nd-share button:hover{
+  border-color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nd-share .wa{border-color:#25d36659;color:#0f7a3d}
+
+/* ---- house notice ---- */
+#shopify-section-{{ sid }} .nd-house{margin:{{ s.blk }}px {{ s.gutter }}px 0;border:2px solid {{ s.ink }};
+  padding:24px 18px;text-align:center}
+#shopify-section-{{ sid }} .nd-house .m{font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;
+  letter-spacing:.3em;text-transform:uppercase;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .nd-house b{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:27px;font-weight:900;line-height:1;
+  letter-spacing:-.045em;display:block;margin:12px auto 0;max-width:20ch;text-transform:uppercase}
+#shopify-section-{{ sid }} .nd-house p{font-variation-settings:'opsz' 18;font-size:13.5px;line-height:1.5;
+  color:{{ s.ink2 }};margin:12px auto 17px;max-width:30ch;font-style:italic}
+#shopify-section-{{ sid }} .nd-house a{text-decoration:none;display:inline-block;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;background:{{ s.ink }};color:{{ s.paper }};padding:13px 24px}
+
+/* ---- also in this issue ---- */
+#shopify-section-{{ sid }} .nd-also{margin:{{ s.blk }}px {{ s.gutter }}px 0;padding-top:{{ s.blk }}px;
+  border-top:2px solid {{ s.ink }}}
+#shopify-section-{{ sid }} .nd-also-h{font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;
+  letter-spacing:.24em;text-transform:uppercase;color:{{ s.soft }};margin:0 0 4px}
+#shopify-section-{{ sid }} .nalso{display:grid;grid-template-columns:1fr auto;gap:4px 10px;
+  align-items:center;padding:12px 0;border-top:1px solid {{ s.rule2 }};text-decoration:none;
+  color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nalso[data-fam="fresh"]{--c:{{ s.c_fresh }}}
+#shopify-section-{{ sid }} .nalso[data-fam="floral"]{--c:{{ s.c_floral }}}
+#shopify-section-{{ sid }} .nalso[data-fam="woody"]{--c:{{ s.c_woody }}}
+#shopify-section-{{ sid }} .nalso[data-fam="amber"]{--c:{{ s.c_amber }}}
+#shopify-section-{{ sid }} .nalso[data-fam="default"]{--c:{{ s.gold }}}
+#shopify-section-{{ sid }} .nalso b{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'opsz' 36,'WONK' 1;font-size:16px;font-weight:700;line-height:1.16;
+  display:block;letter-spacing:-.025em}
+#shopify-section-{{ sid }} .nalso .sq{width:8px;height:8px;background:var(--c,{{ s.gold }});display:block}
+#shopify-section-{{ sid }} .nalso s{grid-column:1/-1;text-decoration:none;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.2em;
+  text-transform:uppercase;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .nd-all{display:inline-block;margin-top:18px;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7.5px;letter-spacing:.24em;
+  text-transform:uppercase;color:{{ s.ink }};font-weight:700;text-decoration:none;
+  border-bottom:1px solid {{ s.ink }};padding-bottom:2px}
+#shopify-section-{{ sid }} .nd-folio{font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;
+  letter-spacing:.28em;text-transform:uppercase;color:{{ s.soft }};text-align:center;
+  padding:30px {{ s.gutter }}px 0;margin:0}
+
+/* ---------- desktop ---------- */
+@media (min-width:900px){
+  #shopify-section-{{ sid }} .nd{padding-bottom:{{ s.pad_bottom | times: 1.3 | round }}px}
+  #shopify-section-{{ sid }} .nd-strip{padding:14px {{ s.gutter_d }}px;font-size:9px}
+  #shopify-section-{{ sid }} .nd-strip b{font-size:19px}
+  #shopify-section-{{ sid }} .nd-rib{padding:10px {{ s.gutter_d }}px;font-size:8.5px}
+  #shopify-section-{{ sid }} .nd-head{padding:34px {{ s.gutter_d }}px 0}
+  #shopify-section-{{ sid }} .nd-kick{font-size:9px;padding:5px 11px}
+  #shopify-section-{{ sid }} .nd-head h1{font-size:{{ s.h1_d }}px}
+  #shopify-section-{{ sid }} .nd-dek{font-size:19px;line-height:1.42}
+  #shopify-section-{{ sid }} .ncut{margin:22px {{ s.gutter_d }}px 0;
+    width:calc(100% - {{ s.gutter_d | times: 2 }}px)}
+  #shopify-section-{{ sid }} .ncut-film{aspect-ratio:16/9}
+  #shopify-section-{{ sid }} .nfield{margin:0 {{ s.gutter_d }}px;flex-wrap:nowrap}
+  #shopify-section-{{ sid }} .nfield div{flex:1;border-top:0}
+  #shopify-section-{{ sid }} .nfield div:nth-child(3n){border-right:1px solid {{ s.rule }}}
+  #shopify-section-{{ sid }} .nfield div:last-child{border-right:0}
+  #shopify-section-{{ sid }} .nfield b{font-size:7px}
+  #shopify-section-{{ sid }} .nfield s{font-size:17px}
+  #shopify-section-{{ sid }} .nd-byl{padding:18px {{ s.gutter_d }}px 0;font-size:8.5px}
+  #shopify-section-{{ sid }} .nd-body{padding:22px {{ s.gutter_d }}px 0;font-size:{{ s.body_d }}px;
+    line-height:1.7}
+  #shopify-section-{{ sid }} .nd-body > p:first-of-type::first-letter{
+    font-size:{{ s.body_d | times: 3 | round }}px}
+  #shopify-section-{{ sid }} .nd-body h2{font-size:{{ s.h2_d }}px}
+  #shopify-section-{{ sid }} .nd-body h3{font-size:{{ s.h2_d | minus: 6 }}px}
+  #shopify-section-{{ sid }} .nd-body blockquote{padding:22px 24px;font-size:{{ s.body_d | plus: 5 }}px}
+  #shopify-section-{{ sid }} .nd-h{font-size:{{ s.h2_d }}px}
+  #shopify-section-{{ sid }} .nd-reel,
+  #shopify-section-{{ sid }} .nd-ads{padding-left:{{ s.gutter_d }}px;padding-right:{{ s.gutter_d }}px}
+  #shopify-section-{{ sid }} .nd-tbl,
+  #shopify-section-{{ sid }} .nd-top,
+  #shopify-section-{{ sid }} .nd-share,
+  #shopify-section-{{ sid }} .nd-house,
+  #shopify-section-{{ sid }} .nd-also{margin-left:{{ s.gutter_d }}px;margin-right:{{ s.gutter_d }}px}
+  #shopify-section-{{ sid }} .nd-folio{padding-left:{{ s.gutter_d }}px;padding-right:{{ s.gutter_d }}px}
+  #shopify-section-{{ sid }} .nad-w b{font-size:20px}
+  #shopify-section-{{ sid }} .nd-house b{font-size:38px}
+  #shopify-section-{{ sid }} .nd-house p{font-size:15px}
+  #shopify-section-{{ sid }} .nalso b{font-size:20px}
+}
+</style>
 
 <script>
 (function () {
   var root = document.getElementById('shopify-section-{{ sid }}');
   if (!root) return;
 
-  /* Lazy YouTube: click thay tyare j iframe andar aave. */
+  /* Film: click thay tyare j YouTube andar aave. */
   root.addEventListener('click', function (e) {
-    var box = e.target.closest('.ar-yt');
+    var box = e.target.closest('.ncut-film');
     if (!box || box.dataset.on) return;
     var id = box.dataset.yt;
     if (!id) return;
@@ -303,309 +587,95 @@
 
   /* Copy link. */
   root.addEventListener('click', function (e) {
-    var b = e.target.closest('.ar-copy');
+    var b = e.target.closest('.nd-copy');
     if (!b) return;
-    var done = function () { var o = b.textContent; b.textContent = {{ s.word_copied | json }}; setTimeout(function () { b.textContent = o; }, 1600); };
-    if (navigator.clipboard) { navigator.clipboard.writeText(b.dataset.url).then(done, function(){}); }
+    if (!navigator.clipboard) return;
+    navigator.clipboard.writeText(b.dataset.url).then(function () {
+      var o = b.textContent;
+      b.textContent = {{ s.word_copied | json }};
+      setTimeout(function () { b.textContent = o; }, 1600);
+    }, function () {});
   });
-
-  {% if s.show_toc %}
-  /* Contents — article na h2 par thi jate banave. Liquid ma HTML parse
-     karvu shakya nathi, etle aa kaam browser ne aapyu chhe. */
-  var toc = document.getElementById('ar-toc-{{ sid }}');
-  var body = root.querySelector('.ar-body');
-  if (toc && body) {
-    var hs = body.querySelectorAll('h2');
-    if (hs.length >= {{ s.toc_min }}) {
-      var ol = toc.querySelector('ol');
-      for (var i = 0; i < hs.length; i++) {
-        var h = hs[i];
-        if (!h.id) h.id = 'sec-' + (i + 1);
-        var li = document.createElement('li');
-        var a = document.createElement('a');
-        a.href = '#' + h.id;
-        a.textContent = h.textContent;
-        li.appendChild(a);
-        ol.appendChild(li);
-      }
-      toc.hidden = false;
-    }
-  }
-  {% endif %}
 })();
 </script>
 
-<style>
-#shopify-section-{{ sid }}{background:{{ s.bg }}}
-#shopify-section-{{ sid }} .ar{font-family:"Space Grotesk",system-ui,sans-serif;
-  color:{{ s.ink }};padding:{{ s.pad_top }}px 0 {{ s.pad_bottom }}px}
-#shopify-section-{{ sid }} .ar *{box-sizing:border-box}
-
-/* ---- breadcrumb ---- */
-#shopify-section-{{ sid }} .ar-crumb{max-width:{{ s.col }}px;margin:0 auto;padding:0 {{ s.gutter }}px 12px;
-  font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:{{ s.soft }}}
-#shopify-section-{{ sid }} .ar-crumb a{color:{{ s.soft }};text-decoration:none}
-#shopify-section-{{ sid }} .ar-crumb i{margin:0 6px;opacity:.5;font-style:normal}
-
-/* ---- head ---- */
-#shopify-section-{{ sid }} .ar-head{max-width:{{ s.col }}px;margin:0 auto;padding:0 {{ s.gutter }}px}
-#shopify-section-{{ sid }} .ar-eye{display:inline-flex;align-items:center;gap:7px;font-size:9px;
-  letter-spacing:.22em;text-transform:uppercase;color:{{ s.gold }};font-weight:700}
-#shopify-section-{{ sid }} .ar-blip{width:6px;height:6px;border-radius:50%;background:{{ s.gold }};
-  display:block;flex:none;animation:arBlip{{ sid }} 2.4s ease-in-out infinite}
-@keyframes arBlip{{ sid }}{50%{opacity:.3;transform:scale(.8)}}
-#shopify-section-{{ sid }} .ar-head h1{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h1_m }}px;
-  font-weight:600;letter-spacing:-.02em;line-height:1.12;margin:8px 0 0;color:{{ s.ink }}}
-#shopify-section-{{ sid }} .ar-dek{font-size:14px;line-height:1.6;color:{{ s.soft }};margin:10px 0 0}
-#shopify-section-{{ sid }} .ar-meta{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
-  color:{{ s.soft }};margin:12px 0 0;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
-#shopify-section-{{ sid }} .ar-ser{color:{{ s.link }};text-decoration:none;font-weight:600}
-
-/* ---- lead ---- */
-#shopify-section-{{ sid }} .ar-lead{max-width:{{ s.col }}px;margin:{{ s.lead_gap }}px auto 0;
-  padding:0 {{ s.gutter }}px}
-#shopify-section-{{ sid }} .ar-lead img{width:100%;height:auto;display:block;
-  border-radius:{{ s.radius }}px;border:1px solid {{ s.line }}}
-
-/* ---- youtube facade ---- */
-#shopify-section-{{ sid }} .ar-yt{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;
-  border-radius:{{ s.radius }}px;border:1px solid {{ s.line }};background:#000;cursor:pointer}
-#shopify-section-{{ sid }} .ar-yt-th{width:100%;height:100%;object-fit:cover;display:block;
-  transition:transform .5s ease,opacity .3s ease}
-#shopify-section-{{ sid }} .ar-yt:hover .ar-yt-th{transform:scale(1.03)}
-#shopify-section-{{ sid }} .ar-yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-#shopify-section-{{ sid }} .ar-yt[data-on] .ar-yt-th,
-#shopify-section-{{ sid }} .ar-yt[data-on] .ar-yt-play,
-#shopify-section-{{ sid }} .ar-yt[data-on] .ar-yt-cap{display:none}
-#shopify-section-{{ sid }} .ar-yt-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:56px;height:56px;border-radius:50%;border:1px solid rgba(255,255,255,.55);
-  background:rgba(26,23,18,.55);backdrop-filter:blur(3px);color:#fff;cursor:pointer;
-  display:grid;place-items:center;padding:0;transition:background .2s ease,transform .2s ease}
-#shopify-section-{{ sid }} .ar-yt:hover .ar-yt-play{background:{{ s.gold }};transform:translate(-50%,-50%) scale(1.06)}
-#shopify-section-{{ sid }} .ar-yt-play svg{width:26px;height:26px;fill:currentColor;margin-left:2px}
-#shopify-section-{{ sid }} .ar-yt-cap{position:absolute;left:10px;top:10px;font-size:9px;font-weight:700;
-  letter-spacing:.14em;color:#fff;background:rgba(26,23,18,.6);padding:4px 8px;border-radius:99px}
-
-/* ---- layout ---- */
-#shopify-section-{{ sid }} .ar-wrap{max-width:{{ s.col }}px;margin:0 auto;padding:0 {{ s.gutter }}px}
-#shopify-section-{{ sid }} .ar-main{min-width:0}
-
-/* ---- contents ---- */
-#shopify-section-{{ sid }} .ar-toc{margin:{{ s.body_gap }}px 0 0;padding:14px 16px;
-  background:{{ s.tint }};border:1px solid {{ s.line }};border-left:2px solid {{ s.gold }};
-  border-radius:{{ s.radius }}px}
-#shopify-section-{{ sid }} .ar-toc-t{font-size:9px;letter-spacing:.2em;text-transform:uppercase;
-  color:{{ s.gold }};font-weight:700;margin:0 0 8px}
-#shopify-section-{{ sid }} .ar-toc ol{margin:0;padding-left:18px;font-size:13px;line-height:1.7}
-#shopify-section-{{ sid }} .ar-toc a{color:{{ s.ink }};text-decoration:none}
-#shopify-section-{{ sid }} .ar-toc a:hover{color:{{ s.link }}}
-
-/* ---- body ---- */
-#shopify-section-{{ sid }} .ar-body{margin:{{ s.body_gap }}px 0 0;font-size:{{ s.body_m }}px;
-  line-height:1.78;color:{{ s.ink }}}
-#shopify-section-{{ sid }} .ar-body > *:first-child{margin-top:0}
-#shopify-section-{{ sid }} .ar-body p{margin:0 0 1.15em}
-#shopify-section-{{ sid }} .ar-body h2{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h2_m }}px;
-  font-weight:600;line-height:1.22;letter-spacing:-.01em;margin:1.9em 0 .55em;scroll-margin-top:90px}
-#shopify-section-{{ sid }} .ar-body h3{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h2_m | minus: 3 }}px;
-  font-weight:600;line-height:1.3;margin:1.5em 0 .45em}
-#shopify-section-{{ sid }} .ar-body a{color:{{ s.link }};text-decoration:underline;text-underline-offset:2px}
-#shopify-section-{{ sid }} .ar-body ul,#shopify-section-{{ sid }} .ar-body ol{margin:0 0 1.15em;padding-left:22px}
-#shopify-section-{{ sid }} .ar-body li{margin:0 0 .45em}
-#shopify-section-{{ sid }} .ar-body img{max-width:100%;height:auto;border-radius:{{ s.radius }}px;
-  border:1px solid {{ s.line }};margin:.6em 0}
-#shopify-section-{{ sid }} .ar-body blockquote{margin:1.5em 0;padding:2px 0 2px 16px;
-  border-left:2px solid {{ s.gold }};font-family:"Fraunces",Georgia,serif;font-size:{{ s.body_m | plus: 2 }}px;
-  line-height:1.5;color:{{ s.ink }}}
-#shopify-section-{{ sid }} .ar-body blockquote p:last-child{margin:0}
-#shopify-section-{{ sid }} .ar-body table{width:100%;border-collapse:collapse;font-size:13px;margin:1.3em 0;display:block;overflow-x:auto}
-#shopify-section-{{ sid }} .ar-body th,#shopify-section-{{ sid }} .ar-body td{
-  border:1px solid {{ s.line }};padding:8px 10px;text-align:left}
-#shopify-section-{{ sid }} .ar-body th{background:{{ s.tint }};font-size:11px;letter-spacing:.06em;text-transform:uppercase}
-
-/* ---- section headings ---- */
-#shopify-section-{{ sid }} .ar-h{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h2_m }}px;
-  font-weight:600;letter-spacing:-.01em;margin:0 0 12px;color:{{ s.ink }}}
-#shopify-section-{{ sid }} .ar-h-c{text-align:center}
-
-/* ---- reel ---- */
-#shopify-section-{{ sid }} .ar-reel{margin:{{ s.blk_gap }}px 0 0}
-#shopify-section-{{ sid }} .ar-reel-row{display:grid;gap:10px}
-
-/* ---- picks ---- */
-#shopify-section-{{ sid }} .ar-picks{margin:{{ s.blk_gap }}px 0 0;padding:{{ s.blk_gap }}px 0 0;
-  border-top:1px solid {{ s.line }}}
-#shopify-section-{{ sid }} .ar-picks-n{font-size:12px;color:{{ s.soft }};margin:-6px 0 14px}
-#shopify-section-{{ sid }} .ar-picks-grid{display:grid;grid-template-columns:1fr;gap:10px}
-#shopify-section-{{ sid }} .ar-pc{display:flex;gap:12px;padding:10px;background:{{ s.card }};
-  border:1px solid {{ s.line }};border-radius:{{ s.radius }}px}
-#shopify-section-{{ sid }} .ar-pc-img{flex:none;width:76px;aspect-ratio:3/4;border-radius:6px;
-  overflow:hidden;background:{{ s.tint }};display:block}
-#shopify-section-{{ sid }} .ar-pc-img img{width:100%;height:100%;object-fit:cover;display:block}
-#shopify-section-{{ sid }} .ar-pc-body{min-width:0;display:flex;flex-direction:column;gap:3px;flex:1}
-#shopify-section-{{ sid }} .ar-pc-fam{font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;
-  color:{{ s.gold }};font-weight:700}
-#shopify-section-{{ sid }} .ar-pc-name{font-family:"Fraunces",Georgia,serif;font-size:15px;font-weight:600;
-  margin:0;line-height:1.2}
-#shopify-section-{{ sid }} .ar-pc-name a{color:{{ s.ink }};text-decoration:none}
-#shopify-section-{{ sid }} .ar-pc-price{font-size:12px;color:{{ s.soft }};margin:0}
-#shopify-section-{{ sid }} .ar-pc-price span{opacity:.75}
-#shopify-section-{{ sid }} .ar-pc-act{display:flex;align-items:center;gap:10px;margin-top:auto;flex-wrap:wrap}
-#shopify-section-{{ sid }} .ar-pc-try{background:{{ s.gold }};color:{{ s.on_gold }};font-size:11.5px;
-  font-weight:700;letter-spacing:.02em;padding:7px 12px;border-radius:99px;text-decoration:none;white-space:nowrap}
-#shopify-section-{{ sid }} .ar-pc-full{font-size:11px;color:{{ s.link }};text-decoration:none;font-weight:600}
-
-/* ---- topics ---- */
-#shopify-section-{{ sid }} .ar-topics{margin:{{ s.blk_gap }}px 0 0;display:flex;flex-wrap:wrap;gap:7px;
-  align-items:center}
-#shopify-section-{{ sid }} .ar-topics-t{font-size:9px;letter-spacing:.18em;text-transform:uppercase;
-  color:{{ s.soft }};font-weight:700;margin-right:2px}
-#shopify-section-{{ sid }} .ar-topics a{font-size:11px;color:{{ s.ink }};text-decoration:none;
-  background:{{ s.tint }};border:1px solid {{ s.line }};padding:5px 10px;border-radius:99px;
-  text-transform:capitalize}
-#shopify-section-{{ sid }} .ar-topics a:hover{border-color:{{ s.gold }};color:{{ s.link }}}
-
-/* ---- share ---- */
-#shopify-section-{{ sid }} .ar-share{margin:{{ s.blk_gap }}px 0 0;padding:14px 0;
-  border-top:1px solid {{ s.line }};border-bottom:1px solid {{ s.line }};
-  display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-#shopify-section-{{ sid }} .ar-share-t{font-size:9px;letter-spacing:.18em;text-transform:uppercase;
-  color:{{ s.soft }};font-weight:700}
-#shopify-section-{{ sid }} .ar-share a,#shopify-section-{{ sid }} .ar-share button{
-  font-family:inherit;font-size:11.5px;font-weight:600;color:{{ s.ink }};text-decoration:none;
-  background:none;border:1px solid {{ s.line }};padding:6px 11px;border-radius:99px;cursor:pointer}
-#shopify-section-{{ sid }} .ar-share a:hover,#shopify-section-{{ sid }} .ar-share button:hover{border-color:{{ s.gold }}}
-#shopify-section-{{ sid }} .ar-wa{border-color:#25d36640 !important;color:#128c48 !important}
-
-/* ---- cta ---- */
-#shopify-section-{{ sid }} .ar-cta{margin:{{ s.blk_gap }}px 0 0;padding:20px 18px;text-align:center;
-  background:{{ s.tint }};border:1px solid {{ s.line }};border-radius:{{ s.radius }}px}
-#shopify-section-{{ sid }} .ar-cta-h{font-family:"Fraunces",Georgia,serif;font-size:19px;font-weight:600;
-  margin:0;line-height:1.2}
-#shopify-section-{{ sid }} .ar-cta-p{font-size:12.5px;color:{{ s.soft }};margin:7px 0 14px;line-height:1.5}
-#shopify-section-{{ sid }} .ar-cta-b{display:inline-block;background:{{ s.gold }};color:{{ s.on_gold }};
-  font-size:12.5px;font-weight:700;letter-spacing:.03em;padding:11px 24px;border-radius:99px;text-decoration:none}
-
-/* ---- related ---- */
-#shopify-section-{{ sid }} .ar-rel{max-width:{{ s.col }}px;margin:{{ s.blk_gap }}px auto 0;
-  padding:{{ s.blk_gap }}px {{ s.gutter }}px 0;border-top:1px solid {{ s.line }};text-align:center}
-#shopify-section-{{ sid }} .ar-rel-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;text-align:left}
-#shopify-section-{{ sid }} .ar-rc{text-decoration:none;color:{{ s.ink }};display:block}
-#shopify-section-{{ sid }} .ar-rc img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
-  border-radius:6px;border:1px solid {{ s.line }};margin-bottom:6px}
-#shopify-section-{{ sid }} .ar-rc span{font-family:"Fraunces",Georgia,serif;font-size:12.5px;
-  font-weight:600;line-height:1.28;display:block}
-#shopify-section-{{ sid }} .ar-all{display:inline-block;margin-top:16px;font-size:11.5px;font-weight:600;
-  color:{{ s.link }};text-decoration:none;letter-spacing:.04em}
-
-/* ---------- desktop ---------- */
-@media (min-width:900px){
-  #shopify-section-{{ sid }} .ar{padding:{{ s.pad_top | times: 1.6 | round }}px 0 {{ s.pad_bottom | times: 1.5 | round }}px}
-  #shopify-section-{{ sid }} .ar-head h1{font-size:{{ s.h1_d }}px}
-  #shopify-section-{{ sid }} .ar-dek{font-size:16.5px}
-  #shopify-section-{{ sid }} .ar-meta{font-size:11.5px;gap:9px}
-  #shopify-section-{{ sid }} .ar-body{font-size:{{ s.body_d }}px;line-height:1.8}
-  #shopify-section-{{ sid }} .ar-body h2{font-size:{{ s.h2_d }}px}
-  #shopify-section-{{ sid }} .ar-body h3{font-size:{{ s.h2_d | minus: 5 }}px}
-  #shopify-section-{{ sid }} .ar-h{font-size:{{ s.h2_d }}px}
-  #shopify-section-{{ sid }} .ar-picks-grid{grid-template-columns:1fr 1fr;gap:12px}
-  #shopify-section-{{ sid }} .ar-reel-row{grid-template-columns:1fr 1fr;gap:14px}
-  #shopify-section-{{ sid }} .ar-rc span{font-size:15px}
-  #shopify-section-{{ sid }} .ar-rel-row{gap:18px}
-  #shopify-section-{{ sid }} .ar-cta{padding:30px 26px}
-  #shopify-section-{{ sid }} .ar-cta-h{font-size:24px}
-  #shopify-section-{{ sid }} .ar-cta-p{font-size:14px}
-}
-
-/* Contents sidebar — ghani jagya hoy tyare j, nahi to lakhan sankdu thai jaay.
-   Rail (230px) + gap (50px) etli jagya dabi baaju rakhvi pade chhe, ane e j
-   offset title, image ane niche na blocks par pan lagaadvo pade — nahi to
-   lakhan ni dabi kinaar ane title ni kinaar alag alag jagya par bese. Ek j
-   ganit banne jagya vaapre chhe, etle e kyay drift na thai shake. */
-@media (min-width:1140px){
-  #shopify-section-{{ sid }} .ar-wrap{max-width:{{ s.col | plus: 280 }}px;display:grid;
-    grid-template-columns:230px minmax(0,1fr);gap:50px;
-    padding:0 {{ s.gutter }}px;margin:0 auto}
-  #shopify-section-{{ sid }} .ar-toc{position:sticky;top:96px;margin:{{ s.body_gap }}px 0 0;
-    align-self:start;max-height:calc(100vh - 130px);overflow-y:auto}
-  #shopify-section-{{ sid }} .ar-crumb,
-  #shopify-section-{{ sid }} .ar-head,
-  #shopify-section-{{ sid }} .ar-lead,
-  #shopify-section-{{ sid }} .ar-rel{max-width:{{ s.col | plus: 280 }}px;
-    padding-left:{{ s.gutter | plus: 280 }}px;padding-right:{{ s.gutter }}px}
-}
-</style>
-
 {% schema %}
 {
-  "name": "Article — SYNOR",
+  "name": "Diaries article — SYNOR",
   "tag": "section",
   "settings": [
-    { "type": "paragraph", "content": "Aa page article na tags par chale chhe. vlog · yt-VIDEOID · pick-product-handle · series-name · guide/review/story/news · family-* occasion-* season-*" },
+    { "type": "paragraph", "content": "Chhapa nu andar nu paanu. Tags: blog · vlog · review · letter · series-<slug> · yt-<VIDEOID> · pick-<product-handle>. Metafields (custom): field_place, field_alt, field_temp, field_humidity, field_held, field_asked, field_coords, youtube_ids, notes_top, notes_heart, notes_base, entry_no." },
 
-    { "type": "header", "content": "Words" },
-    { "type": "text", "id": "word_home", "label": "Home", "default": "Home" },
-    { "type": "text", "id": "word_vlog", "label": "Vlog eyebrow", "default": "Live from the road" },
-    { "type": "text", "id": "word_guide", "label": "Guide eyebrow", "default": "Guide" },
-    { "type": "text", "id": "word_review", "label": "Review eyebrow", "default": "Review" },
-    { "type": "text", "id": "word_story", "label": "Story eyebrow", "default": "Story" },
-    { "type": "text", "id": "word_news", "label": "News eyebrow", "default": "News" },
-    { "type": "text", "id": "word_read", "label": "Reading time word", "default": "min read" },
-    { "type": "text", "id": "date_fmt", "label": "Date format", "default": "%d %B %Y" },
-    { "type": "text", "id": "word_toc", "label": "Contents title", "default": "In this post" },
-    { "type": "text", "id": "word_more_clips", "label": "Extra videos title", "default": "More from this trip" },
-    { "type": "text", "id": "word_picks", "label": "Products title", "default": "Worn in this post" },
-    { "type": "text", "id": "picks_note", "label": "Line under it", "default": "Every bottle has a 3ml tester. Try before you commit." },
+    { "type": "header", "content": "Masthead" },
+    { "type": "text", "id": "paper_name", "label": "Paper name (blank = blog name)" },
+    { "type": "text", "id": "ear_right", "label": "Top right", "default": "₹49 a tester" },
+    { "type": "text", "id": "word_no", "label": "Word before the number", "default": "No." },
+    { "type": "text", "id": "date_long", "label": "Date format", "default": "%d %B %Y" },
+
+    { "type": "header", "content": "Kind words" },
+    { "type": "text", "id": "word_blog", "label": "Blog", "default": "Blog" },
+    { "type": "text", "id": "word_vlog", "label": "Vlog", "default": "Vlog" },
+    { "type": "text", "id": "word_review", "label": "Review", "default": "Review" },
+    { "type": "text", "id": "word_letters", "label": "Letter", "default": "Letter" },
+
+    { "type": "header", "content": "Other words" },
+    { "type": "text", "id": "word_read", "label": "Reading time", "default": "min read" },
+    { "type": "text", "id": "word_clips", "label": "Word after the clip count", "default": "clips" },
+    { "type": "text", "id": "word_more_clips", "label": "Extra clips heading", "default": "More from this trip" },
+    { "type": "text", "id": "film_note", "label": "Note on the film", "default": "Tap to play" },
+    { "type": "text", "id": "word_notes", "label": "Notes table heading", "default": "The notes, as recorded" },
+    { "type": "text", "id": "word_top", "label": "Top", "default": "Top" },
+    { "type": "text", "id": "word_heart", "label": "Heart", "default": "Heart" },
+    { "type": "text", "id": "word_base", "label": "Base", "default": "Base" },
+    { "type": "text", "id": "word_worn", "label": "Products heading", "default": "Worn in this report" },
+    { "type": "text", "id": "worn_note", "label": "Line under it", "default": "Every bottle has a 3ml tester. Smell it first." },
     { "type": "text", "id": "try_label", "label": "Tester button", "default": "Try 3ml" },
-    { "type": "text", "id": "open_label", "label": "Link next to it", "default": "Full page" },
-    { "type": "text", "id": "word_topics", "label": "Topics label", "default": "Topics" },
+    { "type": "text", "id": "word_topics", "label": "Topics label", "default": "Filed under" },
     { "type": "text", "id": "word_share", "label": "Share label", "default": "Share" },
     { "type": "text", "id": "word_copy", "label": "Copy button", "default": "Copy link" },
     { "type": "text", "id": "word_copied", "label": "After copying", "default": "Copied" },
-    { "type": "text", "id": "word_series", "label": "Series title", "default": "More in this series" },
-    { "type": "text", "id": "word_next", "label": "Related title", "default": "Read next" },
-    { "type": "text", "id": "word_all", "label": "See-all link", "default": "All posts" },
+    { "type": "text", "id": "word_also", "label": "Related heading", "default": "Also in this issue" },
+    { "type": "text", "id": "word_index_link", "label": "Index link", "default": "The full index" },
 
     { "type": "header", "content": "Blocks on or off" },
-    { "type": "checkbox", "id": "show_toc", "label": "Contents box", "default": true },
-    { "type": "range", "id": "toc_min", "min": 2, "max": 8, "step": 1, "label": "Show contents only if headings are at least", "default": 3 },
     { "type": "checkbox", "id": "show_share", "label": "Share row", "default": true },
-    { "type": "checkbox", "id": "show_cta", "label": "Closing offer", "default": true },
+    { "type": "checkbox", "id": "show_house", "label": "Closing notice", "default": true },
 
-    { "type": "header", "content": "Closing offer" },
-    { "type": "text", "id": "cta_title", "label": "Title", "default": "Smell it before you buy it" },
-    { "type": "text", "id": "cta_text", "label": "Text", "default": "Any SYNOR in a 3ml tester for ₹49. One spray tells you more than any review." },
-    { "type": "text", "id": "cta_btn", "label": "Button", "default": "Pick a 3ml for ₹49" },
-    { "type": "url", "id": "cta_link", "label": "Button link" },
+    { "type": "header", "content": "Closing notice" },
+    { "type": "text", "id": "house_eyebrow", "label": "Eyebrow", "default": "A notice from the house" },
+    { "type": "text", "id": "house_title", "label": "Title", "default": "Smell it before you buy it" },
+    { "type": "textarea", "id": "house_text", "label": "Text", "default": "Any SYNOR in a 3ml tester for ₹49. One spray tells you more than any review." },
+    { "type": "text", "id": "house_btn", "label": "Button", "default": "Pick a 3ml for ₹49" },
+    { "type": "url", "id": "house_link", "label": "Button link" },
 
     { "type": "header", "content": "Size and spacing" },
-    { "type": "range", "id": "col", "min": 600, "max": 900, "step": 20, "unit": "px", "label": "Reading column", "default": 760 },
-    { "type": "range", "id": "gutter", "min": 12, "max": 40, "step": 2, "unit": "px", "label": "Side margin", "default": 18 },
-    { "type": "range", "id": "pad_top", "min": 0, "max": 60, "step": 2, "unit": "px", "label": "Top", "default": 20 },
-    { "type": "range", "id": "pad_bottom", "min": 0, "max": 80, "step": 2, "unit": "px", "label": "Bottom", "default": 36 },
-    { "type": "range", "id": "lead_gap", "min": 8, "max": 44, "step": 2, "unit": "px", "label": "Space above the image or video", "default": 20 },
-    { "type": "range", "id": "body_gap", "min": 8, "max": 44, "step": 2, "unit": "px", "label": "Space above the text", "default": 22 },
-    { "type": "range", "id": "blk_gap", "min": 16, "max": 64, "step": 2, "unit": "px", "label": "Space between blocks", "default": 32 },
-    { "type": "range", "id": "radius", "min": 0, "max": 18, "step": 1, "unit": "px", "label": "Corner radius", "default": 8 },
-
-    { "type": "header", "content": "Type sizes" },
-    { "type": "range", "id": "h1_m", "min": 20, "max": 40, "step": 1, "unit": "px", "label": "Title · mobile", "default": 27 },
-    { "type": "range", "id": "h1_d", "min": 28, "max": 60, "step": 1, "unit": "px", "label": "Title · desktop", "default": 42 },
-    { "type": "range", "id": "h2_m", "min": 15, "max": 28, "step": 1, "unit": "px", "label": "Heading · mobile", "default": 19 },
-    { "type": "range", "id": "h2_d", "min": 18, "max": 36, "step": 1, "unit": "px", "label": "Heading · desktop", "default": 25 },
+    { "type": "range", "id": "max", "min": 700, "max": 1100, "step": 20, "unit": "px", "label": "Page width", "default": 820 },
+    { "type": "range", "id": "gutter", "min": 14, "max": 40, "step": 2, "unit": "px", "label": "Side margin · mobile", "default": 18 },
+    { "type": "range", "id": "gutter_d", "min": 20, "max": 80, "step": 4, "unit": "px", "label": "Side margin · desktop", "default": 44 },
+    { "type": "range", "id": "pad_bottom", "min": 0, "max": 90, "step": 2, "unit": "px", "label": "Bottom", "default": 40 },
+    { "type": "range", "id": "blk", "min": 16, "max": 60, "step": 2, "unit": "px", "label": "Space between blocks", "default": 30 },
+    { "type": "range", "id": "h1_m", "min": 26, "max": 56, "step": 1, "unit": "px", "label": "Headline · mobile", "default": 40 },
+    { "type": "range", "id": "h1_d", "min": 36, "max": 90, "step": 2, "unit": "px", "label": "Headline · desktop", "default": 64 },
+    { "type": "range", "id": "h2_m", "min": 15, "max": 30, "step": 1, "unit": "px", "label": "Sub-heading · mobile", "default": 19 },
+    { "type": "range", "id": "h2_d", "min": 18, "max": 40, "step": 1, "unit": "px", "label": "Sub-heading · desktop", "default": 26 },
     { "type": "range", "id": "body_m", "min": 13, "max": 19, "step": 1, "unit": "px", "label": "Text · mobile", "default": 15 },
     { "type": "range", "id": "body_d", "min": 15, "max": 22, "step": 1, "unit": "px", "label": "Text · desktop", "default": 17 },
 
-    { "type": "header", "content": "Colours" },
-    { "type": "color", "id": "bg", "label": "Background", "default": "#FFFDF9" },
-    { "type": "color", "id": "card", "label": "Card face", "default": "#FFFFFF" },
-    { "type": "color", "id": "tint", "label": "Soft panel", "default": "#F7F4EC" },
-    { "type": "color", "id": "line", "label": "Lines", "default": "#E5DFD1" },
-    { "type": "color", "id": "ink", "label": "Text", "default": "#1A1712" },
-    { "type": "color", "id": "soft", "label": "Muted text", "default": "#6E6656" },
-    { "type": "color", "id": "gold", "label": "Gold", "default": "#BE9A54" },
-    { "type": "color", "id": "on_gold", "label": "Text on gold", "default": "#FFFDF9" },
-    { "type": "color", "id": "link", "label": "Links", "default": "#A8873F" }
+    { "type": "header", "content": "Paper and ink" },
+    { "type": "color", "id": "paper", "label": "Paper", "default": "#F6F2E7" },
+    { "type": "color", "id": "white", "label": "Cut background", "default": "#FBF8F1" },
+    { "type": "color", "id": "ink", "label": "Ink", "default": "#26211A" },
+    { "type": "color", "id": "ink2", "label": "Ink · softer", "default": "#4B4336" },
+    { "type": "color", "id": "soft", "label": "Furniture text", "default": "#7C7263" },
+    { "type": "color", "id": "rule", "label": "Rules", "default": "#C9BFA9" },
+    { "type": "color", "id": "rule2", "label": "Rules · faint", "default": "#DED5C1" },
+    { "type": "color", "id": "gold", "label": "Gold", "default": "#A9853C" },
+
+    { "type": "header", "content": "Spot colour · fragrance family" },
+    { "type": "color", "id": "c_fresh", "label": "Fresh & Aquatic", "default": "#5E8C88" },
+    { "type": "color", "id": "c_floral", "label": "Floral & Fruity", "default": "#B7736B" },
+    { "type": "color", "id": "c_woody", "label": "Woody & Oud", "default": "#95643A" },
+    { "type": "color", "id": "c_amber", "label": "Amber & Sweet", "default": "#BE8B3C" }
   ]
 }
 {% endschema %}

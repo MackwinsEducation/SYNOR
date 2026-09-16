@@ -1,220 +1,213 @@
-# SYNOR — blog layer
+# SYNOR Diaries — the blog layer
 
-The store had no blog. Both blogs in the admin (`News`, `Our Blogs`) were
-empty, and the theme had no `blog.json`, no `article.json` and no blog
-sections — so a post published today would have landed on Dawn's stock
-template, in Dawn's stock type, with none of the store's paper-and-gold
-character and none of its selling surface.
+The store had no blog. Both blogs in the admin were empty, and the theme had
+no `blog.json`, no `article.json` and no blog sections, so a post published
+today would have landed on Dawn's stock template with none of the store's
+character and nothing on it to sell with.
 
-This layer is the blog: a listing page, an article page, and the three
-snippets they share. It is additive — new files only, nothing existing was
-edited — in the same way the desktop layer was added.
+This layer is the blog, and it is built as a **newspaper**: a front page with
+a nameplate, a lead report and an index, and inside pages that carry one
+report each.
 
-(The live theme is `SYNOR work copy 4`. `desktop-layer.md` still calls it
-`Updated copy of gokwikbundler`, which was its name when that layer was
-written.)
+## Why a newspaper
 
-The vision behind it is four words: **rank, SEO, sell, content**. The article
-page is where those meet. It has to read like an editorial page, carry video
-without wrecking page speed, put the product within one tap of the paragraph
-that sells it, and emit the structured data that gets a post into Google's
-rich results.
+Not for the look. Because every piece of a newspaper's furniture already had
+a job waiting for it here:
+
+| Newspaper | What it became |
+| --- | --- |
+| Spot colour — old papers printed in black ink and *one* colour | The post's **fragrance family**. Four families, four colours, nothing else coloured. |
+| The weather box in the corner | The **field log** — place, altitude, temp, humidity, hours held, people asked. A dispatch's weather is not decoration here: perfume behaves differently in 68% humidity, which is the whole point of going outside with a bottle. |
+| The cover price on the front page | **₹49 a tester**, printed where a paper prints its price. |
+| Classifieds — dense, plain, scannable | The **index**. Every entry, one line each. |
+| The folio at the foot of the page | `Synor Diaries · No. 07 · synorperfume.com` |
+| The letters page | Entries tagged `letter` — real customer reviews, set as letters. |
+
+It also solved a constraint the owner set: **no black.** Newsprint stock is
+cream and newspaper ink is a warm near-brown, so the register has no black in
+it to begin with — `#F6F2E7` paper, `#26211A` ink. The brief and the medium
+happened to want the same thing.
+
+## Two voices, on purpose
+
+The front page is **quiet** and the inside page is **loud**, which is the
+reverse of a real paper. That is deliberate.
+
+- **Front page** — fewer rules, no boxes, one large standfirst instead of two
+  columns of small type, lighter weights, colour reduced to a single 6px
+  square. Phone-sized two-column body text is the single clearest tell of
+  cheap newsprint, so there is none.
+- **Inside page** — 40px headline at weight 900, uppercase, a coloured kicker
+  block, 2px rules, a drop cap in the family colour, pull quotes reversed out
+  of that colour.
+
+The reasoning: a reader on the index is *browsing* and needs calm to scan; a
+reader who has opened a report has already committed, and that is the moment
+to hold them and sell. Restraint where the eye chooses, force where the
+decision happens.
 
 ## Files
 
 | File | What it is |
 | --- | --- |
-| `templates/blog.json` | New. Points the blog listing at `sa-blog-list`. |
-| `templates/article.json` | New. Points the article page at `sa-article`. |
-| `sections/sa-blog-list.liquid` | New. Listing: featured post, grid, topic pills, pagination, empty state. |
-| `sections/sa-article.liquid` | New. The article page, top to bottom. |
-| `snippets/sa-blog-seo.liquid` | New. JSON-LD — BlogPosting, BreadcrumbList, VideoObject. |
-| `snippets/sa-blog-video.liquid` | New. YouTube thumbnail that becomes an iframe on click. |
-| `snippets/sa-blog-product.liquid` | New. Product card for inside a post, 3ml tester first. |
+| `templates/blog.json` | Points the blog listing at `sa-blog-list`. |
+| `templates/article.json` | Points the article page at `sa-article`. |
+| `sections/sa-blog-list.liquid` | Front page: nameplate, section bar, dateline, lead report, field row, index, pagination, empty state. |
+| `sections/sa-article.liquid` | Inside page: strip, ribbon, headline, cut, field log, body, notes, products, share, closing notice, also-in-this-issue. |
+| `snippets/sa-blog-field.liquid` | The field log. Renders only the values that exist. |
+| `snippets/sa-blog-video.liquid` | YouTube as a thumbnail until clicked. |
+| `snippets/sa-blog-product.liquid` | A product as a classified ad, tester first. |
+| `snippets/sa-blog-taxbar.liquid` | The topic filter row, built from the blog's own tags. |
+| `snippets/sa-blog-alsorow.liquid` | One row of "Also in this issue". |
+| `snippets/sa-blog-seo.liquid` | JSON-LD — BlogPosting, BreadcrumbList, VideoObject. |
 
-Nothing was changed in `layout/theme.liquid`. The sections carry their own
-`<style>` blocks, scoped by section id, exactly as `sa-drops.liquid` does —
-see *Specificity* in `desktop-layer.md` for why a stylesheet in `assets/`
-cannot win against a section's own ID-scoped rules.
+Nothing in `layout/theme.liquid` was changed, and no existing file was
+touched. Each section carries its own `<style>`, scoped by section id, as
+`sa-drops.liquid` does — see *Specificity* in `desktop-layer.md` for why a
+stylesheet in `assets/` cannot win against a section's own ID-scoped rules.
 
 ## The tag language
 
-Everything variable about a post — its videos, its products, its series, its
-kind — is read off the article's **tags**.
+Everything variable about an entry is read off its **tags**.
 
 | Tag | Effect |
 | --- | --- |
-| `vlog` (or `live`) | Video-first layout: the video sits above the writing, not below it. |
-| `yt-<VIDEOID>` | A YouTube video. Several are allowed; they render in tag order. |
-| `pick-<product-handle>` | That product gets a buy card under the post. Up to 6. |
-| `series-<slug>` | Marks the post as part of a series, and links the others in it. |
-| `guide` `review` `story` `news` | Sets the eyebrow word above the title. |
-| `gender-*` `occasion-*` `family-*` `brand-*` | Topic pills, linking to the filtered listing. |
+| `blog` `vlog` `review` `letter` | The kind. Also the section bar's filters. |
+| `series-<slug>` | Part of a series; links the others at the foot of the page. |
+| `yt-<VIDEOID>` | A film. Several allowed; they render in tag order. |
+| `pick-<product-handle>` | That product appears as a classified ad. Up to 6. |
+| `gender-*` `occasion-*` `family-*` `brand-*` | The topic filter row, and the spot colour. |
 
-Tags, rather than metafields, because a tag is one field on the article that
-the Admin API can write in the same call that creates the post — no metafield
-definitions, no app, no second request. It also means the blog speaks the
-same language the catalogue already speaks: the 50 products are tagged
-`family-woody-oud`, `occasion-office`, `brand-creed` today, so a post tagged
-the same way is filed beside them without a new vocabulary.
+Tags rather than metafields for these, because a tag is one field the Admin
+API writes in the same call that creates the post — no definitions, no app,
+no second request. It also means the blog speaks the language the catalogue
+already speaks.
 
-### Only four of those namespaces are the shop's
+### Only four namespaces are the shop's
 
-The products carry more tag namespaces than the store actually sells by.
-`season-*`, `mood-*` and `scent-*` exist on every product, and there are
-collections built on them — Winter Season, Bold & Powerful, Elegant — but the
-storefront's navigation does not use any of them. What it uses is four:
+The products carry more than the storefront navigates by. `season-*`,
+`mood-*` and `scent-*` exist on every product, and there are collections
+built on them — Winter Season, Bold & Powerful, Elegant — but the menu uses
+none of them. What it uses is four: gender (3), occasion (6), fragrance type
+(4), and the inspired house behind each scent (`brand-*`).
 
-| | |
-| --- | --- |
-| Gender | 3 — Men, Women, Unisex |
-| Occasion | 6 — Daily & Casual, Office & Formal, Date & Dinner, Party & Night Out, Wedding & Festive, Gym & Active |
-| Fragrance type | 4 — Fresh & Aquatic, Floral & Fruity, Woody & Oud, Amber & Sweet |
-| Inspired house | the `brand-*` tags; no collections, 17 houses |
+So the topic row is an allowlist of exactly those four. A reader should meet
+the same handful of words on a post that they meet in the menu; offering them
+"winter" sends them somewhere the shop does not sort by. The row also drops
+the namespace before printing — `occasion-office` reads as "office". The
+prefix is how the bot addresses the theme, not language for a customer.
 
-So the topic pills are an allowlist of exactly those four, not a blocklist of
-the internal tags. A reader should meet the same handful of words on a post
-that they meet in the menu; offering them "winter" or "seductive" as a way in
-sends them somewhere the shop does not sort by.
+## Metafields — the field log
 
-The pills also drop the namespace before printing — `occasion-office` reads
-as "office", `brand-creed` as "creed". The prefix is how the bot addresses
-the theme, not language for a customer.
+Six numbers as six tags would be unreadable, so the field log comes from
+article metafields in the `custom` namespace:
 
-Internal tags (`yt-`, `pick-`, `series-`) are hidden from the listing's pill
-row. They are instructions, not topics.
+`field_place` · `field_alt` · `field_temp` · `field_humidity` ·
+`field_held` · `field_asked` · `field_coords`
 
-**One caveat.** YouTube IDs are case-sensitive (`dQw4w9WgXcQ`). Shopify
-preserves tag case, so `yt-` tags work — but if a tag's case is ever mangled
-by an import or a third-party app, the video breaks silently. For that case
-the article metafield `custom.youtube_ids` (comma-separated) overrides the
-tags when it is set. Belt and braces; the tags are the normal path.
+Also `youtube_ids` (comma-separated, wins over `yt-` tags — YouTube IDs are
+case-sensitive and a tag's case can be mangled by an import), `notes_top` /
+`notes_heart` / `notes_base` for the notes table, and `entry_no` for the
+number in the masthead.
 
-## SEO
+**Every one of them is optional.** A missing value drops its cell; all six
+missing drops the whole block. That is what keeps a written guide clean and a
+vlog dispatch instrumented, from one template.
 
-Dawn's `meta-tags` snippet, rendered from `theme.liquid`, already emits the
-`og:` and `twitter:` tags for an article. Emitting them again here would give
-every post two of each, so this layer does not touch them.
+The definitions still have to be created in the Shopify admin before the
+fields appear there as boxes to type into. Until then the blocks simply
+don't render — nothing breaks.
 
-What Dawn does *not* emit is article-level JSON-LD, and that is what
-`sa-blog-seo.liquid` adds:
+## "Latest first" is a label, not a button
 
-- **BlogPosting** — headline, description, image, published and modified
-  dates, author, publisher. This is what makes a post eligible for an article
-  result rather than a plain blue link.
-- **BreadcrumbList** — Home › Blog › Post, so the search result shows the
-  path instead of a bare URL.
-- **VideoObject** — only when the post has a video. A vlog post can then
-  surface with a video thumbnail in search, which is a second way into the
-  same page.
-
-Every value passes through the `json` filter. That matters more than it
-looks: `SYNOR Queen's Victory` contains an apostrophe, and one unescaped
-apostrophe invalidates the whole block — at which point Google discards it
-without reporting anything.
-
-Reading time is counted in Liquid at 200 words per minute. The table of
-contents is built in the browser from the `h2`s in the post body, because
-Liquid cannot parse the HTML that `article.content` returns.
+Shopify's blog always returns newest first and Liquid cannot reorder it.
+A sort control would therefore have to lie, or reorder only the current page,
+which is worse. So the index states its order as a fact and the real filters
+— kind and topic — are the ones that work.
 
 ## Video without the page-speed cost
 
 A YouTube `<iframe>` pulls roughly 1.5MB of player before anyone presses
-play, and page speed is a ranking factor — so a blog built on embedded video
-can lose on speed exactly what it wins on content.
-
-`sa-blog-video.liquid` renders a thumbnail and a play button. No YouTube
-script loads at all until the visitor clicks; then the iframe is injected
-with `autoplay=1`, on `youtube-nocookie.com` so nothing is set on the
-visitor until they have asked for the video.
+play, and page speed is a ranking factor. `sa-blog-video.liquid` renders a
+thumbnail and a ring; no YouTube script loads until the visitor clicks, and
+then the iframe is injected on `youtube-nocookie.com`.
 
 The thumbnail is `hqdefault.jpg`, not `maxresdefault.jpg`: maxres does not
 exist for every video and fails as a broken image, while hqdefault always
-does. It is 480×360 with the 16:9 frame centred, so `object-fit: cover` on a
-16:9 box crops the letterboxing away exactly.
+does. It is 480×360 with the 16:9 frame centred, so `object-fit: cover`
+crops the letterboxing away exactly.
 
-## Selling from inside a post
+## Selling from inside a report
 
-`sa-blog-product.liquid` leads with the **3ml tester at ₹49**, not the 100ml
+`sa-blog-product.liquid` leads with the **3ml tester at ₹49**, not the
 bottle. Someone who has just read about a scent will agree to ₹49 far more
-readily than to ₹1299, and the tester is what brings them back for the
-bottle. The card links to the product page with the tester variant
-pre-selected rather than adding to cart directly, so the GoKwik and bundlr
-flows in `theme.liquid` are never bypassed.
+readily than to ₹1,499, and the tester is what brings them back. The ad links
+to the product page with the tester variant pre-selected rather than adding to
+cart, so the GoKwik and bundlr flows in `theme.liquid` are never bypassed.
 
-Each post also closes on the same offer, as a panel under the writing.
+## Installing it — read this first
 
-## Layout
+The store has **more than one session working on it**. Themes were being
+published from elsewhere while this layer was being built: the live theme
+moved from `SYNOR work copy 4` to `SYNOR work copy 5`, and `SYNOR work copy 6`
+was being edited the next morning.
 
-Mobile-first, like the rest of the theme.
+**Publishing a theme replaces the whole theme, not your part of it.** So:
 
-- The reading column is 760px by default — about 70 characters a line, which
-  is where long-form reading is comfortable.
-- At ≥900px the type scales up and the product cards go to two columns.
-- At ≥1140px the table of contents becomes a sticky rail to the left of the
-  text. The title, lead image and footer blocks take the same left offset
-  from the same arithmetic as the grid, so the page keeps one left edge all
-  the way down instead of the two that a guessed `calc()` produces.
+> Only one theme copy may ever be published, and it must be forked from the
+> live theme at the moment of publishing.
 
-The listing gives the newest post the full width on desktop, because the
-first thing a visitor's eye lands on should be the newest thing written.
+Otherwise whoever publishes last wins and the other sessions' work is gone.
 
-**The empty state is not decoration.** Both blogs have zero posts right now,
-so without it the page would read as broken on the day it goes live. It says
-the first post is coming and points at the shelf.
+Because this layer is **new files only**, it should go in **last** and is the
+easiest to merge:
 
-## How it was installed
+1. The other sessions finish; one of their copies is published and becomes live.
+2. Fork *that* theme, fresh.
+3. Copy these files into the fork (`themeFilesCopy` between themes — no
+   re-uploading).
+4. Publish the fork.
 
-The seven files were written straight into Shopify through the Admin API,
-into a **duplicate of the live theme** named `SYNOR blog preview`, not into
-the live theme itself. The live theme (`SYNOR work copy 4`) was not touched.
+`SYNOR blog preview` (id 188802629927) holds an early version of this layer
+and was forked from `work copy 4`. **It must not be published** — it is two
+generations behind and would roll the store back. Treat it as a holding pen.
 
-A copy rather than the live theme for two reasons. The obvious one: nobody
-should find out a page is broken by being a customer looking at it. The less
-obvious one: the person who has to approve this design cannot read Liquid, so
-"it is correct" has to mean "you can look at it", and looking at it needs a
-URL that is not the shop.
+Verified at build time: neither the live theme nor `work copy 6` contains any
+`sa-blog-*` or `sa-article` file, and both still carry stock Dawn
+`blog.json` / `article.json`. Nobody else is doing blog work, so the merge
+has nothing to collide with. Re-check before installing.
 
-Each upload returned the file's MD5, and every one matched the working copy in
-this repository byte for byte. The files in the preview theme are the files
-here — not a close retyping of them.
+`templates/blog.json` and `templates/article.json` do replace existing files;
+the originals are kept in `docs/theme-backup/`.
 
-Two validation errors came back from Shopify during the upload, both real:
-
-- `templates/blog.json` was rejected before the sections existed, because a
-  template cannot name a section type that is not in the theme yet. Sections
-  and snippets first, templates last.
-- `sa-blog-list.liquid` was rejected for `"default": ""` on a text setting.
-  Shopify does not allow an empty-string default — the key has to be omitted.
-  The Liquid already falls back to the blog's own name with a `default`
-  filter, so nothing was lost by dropping it.
-
-Both are the sort of thing a local checker should have caught, and the
-checker now does.
-
-### What is left to do by hand
-
-1. **Publish** `SYNOR blog preview` in Shopify admin → Online Store → Themes.
-   Theme publishing cannot be done through the API from here, by design, so
-   this is a deliberate human step. Publishing the copy makes it live; any
-   edit made to the current live theme in the meantime would be left behind
-   in it, so publish while nothing else is in flight.
-2. **At least one article has to exist** before the article page can be seen
-   at all. Both blogs are empty, so `/blogs/*/…` has nothing to render.
-3. Optionally adjust the section settings in the theme editor. Every word,
-   colour, size and spacing is a setting; nothing is hard-coded.
-
-The two buttons that would otherwise ship pointing nowhere are set in the
-template files: the article's closing offer goes to `/pages/try-before-you-buy`,
-and the listing's empty-state button to `/collections/all`. Shopify rewrites
-`templates/*.json` whenever the theme editor saves, so those two values are
-defaults, not settled facts — expect the files here and in the theme to drift
-once the editor has been used.
-
-## Not in this layer
+## What this layer is not
 
 The auto-poster and the social fan-out are deliberately absent. Neither
 belongs in a theme: a theme renders what is already in Shopify, it cannot
 write to it or run on a schedule. Both need a scheduled job outside the
 storefront, talking to the Admin API — the tag language above is the contract
 it will write against.
+
+## Directions that were tried and dropped
+
+Five went past the owner before this one, and the rejections were the useful
+part:
+
+1. **A conventional blog** — cards, pills, a hero. Competent and forgettable.
+   Rejected for having no point of view.
+2. **Dispatches** — an expedition journal with a near-black "night" register
+   for vlogs. Rejected on the colour: *"black mane nathi gamtu."* The lesson
+   was larger than the colour — "adventure means dark" was a lazy equation.
+3. **Blotter** — every post a perfumer's test strip, dipped at one end, the
+   stain coloured by fragrance family. The colour idea survived; everything
+   else was still a list, and a list has no moment in it.
+4. **The Index** — a book's contents page as the hero. Closer, but it wanted
+   the furniture a periodical has, which is how the newspaper started.
+5. **Naming.** *Sillage*, *Record*, *Ledger* were all cleverer than they were
+   clear. The brief that settled it: a name should not need explaining, and
+   should say what is inside. `Synor Diaries`, with the sections named as
+   plainly as they are spoken — Blog, Vlog, Series, Review, Letters.
+
+`Synorian` was offered as the paper's name and corrected: it is the
+customers' name, the community's. So it sits under the nameplate instead —
+*For the Synorians* — where a paper says who it is printed for.

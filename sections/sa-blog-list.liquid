@@ -1,336 +1,566 @@
 {%- comment -%}
-  SYNOR — blog listing. Badha posts ni ek jagya.
+  SYNOR DIARIES — pehlu paanu.
 
-  Aa page nu kaam ek j chhe: aavela mansh ne bijo post kholvani ichchha thaay.
-  Etle sauthi navo post moto rakhyo chhe, ane upar tag ni pills — jethi koi
-  "winter" ke "office" ke "vlog" par tap kari ne potane joiye e j vaanchi shake.
+  Blog listing chhapa na pehla paana jem chhe: nameplate, dateline, ek mukhya
+  ahevaal, ane niche Index (chhapa na classifieds jem) — badhi entries ek
+  najar ma.
 
-  Tag pills blog na articles na tags par thi jate bane chhe, pan FAKT e char
-  shreni ni je store ma live vaparaay chhe: gender, occasion, fragrance type,
-  ane inspired house (brand). Baki badhu — season, mood, scent, ane bot na
-  internal tags (yt-, pick-, series-) — chhupayelu rahe chhe. Vaanchak ne e j
-  shabdo dekhaay je dukan ma pan e vaapre chhe.
+  "A-fine": chhapu ochhi leetio, vadhare khali jagya ane ochho rang thi
+  monghu laage chhe. Etle ahiya jaadi leetio nathi, chokatha nathi, ane
+  phone par be column nu nanu lakhan nathi (e sauthi sasta newsprint ni
+  nishani chhe). Vaanchvanu post ma chhe, listing ma nathi.
 
-  Blog ma ek pan post na hoy (aaje evu j chhe) to page tutelu na lagse —
-  niche ek shaanti thi lakhelu "have aavse" nu block dekhaay chhe.
+  RANG = FRAGRANCE FAMILY. Juna chhapa kaali shahi ane EK rang ma chhapaata.
+  Aa chhapa no e ek rang = post ni fragrance family. Index ma paanch chorasa
+  ek sathe dekhaay tyare rang kharekhar bole chhe.
+
+  TAGS (bot ane tu, banne aaj lakho):
+    blog | vlog | review | letter   → Index ma kind, ane upar ni patti no filter
+    series-<slug>                   → series no bhaag
+    yt-<VIDEOID>                    → film (metafield custom.youtube_ids pan chale)
+    family-* gender-* occasion-* brand-*  → niche ni patti na filters
+
+  LATEST: Shopify no blog sada sauthi navo pehlo aape chhe, ane Liquid ma
+  kram badalvano koi rasto nathi. Etle "Latest first" ek lakhan chhe, button
+  nathi — khota control mukava karta saachu lakhvu saru.
 {%- endcomment -%}
 
 {%- assign s = section.settings -%}
 {%- assign sid = section.id -%}
+
 {%- liquid
   assign filtered = false
   if current_tags and current_tags.size > 0
     assign filtered = true
   endif
+
+  assign cur = ''
+  if filtered
+    assign cur = current_tags | first | downcase
+  endif
 -%}
 
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<div class="bl">
-  <header class="bl-head">
-    {%- if s.eyebrow != blank -%}
-      <span class="bl-eye"><i class="bl-blip" aria-hidden="true"></i>{{ s.eyebrow }}</span>
-    {%- endif -%}
-    <h1>
-      {%- if filtered -%}
-        {{ current_tags | first | replace: '-', ' ' }}
-      {%- else -%}
-        {{ s.title | default: blog.title }}
-      {%- endif -%}
-    </h1>
-    {%- unless filtered -%}{%- if s.intro != blank -%}
-      <p class="bl-intro">{{ s.intro }}</p>
-    {%- endif -%}{%- endunless -%}
-    {%- if filtered -%}
-      <p class="bl-intro"><a class="bl-clear" href="{{ blog.url }}">← {{ s.word_clear }}</a></p>
+<div class="np">
+
+  {%- comment -%} ---- nameplate ---- {%- endcomment -%}
+  <header class="np-plate">
+    <div class="np-ears">
+      <span>{{ s.ear_left }}</span>
+      <span>{{ s.ear_right }}</span>
+    </div>
+    <h1 class="np-nm">{{ s.paper_name | default: blog.title }}</h1>
+    {%- if s.creed != blank -%}
+      <p class="np-creed">{{ s.creed }}</p>
     {%- endif -%}
   </header>
 
-  {%- comment -%} Tag pills — bot je tags lakhe chhe e j ahiya filter bani jaay chhe. {%- endcomment -%}
-  {%- if s.show_tags and blog.all_tags.size > 0 -%}
-    {%- capture pills -%}
-      {%- for t in blog.all_tags -%}
-        {%- liquid
-          assign low = t | downcase
-          assign k6 = low | slice: 0, 6
-          assign k7 = low | slice: 0, 7
-          assign k9 = low | slice: 0, 9
+  <div class="np-hair"></div>
 
-          assign keep = false
-          if k7 == 'family-' or k9 == 'occasion-' or k6 == 'gender' or k6 == 'brand-'
-            assign keep = true
-          elsif low == 'vlog' or low == 'guide' or low == 'review' or low == 'story' or low == 'news'
-            assign keep = true
-          endif
+  {%- comment -%}
+    Section patti. Dareki ek tag chhe, etle Shopify nu tagged URL j kaam kare
+    chhe — koi navu template ke app ni jarur nahi.
+  {%- endcomment -%}
+  <nav class="np-nav" aria-label="{{ s.word_sections | escape }}">
+    <a href="{{ blog.url }}"{% unless filtered %} class="on" aria-current="page"{% endunless %}>{{ s.word_all }}</a>
+    {%- assign kinds = 'blog,vlog,series,review,letter' | split: ',' -%}
+    {%- for k in kinds -%}
+      {%- liquid
+        assign kl = ''
+        case k
+          when 'blog'
+            assign kl = s.word_blog
+          when 'vlog'
+            assign kl = s.word_vlog
+          when 'series'
+            assign kl = s.word_series
+          when 'review'
+            assign kl = s.word_review
+          when 'letter'
+            assign kl = s.word_letters
+        endcase
+      -%}
+      <a href="{{ blog.url }}/tagged/{{ k }}"{% if cur == k %} class="on" aria-current="page"{% endif %}>{{ kl }}</a>
+    {%- endfor -%}
+  </nav>
 
-          assign lbl = low | remove_first: 'occasion-' | remove_first: 'family-'
-          assign lbl = lbl | remove_first: 'gender-' | remove_first: 'brand-' | replace: '-', ' '
-        -%}
-        {%- if keep -%}
-          {%- if current_tags contains t -%}
-            <a class="bl-pill on" href="{{ blog.url }}">{{ lbl }} ×</a>
-          {%- else -%}
-            <a class="bl-pill" href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ lbl }}</a>
-          {%- endif -%}
-        {%- endif -%}
-      {%- endfor -%}
-    {%- endcapture -%}
-    {%- assign pills_t = pills | strip -%}
-    {%- if pills_t != blank -%}
-      <nav class="bl-tags" aria-label="{{ s.word_topics | escape }}">{{ pills }}</nav>
+  <div class="np-hair np-hair2"></div>
+
+  <p class="np-dline">
+    {%- if s.vol != blank -%}{{ s.vol }} &middot; {% endif -%}
+    {%- if filtered -%}
+      {{ cur | replace: '-', ' ' }}
+    {%- else -%}
+      {{ 'now' | date: s.date_long }}
     {%- endif -%}
-  {%- endif -%}
+    {%- if blog.articles_count > 0 %} &middot; {{ blog.articles_count }} {{ s.word_entries }}{% endif -%}
+  </p>
 
   {%- paginate blog.articles by s.per_page -%}
 
     {%- if blog.articles.size == 0 -%}
-      <div class="bl-empty">
-        <p class="bl-empty-h">{{ s.empty_title }}</p>
-        <p class="bl-empty-p">{{ s.empty_text }}</p>
+
+      <div class="np-none">
+        <p class="np-none-h">{{ s.empty_title }}</p>
+        <p class="np-none-p">{{ s.empty_text }}</p>
         {%- if s.empty_link != blank -%}
-          <a class="bl-empty-b" href="{{ s.empty_link }}">{{ s.empty_btn }}</a>
+          <a class="np-none-b" href="{{ s.empty_link }}">{{ s.empty_btn }}</a>
         {%- endif -%}
       </div>
+
     {%- else -%}
 
-      <div class="bl-grid">
-        {%- for a in blog.articles -%}
-          {%- liquid
-            assign yt = ''
-            assign is_vlog = false
-            assign kind = ''
-            for t in a.tags
-              assign low = t | downcase
-              if low == 'vlog' or low == 'live'
-                assign is_vlog = true
-              elsif low == 'guide' or low == 'review' or low == 'story' or low == 'news'
-                assign kind = low
-              endif
-              assign k3 = low | slice: 0, 3
-              if k3 == 'yt-' and yt == ''
-                assign yt = t | slice: 3, 40
-              endif
-            endfor
+      {%- liquid
+        assign total = blog.articles_count
+        assign page_back = paginate.current_page | minus: 1
+        assign offset = page_back | times: s.per_page
+        assign show_lead = false
+        if s.lead_first and paginate.current_page == 1 and filtered == false
+          assign show_lead = true
+        endif
+      -%}
 
-            assign words = a.content | strip_html | split: ' ' | size
-            assign rt = words | divided_by: 200 | at_least: 1
+      {%- for a in blog.articles -%}
+        {%- liquid
+          assign kind = ''
+          assign series = ''
+          assign yt = ''
+          assign famkey = ''
+          assign place = a.metafields.custom.field_place.value
 
-            assign badge = ''
-            if is_vlog
-              assign badge = s.word_vlog
-            elsif kind != ''
-              assign badge = kind
+          for t in a.tags
+            assign low = t | downcase
+            if low == 'vlog' or low == 'blog' or low == 'review' or low == 'letter'
+              assign kind = low
             endif
-
-            assign big = false
-            if s.feature_first and forloop.first and paginate.current_page == 1 and filtered == false
-              assign big = true
+            assign k3 = low | slice: 0, 3
+            if k3 == 'yt-' and yt == ''
+              assign yt = t | slice: 3, 40
             endif
-          -%}
+            assign k7 = low | slice: 0, 7
+            if k7 == 'series-'
+              assign series = low | slice: 7, 120
+            elsif k7 == 'family-' and famkey == ''
+              assign famkey = low | remove_first: 'family-'
+            endif
+          endfor
 
-          <a class="bl-card{% if big %} big{% endif %}" href="{{ a.url }}">
-            <span class="bl-shot">
-              {%- if a.image -%}
-                {{ a.image | image_url: width: 900 | image_tag:
-                     widths: '300,500,700,900',
-                     sizes: '(min-width: 900px) 420px, 92vw',
-                     loading: 'lazy', alt: a.title | escape }}
-              {%- elsif yt != blank -%}
-                <img src="https://i.ytimg.com/vi/{{ yt }}/hqdefault.jpg"
-                     alt="{{ a.title | escape }}" width="480" height="270" loading="lazy" decoding="async">
-              {%- else -%}
-                <span class="bl-noshot" aria-hidden="true">{{ s.mark }}</span>
-              {%- endif -%}
+          assign mf_yt = a.metafields.custom.youtube_ids.value
+          if mf_yt != blank and yt == ''
+            assign ids = mf_yt | replace: ' ', '' | split: ','
+            assign yt = ids | first
+          endif
 
-              {%- if yt != blank -%}
-                <span class="bl-play" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" focusable="false"><path d="M8 5.5v13l11-6.5z"/></svg>
-                </span>
-              {%- endif -%}
-              {%- if badge != blank -%}<span class="bl-badge">{{ badge }}</span>{%- endif -%}
-            </span>
+          assign fam = 'default'
+          if famkey contains 'fresh' or famkey contains 'aquatic'
+            assign fam = 'fresh'
+          elsif famkey contains 'floral' or famkey contains 'fruity'
+            assign fam = 'floral'
+          elsif famkey contains 'woody' or famkey contains 'oud'
+            assign fam = 'woody'
+          elsif famkey contains 'amber' or famkey contains 'sweet'
+            assign fam = 'amber'
+          endif
 
-            <span class="bl-body">
-              <span class="bl-t">{{ a.title }}</span>
-              {%- if a.excerpt_or_content != blank -%}
-                <span class="bl-x">{{ a.excerpt_or_content | strip_html | truncatewords: 22 }}</span>
-              {%- endif -%}
-              <span class="bl-m">
-                <time datetime="{{ a.published_at | date: '%Y-%m-%d' }}">{{ a.published_at | date: s.date_fmt }}</time>
-                <i aria-hidden="true">·</i>{{ rt }} {{ s.word_read }}
-              </span>
+          assign kl = s.word_blog
+          if kind == 'vlog'
+            assign kl = s.word_vlog
+          elsif kind == 'review'
+            assign kl = s.word_review
+          elsif kind == 'letter'
+            assign kl = s.word_letters
+          endif
+
+          assign words = a.content | strip_html | split: ' ' | size
+          assign rt = words | divided_by: 200 | at_least: 1
+
+          assign no = total | minus: offset | minus: forloop.index0
+          assign no_pad = no
+          if no < 10
+            assign no_pad = no | prepend: '0'
+          endif
+        -%}
+
+        {%- if show_lead and forloop.first -%}
+
+          {%- comment -%} ---- mukhya ahevaal ---- {%- endcomment -%}
+          <article class="np-lead" data-fam="{{ fam }}">
+            <p class="np-kick">
+              <i aria-hidden="true"></i>{{ kl }}
+              {%- if place != blank %} &middot; {{ place }}{% endif -%}
+              {%- if series != blank %} &middot; {{ series | replace: '-', ' ' }}{% endif -%}
+            </p>
+
+            <h2 class="np-h1"><a href="{{ a.url }}">{{ a.title }}</a></h2>
+
+            {%- if yt != blank -%}
+              {%- render 'sa-blog-video', id: yt, title: a.title -%}
+            {%- elsif a.image -%}
+              <a class="ncut" href="{{ a.url }}">
+                {{ a.image | image_url: width: 1200 | image_tag:
+                     widths: '480,720,1000,1200', sizes: '(min-width: 900px) 520px, 100vw',
+                     loading: 'eager', fetchpriority: 'high', alt: a.title | escape }}
+              </a>
+            {%- endif -%}
+
+            {%- if a.excerpt_or_content != blank -%}
+              <p class="np-stand">{{ a.excerpt_or_content | strip_html | truncatewords: 34 }}</p>
+            {%- endif -%}
+
+            <p class="np-byl">
+              <time datetime="{{ a.published_at | date: '%Y-%m-%d' }}">{{ a.published_at | date: s.date_long }}</time>
+              <span>{{ rt }} {{ s.word_read }}</span>
+              {%- if yt != blank -%}<span class="np-film">&#9654;&nbsp;{{ s.word_film }}</span>{%- endif -%}
+            </p>
+
+            <a class="np-jump" href="{{ a.url }}">{{ s.word_full }}</a>
+          </article>
+
+          {%- render 'sa-blog-field', article: a, keys: s.lead_fields -%}
+
+          <div class="np-ix-open">
+            <div class="np-ix-h">
+              <p>{{ s.word_index }}</p>
+              <span>{{ s.word_latest }}</span>
+            </div>
+            {%- render 'sa-blog-taxbar', blog: blog, current_tags: current_tags -%}
+          </div>
+
+        {%- else -%}
+
+          {%- if forloop.first -%}
+            <div class="np-ix-open">
+              <div class="np-ix-h">
+                <p>{{ s.word_index }}</p>
+                <span>{{ s.word_latest }}</span>
+              </div>
+              {%- render 'sa-blog-taxbar', blog: blog, current_tags: current_tags -%}
+            </div>
+          {%- endif -%}
+
+          <a class="np-row" href="{{ a.url }}" data-fam="{{ fam }}">
+            <span class="np-row-t">{{ a.title }}</span>
+            <span class="np-row-d">{{ a.published_at | date: s.date_short }}</span>
+            <span class="np-row-m">
+              <i aria-hidden="true"></i>{{ kl }}
+              {%- if yt != blank -%}<b>&#9654;&nbsp;{{ s.word_film }}</b>{%- endif -%}
+              {%- if place != blank -%}<span>{{ place }}</span>{%- endif -%}
+              <span>{{ rt }} {{ s.word_read }}</span>
             </span>
           </a>
-        {%- endfor -%}
-      </div>
+
+        {%- endif -%}
+      {%- endfor -%}
 
       {%- if paginate.pages > 1 -%}
-        <nav class="bl-page" aria-label="{{ s.word_pages | escape }}">
+        <nav class="np-page" aria-label="{{ s.word_pages | escape }}">
           {%- if paginate.previous -%}
-            <a href="{{ paginate.previous.url }}">← {{ s.word_prev }}</a>
+            <a href="{{ paginate.previous.url }}">{{ s.word_newer }}</a>
           {%- endif -%}
           <span>{{ paginate.current_page }} / {{ paginate.pages }}</span>
           {%- if paginate.next -%}
-            <a href="{{ paginate.next.url }}">{{ s.word_next }} →</a>
+            <a href="{{ paginate.next.url }}">{{ s.word_older }}</a>
           {%- endif -%}
         </nav>
       {%- endif -%}
 
     {%- endif -%}
   {%- endpaginate -%}
+
+  <p class="np-folio">
+    {{ s.paper_name | default: blog.title }}
+    {%- if s.vol != blank %} &middot; {{ s.vol }}{% endif -%}
+    &middot; {{ shop.domain }}
+  </p>
 </div>
 
 <style>
-#shopify-section-{{ sid }}{background:{{ s.bg }}}
-#shopify-section-{{ sid }} .bl{font-family:"Space Grotesk",system-ui,sans-serif;color:{{ s.ink }};
-  max-width:{{ s.max }}px;margin:0 auto;padding:{{ s.pad_top }}px {{ s.gutter }}px {{ s.pad_bottom }}px}
-#shopify-section-{{ sid }} .bl *{box-sizing:border-box}
+#shopify-section-{{ sid }}{background:{{ s.paper }}}
+#shopify-section-{{ sid }} .np{font-family:"Fraunces",Georgia,serif;font-variation-settings:'opsz' 14;
+  color:{{ s.ink }};max-width:{{ s.max }}px;margin:0 auto;
+  padding:{{ s.pad_top }}px {{ s.gutter }}px {{ s.pad_bottom }}px}
+#shopify-section-{{ sid }} .np *{box-sizing:border-box}
+#shopify-section-{{ sid }} .np [data-fam="fresh"]{--c:{{ s.c_fresh }}}
+#shopify-section-{{ sid }} .np [data-fam="floral"]{--c:{{ s.c_floral }}}
+#shopify-section-{{ sid }} .np [data-fam="woody"]{--c:{{ s.c_woody }}}
+#shopify-section-{{ sid }} .np [data-fam="amber"]{--c:{{ s.c_amber }}}
+#shopify-section-{{ sid }} .np [data-fam="default"]{--c:{{ s.gold }}}
 
-#shopify-section-{{ sid }} .bl-eye{display:inline-flex;align-items:center;gap:7px;font-size:9px;
-  letter-spacing:.22em;text-transform:uppercase;color:{{ s.gold }};font-weight:700}
-#shopify-section-{{ sid }} .bl-blip{width:6px;height:6px;border-radius:50%;background:{{ s.gold }};
-  display:block;flex:none;animation:blBlip{{ sid }} 2.4s ease-in-out infinite}
-@keyframes blBlip{{ sid }}{50%{opacity:.3;transform:scale(.8)}}
-#shopify-section-{{ sid }} .bl-head h1{font-family:"Fraunces",Georgia,serif;font-size:{{ s.h_m }}px;
-  font-weight:600;letter-spacing:-.02em;line-height:1.08;margin:8px 0 0;text-transform:capitalize}
-#shopify-section-{{ sid }} .bl-intro{font-size:13px;line-height:1.6;color:{{ s.soft }};margin:9px 0 0;
-  max-width:60ch}
-#shopify-section-{{ sid }} .bl-clear{color:{{ s.link }};text-decoration:none;font-weight:600}
+/* ---- nameplate: koi jaadi leeti nahi ---- */
+#shopify-section-{{ sid }} .np-plate{text-align:center;padding-top:8px}
+#shopify-section-{{ sid }} .np-ears{display:flex;justify-content:space-between;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.24em;
+  text-transform:uppercase;color:{{ s.soft }};padding-bottom:18px}
+#shopify-section-{{ sid }} .np-nm{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:{{ s.nm_m }}px;font-weight:500;
+  line-height:.9;letter-spacing:-.025em;margin:0;text-transform:uppercase;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .np-creed{font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;
+  letter-spacing:.34em;text-transform:uppercase;color:{{ s.soft }};margin:15px 0 0}
+#shopify-section-{{ sid }} .np-hair{height:1px;background:{{ s.rule }};margin:22px 0 0}
+#shopify-section-{{ sid }} .np-hair2{margin:0}
 
-/* ---- tag pills ---- */
-#shopify-section-{{ sid }} .bl-tags{display:flex;gap:7px;margin:16px 0 0;overflow-x:auto;
-  scrollbar-width:none;padding-bottom:2px}
-#shopify-section-{{ sid }} .bl-tags::-webkit-scrollbar{display:none}
-#shopify-section-{{ sid }} .bl-pill{flex:none;font-size:11px;color:{{ s.ink }};text-decoration:none;
-  background:{{ s.tint }};border:1px solid {{ s.line }};padding:6px 11px;border-radius:99px;
-  text-transform:capitalize;white-space:nowrap}
-#shopify-section-{{ sid }} .bl-pill:hover{border-color:{{ s.gold }};color:{{ s.link }}}
-#shopify-section-{{ sid }} .bl-pill.on{background:{{ s.ink }};color:{{ s.bg }};border-color:{{ s.ink }}}
+/* ---- section patti ---- */
+#shopify-section-{{ sid }} .np-nav{display:flex;overflow-x:auto;scrollbar-width:none;
+  justify-content:center;font-family:"Space Grotesk",system-ui,sans-serif}
+#shopify-section-{{ sid }} .np-nav::-webkit-scrollbar{display:none}
+#shopify-section-{{ sid }} .np-nav a{flex:none;text-decoration:none;font-size:8px;letter-spacing:.22em;
+  text-transform:uppercase;color:{{ s.soft }};padding:11px 10px;font-weight:500;white-space:nowrap}
+#shopify-section-{{ sid }} .np-nav a.on{color:{{ s.ink }};font-weight:700}
+#shopify-section-{{ sid }} .np-dline{font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;
+  letter-spacing:.26em;text-transform:uppercase;color:{{ s.soft }};text-align:center;margin:16px 0 0;
+  font-variant-numeric:tabular-nums}
 
-/* ---- grid ---- */
-#shopify-section-{{ sid }} .bl-grid{display:grid;grid-template-columns:1fr;gap:{{ s.gap }}px;
-  margin:{{ s.head_gap }}px 0 0}
-#shopify-section-{{ sid }} .bl-card{text-decoration:none;color:{{ s.ink }};display:flex;
-  flex-direction:column;gap:11px}
-#shopify-section-{{ sid }} .bl-shot{position:relative;display:block;width:100%;aspect-ratio:16/10;
-  overflow:hidden;border-radius:{{ s.radius }}px;border:1px solid {{ s.line }};background:{{ s.tint }}}
-#shopify-section-{{ sid }} .bl-shot img{width:100%;height:100%;object-fit:cover;display:block;
-  transition:transform .5s ease}
-#shopify-section-{{ sid }} .bl-card:hover .bl-shot img{transform:scale(1.035)}
-#shopify-section-{{ sid }} .bl-noshot{position:absolute;inset:0;display:grid;place-items:center;
-  font-family:"Fraunces",Georgia,serif;font-size:34px;color:{{ s.gold }};opacity:.5}
-#shopify-section-{{ sid }} .bl-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.55);
-  background:rgba(26,23,18,.5);display:grid;place-items:center}
-#shopify-section-{{ sid }} .bl-play svg{width:21px;height:21px;fill:#fff;margin-left:2px}
-#shopify-section-{{ sid }} .bl-badge{position:absolute;left:9px;top:9px;font-size:8.5px;font-weight:700;
-  letter-spacing:.16em;text-transform:uppercase;color:{{ s.on_gold }};background:{{ s.gold }};
-  padding:4px 9px;border-radius:99px}
+/* ---- mukhya ahevaal ---- */
+#shopify-section-{{ sid }} .np-lead{padding:26px 0 0}
+#shopify-section-{{ sid }} .np-kick{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.28em;
+  text-transform:uppercase;color:{{ s.ink2 }};font-weight:600;margin:0}
+#shopify-section-{{ sid }} .np-kick i{width:6px;height:6px;background:var(--c,{{ s.gold }});
+  display:block;flex:none}
+#shopify-section-{{ sid }} .np-h1{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:{{ s.h1_m }}px;font-weight:500;
+  line-height:1;letter-spacing:-.035em;margin:15px 0 0}
+#shopify-section-{{ sid }} .np-h1 a{color:{{ s.ink }};text-decoration:none}
+#shopify-section-{{ sid }} .np-stand{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'opsz' 18,'WONK' 0;font-size:15px;line-height:1.66;color:{{ s.ink2 }};
+  margin:18px 0 0}
+#shopify-section-{{ sid }} .np-byl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.2em;
+  text-transform:uppercase;color:{{ s.soft }};margin:18px 0 0}
+#shopify-section-{{ sid }} .np-film{color:{{ s.ink2 }};font-weight:700}
+#shopify-section-{{ sid }} .np-jump{font-family:"Space Grotesk",system-ui,sans-serif;font-size:7.5px;
+  letter-spacing:.24em;text-transform:uppercase;color:{{ s.ink }};font-weight:700;margin:18px 0 0;
+  display:inline-block;text-decoration:none;border-bottom:1px solid {{ s.ink }};padding-bottom:2px}
 
-#shopify-section-{{ sid }} .bl-body{display:flex;flex-direction:column;gap:5px;min-width:0}
-#shopify-section-{{ sid }} .bl-t{font-family:"Fraunces",Georgia,serif;font-size:{{ s.card_t_m }}px;
-  font-weight:600;line-height:1.24;letter-spacing:-.01em}
-#shopify-section-{{ sid }} .bl-x{font-size:12.5px;line-height:1.55;color:{{ s.soft }}}
-#shopify-section-{{ sid }} .bl-m{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
-  color:{{ s.soft }};margin-top:2px}
-#shopify-section-{{ sid }} .bl-m i{margin:0 6px;opacity:.55;font-style:normal}
+/* ---- cut: chitra ke film ---- */
+#shopify-section-{{ sid }} .ncut{position:relative;display:block;width:100%;margin:22px 0 0;
+  background:{{ s.white }};overflow:hidden}
+#shopify-section-{{ sid }} .ncut img{width:100%;height:auto;display:block}
+#shopify-section-{{ sid }} .ncut-film{aspect-ratio:3/2;cursor:pointer;display:grid;place-items:center}
+#shopify-section-{{ sid }} .ncut-th{width:100%;height:100%;object-fit:cover;display:block}
+#shopify-section-{{ sid }} .ncut-film iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-th,
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-go,
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-mark,
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-cr{display:none}
+#shopify-section-{{ sid }} .ncut-go{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:52px;height:52px;border-radius:50%;border:1px solid {{ s.ink2 }};background:{{ s.paper }}e6;
+  display:grid;place-items:center;cursor:pointer;padding:0;
+  transition:background .2s ease,transform .2s ease}
+#shopify-section-{{ sid }} .ncut-film:hover .ncut-go{background:{{ s.ink }};transform:translate(-50%,-50%) scale(1.05)}
+#shopify-section-{{ sid }} .ncut-go svg{width:18px;height:18px;fill:{{ s.ink }};margin-left:2px;display:block}
+#shopify-section-{{ sid }} .ncut-film:hover .ncut-go svg{fill:{{ s.paper }}}
+#shopify-section-{{ sid }} .ncut-mark{position:absolute;left:0;top:0;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.2em;
+  text-transform:uppercase;color:{{ s.ink2 }};background:{{ s.paper }};padding:5px 9px;font-weight:700}
+#shopify-section-{{ sid }} .ncut-cr{position:absolute;bottom:7px;left:9px;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7px;letter-spacing:.16em;
+  text-transform:uppercase;color:{{ s.soft }}}
 
-/* ---- empty ---- */
-#shopify-section-{{ sid }} .bl-empty{margin:{{ s.head_gap }}px 0 0;padding:44px 22px;text-align:center;
-  background:{{ s.tint }};border:1px solid {{ s.line }};border-radius:{{ s.radius }}px}
-#shopify-section-{{ sid }} .bl-empty-h{font-family:"Fraunces",Georgia,serif;font-size:21px;font-weight:600;
-  margin:0;line-height:1.25}
-#shopify-section-{{ sid }} .bl-empty-p{font-size:13px;color:{{ s.soft }};margin:9px auto 0;max-width:42ch;
+/* ---- field log: be paatli leeti vacche ---- */
+#shopify-section-{{ sid }} .nfield{display:flex;margin:30px 0 0;padding:14px 0;
+  border-top:1px solid {{ s.rule }};border-bottom:1px solid {{ s.rule }};
+  font-family:"Space Grotesk",system-ui,sans-serif}
+#shopify-section-{{ sid }} .nfield div{flex:1;text-align:center;position:relative;min-width:0}
+#shopify-section-{{ sid }} .nfield div+div::before{content:"";position:absolute;left:0;top:2px;
+  bottom:2px;width:1px;background:{{ s.rule2 }}}
+#shopify-section-{{ sid }} .nfield b{display:block;font-size:6px;letter-spacing:.2em;
+  text-transform:uppercase;color:{{ s.soft }};font-weight:500}
+#shopify-section-{{ sid }} .nfield s{display:block;text-decoration:none;font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'opsz' 36,'WONK' 0;font-size:15px;font-weight:400;margin-top:5px;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:{{ s.ink }}}
+
+/* ---- index ---- */
+#shopify-section-{{ sid }} .np-ix-open{margin:34px 0 0}
+#shopify-section-{{ sid }} .np-ix-h{display:flex;justify-content:space-between;align-items:baseline;
+  padding-bottom:12px}
+#shopify-section-{{ sid }} .np-ix-h p{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 96;font-size:22px;font-weight:500;
+  letter-spacing:-.028em;text-transform:uppercase;margin:0}
+#shopify-section-{{ sid }} .np-ix-h span{font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;
+  letter-spacing:.22em;text-transform:uppercase;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .np-tax{display:flex;overflow-x:auto;scrollbar-width:none;
+  font-family:"Space Grotesk",system-ui,sans-serif;padding:0 0 4px}
+#shopify-section-{{ sid }} .np-tax::-webkit-scrollbar{display:none}
+#shopify-section-{{ sid }} .np-tax a{flex:none;text-decoration:none;font-size:8px;letter-spacing:.18em;
+  text-transform:uppercase;color:{{ s.soft }};padding:4px 9px;white-space:nowrap}
+#shopify-section-{{ sid }} .np-tax a:first-child{padding-left:0}
+#shopify-section-{{ sid }} .np-tax a.on{color:{{ s.ink }};font-weight:700}
+
+#shopify-section-{{ sid }} .np-row{display:grid;grid-template-columns:1fr auto;gap:7px 12px;
+  align-items:baseline;padding:17px 0;border-top:1px solid {{ s.rule2 }};text-decoration:none;
+  color:{{ s.ink }}}
+#shopify-section-{{ sid }} .np-row-t{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'opsz' 36,'WONK' 1;font-size:16px;font-weight:500;line-height:1.22;
+  letter-spacing:-.022em}
+#shopify-section-{{ sid }} .np-row-d{font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;
+  letter-spacing:.18em;text-transform:uppercase;color:{{ s.soft }};white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+#shopify-section-{{ sid }} .np-row-m{grid-column:1/-1;display:flex;gap:9px;align-items:center;
+  flex-wrap:wrap;font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .np-row-m i{width:5px;height:5px;background:var(--c,{{ s.gold }});
+  display:block;flex:none}
+#shopify-section-{{ sid }} .np-row-m b{color:{{ s.ink2 }};font-weight:700}
+
+#shopify-section-{{ sid }} .np-page{display:flex;align-items:center;justify-content:center;gap:16px;
+  margin:26px 0 0;padding-top:24px;border-top:1px solid {{ s.rule2 }};
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:7.5px;letter-spacing:.24em;
+  text-transform:uppercase;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .np-page a{color:{{ s.ink }};text-decoration:none;font-weight:700}
+
+/* ---- ek pan post na hoy tyare ---- */
+#shopify-section-{{ sid }} .np-none{margin:40px 0 0;padding:44px 20px;text-align:center;
+  border-top:1px solid {{ s.rule }};border-bottom:1px solid {{ s.rule }}}
+#shopify-section-{{ sid }} .np-none-h{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:26px;font-weight:500;margin:0;
+  line-height:1.05;letter-spacing:-.03em}
+#shopify-section-{{ sid }} .np-none-p{font-family:"Fraunces",Georgia,serif;
+  font-variation-settings:'opsz' 18;font-size:14px;color:{{ s.ink2 }};margin:14px auto 0;max-width:40ch;
   line-height:1.6}
-#shopify-section-{{ sid }} .bl-empty-b{display:inline-block;margin-top:18px;background:{{ s.gold }};
-  color:{{ s.on_gold }};font-size:12.5px;font-weight:700;letter-spacing:.03em;padding:11px 24px;
-  border-radius:99px;text-decoration:none}
+#shopify-section-{{ sid }} .np-none-b{display:inline-block;margin-top:20px;
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;background:{{ s.ink }};color:{{ s.paper }};padding:12px 22px;
+  text-decoration:none}
 
-/* ---- pagination ---- */
-#shopify-section-{{ sid }} .bl-page{display:flex;align-items:center;justify-content:center;gap:16px;
-  margin:34px 0 0;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:{{ s.soft }}}
-#shopify-section-{{ sid }} .bl-page a{color:{{ s.link }};text-decoration:none;font-weight:700}
+#shopify-section-{{ sid }} .np-folio{font-family:"Space Grotesk",system-ui,sans-serif;font-size:6.5px;
+  letter-spacing:.28em;text-transform:uppercase;color:{{ s.soft }};text-align:center;
+  padding:34px 0 0;margin:0}
 
 /* ---------- desktop ---------- */
 @media (min-width:900px){
-  #shopify-section-{{ sid }} .bl{padding:{{ s.pad_top | times: 1.7 | round }}px {{ s.gutter_d }}px {{ s.pad_bottom | times: 1.4 | round }}px}
-  #shopify-section-{{ sid }} .bl-head h1{font-size:{{ s.h_d }}px}
-  #shopify-section-{{ sid }} .bl-intro{font-size:15px}
-  #shopify-section-{{ sid }} .bl-tags{margin-top:20px;flex-wrap:wrap;overflow:visible}
-  #shopify-section-{{ sid }} .bl-pill{font-size:12px;padding:7px 13px}
-  #shopify-section-{{ sid }} .bl-grid{grid-template-columns:repeat({{ s.cols }},minmax(0,1fr));
-    gap:{{ s.gap_d }}px {{ s.gap_d | minus: 4 }}px}
-  #shopify-section-{{ sid }} .bl-t{font-size:{{ s.card_t_d }}px}
-  #shopify-section-{{ sid }} .bl-x{font-size:13.5px}
+  #shopify-section-{{ sid }} .np{padding:{{ s.pad_top | times: 1.6 | round }}px {{ s.gutter_d }}px {{ s.pad_bottom | times: 1.3 | round }}px}
+  #shopify-section-{{ sid }} .np-ears{font-size:9px;padding-bottom:26px}
+  #shopify-section-{{ sid }} .np-nm{font-size:{{ s.nm_d }}px}
+  #shopify-section-{{ sid }} .np-creed{font-size:9px}
+  #shopify-section-{{ sid }} .np-nav a{font-size:9.5px;padding:13px 14px}
+  #shopify-section-{{ sid }} .np-dline{font-size:8.5px}
 
-  /* Sauthi navo post poori pahoLai ma — aankh tya j pehla jaay. */
-  #shopify-section-{{ sid }} .bl-card.big{grid-column:1/-1;flex-direction:row;align-items:center;
-    gap:30px;padding-bottom:{{ s.gap_d }}px;border-bottom:1px solid {{ s.line }}}
-  #shopify-section-{{ sid }} .bl-card.big .bl-shot{width:58%;flex:none;aspect-ratio:16/9}
-  #shopify-section-{{ sid }} .bl-card.big .bl-t{font-size:{{ s.card_t_d | plus: 12 }}px;line-height:1.14}
-  #shopify-section-{{ sid }} .bl-card.big .bl-x{font-size:15px;line-height:1.6}
-  #shopify-section-{{ sid }} .bl-card.big .bl-play{width:60px;height:60px}
-  #shopify-section-{{ sid }} .bl-card.big .bl-play svg{width:28px;height:28px}
-  #shopify-section-{{ sid }} .bl-empty{padding:70px 30px}
+  /* mukhya ahevaal be bhaag ma khule */
+  #shopify-section-{{ sid }} .np-lead{display:grid;grid-template-columns:1.05fr 1fr;
+    gap:0 38px;align-items:start;padding-top:38px}
+  #shopify-section-{{ sid }} .np-kick,
+  #shopify-section-{{ sid }} .np-h1,
+  #shopify-section-{{ sid }} .np-stand,
+  #shopify-section-{{ sid }} .np-byl,
+  #shopify-section-{{ sid }} .np-jump{grid-column:1}
+  #shopify-section-{{ sid }} .np-lead .ncut{grid-column:2;grid-row:1/7;margin:4px 0 0}
+  #shopify-section-{{ sid }} .np-h1{font-size:{{ s.h1_d }}px}
+  #shopify-section-{{ sid }} .np-stand{font-size:17px;line-height:1.7}
+  #shopify-section-{{ sid }} .np-byl{font-size:8.5px}
+  #shopify-section-{{ sid }} .np-jump{font-size:9px;justify-self:start}
+
+  #shopify-section-{{ sid }} .nfield s{font-size:19px}
+  #shopify-section-{{ sid }} .nfield b{font-size:7.5px}
+  #shopify-section-{{ sid }} .np-ix-h p{font-size:32px}
+  #shopify-section-{{ sid }} .np-ix-h span{font-size:8.5px}
+  #shopify-section-{{ sid }} .np-tax a{font-size:9.5px;padding:5px 11px}
+
+  #shopify-section-{{ sid }} .np-row{grid-template-columns:1fr 230px 110px;gap:0 24px;padding:20px 0}
+  #shopify-section-{{ sid }} .np-row-t{font-size:21px}
+  #shopify-section-{{ sid }} .np-row-m{grid-column:2;margin:0;font-size:8px}
+  #shopify-section-{{ sid }} .np-row-d{font-size:8px;text-align:right}
+  #shopify-section-{{ sid }} .np-none{padding:80px 30px}
+  #shopify-section-{{ sid }} .np-none-h{font-size:38px}
 }
 </style>
 
+<script>
+(function () {
+  var root = document.getElementById('shopify-section-{{ sid }}');
+  if (!root) return;
+  /* Film: click thay tyare j YouTube andar aave. */
+  root.addEventListener('click', function (e) {
+    var box = e.target.closest('.ncut-film');
+    if (!box || box.dataset.on) return;
+    var id = box.dataset.yt;
+    if (!id) return;
+    box.dataset.on = '1';
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1';
+    f.title = {{ s.word_film | json }};
+    f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    f.allowFullscreen = true;
+    f.loading = 'lazy';
+    box.appendChild(f);
+  });
+})();
+</script>
+
 {% schema %}
 {
-  "name": "Blog list — SYNOR",
+  "name": "Diaries list — SYNOR",
   "tag": "section",
   "settings": [
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The SYNOR journal" },
-    { "type": "text", "id": "title", "label": "Title (blank = blog name)" },
-    { "type": "textarea", "id": "intro", "label": "Intro line", "default": "Scent notes, honest reviews and whatever we find on the road." },
-    { "type": "text", "id": "mark", "label": "Mark when a post has no picture", "default": "◆" },
-    { "type": "text", "id": "date_fmt", "label": "Date format", "default": "%d %b %Y" },
+    { "type": "paragraph", "content": "Chhapa nu pehlu paanu. Post na tags: blog · vlog · review · letter · series-<slug> · yt-<VIDEOID> · family-* gender-* occasion-* brand-*" },
 
-    { "type": "header", "content": "Words" },
-    { "type": "text", "id": "word_read", "label": "Reading time word", "default": "min read" },
-    { "type": "text", "id": "word_vlog", "label": "Vlog badge", "default": "Live" },
-    { "type": "text", "id": "word_topics", "label": "Topics label", "default": "Topics" },
-    { "type": "text", "id": "word_clear", "label": "Clear filter", "default": "All posts" },
+    { "type": "header", "content": "Nameplate" },
+    { "type": "text", "id": "paper_name", "label": "Paper name (blank = blog name)" },
+    { "type": "text", "id": "creed", "label": "Line under the name", "default": "For the Synorians" },
+    { "type": "text", "id": "ear_left", "label": "Top left", "default": "Synor · Est. 2026" },
+    { "type": "text", "id": "ear_right", "label": "Top right", "default": "₹49 a tester" },
+    { "type": "text", "id": "vol", "label": "Volume line", "default": "Vol. I" },
+    { "type": "text", "id": "date_long", "label": "Date format · long", "default": "%A, %d %B %Y" },
+    { "type": "text", "id": "date_short", "label": "Date format · short", "default": "%d %b" },
+
+    { "type": "header", "content": "Section words" },
+    { "type": "text", "id": "word_all", "label": "All", "default": "All" },
+    { "type": "text", "id": "word_blog", "label": "Blog", "default": "Blog" },
+    { "type": "text", "id": "word_vlog", "label": "Vlog", "default": "Vlog" },
+    { "type": "text", "id": "word_series", "label": "Series", "default": "Series" },
+    { "type": "text", "id": "word_review", "label": "Review", "default": "Review" },
+    { "type": "text", "id": "word_letters", "label": "Letters", "default": "Letters" },
+    { "type": "text", "id": "word_sections", "label": "Nav label (for screen readers)", "default": "Sections" },
+
+    { "type": "header", "content": "Other words" },
+    { "type": "text", "id": "word_index", "label": "Index heading", "default": "Index" },
+    { "type": "text", "id": "word_entries", "label": "Word after the count", "default": "entries" },
+    { "type": "text", "id": "word_latest", "label": "Order note", "default": "Latest first" },
+    { "type": "text", "id": "word_read", "label": "Reading time", "default": "min read" },
+    { "type": "text", "id": "word_film", "label": "Film mark", "default": "Film" },
+    { "type": "text", "id": "word_full", "label": "Read-on link", "default": "Read the full report" },
     { "type": "text", "id": "word_pages", "label": "Pagination label", "default": "Pages" },
-    { "type": "text", "id": "word_prev", "label": "Previous", "default": "Newer" },
-    { "type": "text", "id": "word_next", "label": "Next", "default": "Older" },
+    { "type": "text", "id": "word_newer", "label": "Newer", "default": "Newer" },
+    { "type": "text", "id": "word_older", "label": "Older", "default": "Older" },
 
     { "type": "header", "content": "Layout" },
-    { "type": "checkbox", "id": "show_tags", "label": "Topic pills", "default": true },
-    { "type": "checkbox", "id": "feature_first", "label": "Newest post gets the full width", "default": true },
-    { "type": "range", "id": "per_page", "min": 6, "max": 24, "step": 2, "label": "Posts per page", "default": 12 },
-    { "type": "range", "id": "cols", "min": 2, "max": 4, "step": 1, "label": "Columns · desktop", "default": 3 },
+    { "type": "checkbox", "id": "lead_first", "label": "Newest entry as the lead report", "default": true },
+    { "type": "text", "id": "lead_fields", "label": "Field log on the front page", "default": "temp,humidity,asked" },
+    { "type": "range", "id": "per_page", "min": 6, "max": 30, "step": 2, "label": "Entries per page", "default": 14 },
 
     { "type": "header", "content": "Size and spacing" },
-    { "type": "range", "id": "max", "min": 900, "max": 1400, "step": 20, "unit": "px", "label": "Page width", "default": 1200 },
-    { "type": "range", "id": "gutter", "min": 12, "max": 40, "step": 2, "unit": "px", "label": "Side margin · mobile", "default": 18 },
-    { "type": "range", "id": "gutter_d", "min": 16, "max": 64, "step": 2, "unit": "px", "label": "Side margin · desktop", "default": 28 },
-    { "type": "range", "id": "pad_top", "min": 0, "max": 60, "step": 2, "unit": "px", "label": "Top", "default": 22 },
-    { "type": "range", "id": "pad_bottom", "min": 0, "max": 80, "step": 2, "unit": "px", "label": "Bottom", "default": 40 },
-    { "type": "range", "id": "head_gap", "min": 12, "max": 56, "step": 2, "unit": "px", "label": "Space below the heading", "default": 26 },
-    { "type": "range", "id": "gap", "min": 12, "max": 44, "step": 2, "unit": "px", "label": "Gap between cards · mobile", "default": 26 },
-    { "type": "range", "id": "gap_d", "min": 16, "max": 56, "step": 2, "unit": "px", "label": "Gap between cards · desktop", "default": 32 },
-    { "type": "range", "id": "radius", "min": 0, "max": 18, "step": 1, "unit": "px", "label": "Corner radius", "default": 8 },
-    { "type": "range", "id": "h_m", "min": 20, "max": 44, "step": 1, "unit": "px", "label": "Page title · mobile", "default": 28 },
-    { "type": "range", "id": "h_d", "min": 26, "max": 64, "step": 1, "unit": "px", "label": "Page title · desktop", "default": 42 },
-    { "type": "range", "id": "card_t_m", "min": 14, "max": 24, "step": 1, "unit": "px", "label": "Card title · mobile", "default": 17 },
-    { "type": "range", "id": "card_t_d", "min": 15, "max": 28, "step": 1, "unit": "px", "label": "Card title · desktop", "default": 19 },
+    { "type": "range", "id": "max", "min": 700, "max": 1200, "step": 20, "unit": "px", "label": "Page width", "default": 900 },
+    { "type": "range", "id": "gutter", "min": 14, "max": 40, "step": 2, "unit": "px", "label": "Side margin · mobile", "default": 20 },
+    { "type": "range", "id": "gutter_d", "min": 20, "max": 80, "step": 4, "unit": "px", "label": "Side margin · desktop", "default": 40 },
+    { "type": "range", "id": "pad_top", "min": 0, "max": 70, "step": 2, "unit": "px", "label": "Top", "default": 26 },
+    { "type": "range", "id": "pad_bottom", "min": 0, "max": 90, "step": 2, "unit": "px", "label": "Bottom", "default": 40 },
+    { "type": "range", "id": "nm_m", "min": 24, "max": 56, "step": 1, "unit": "px", "label": "Paper name · mobile", "default": 34 },
+    { "type": "range", "id": "nm_d", "min": 40, "max": 130, "step": 2, "unit": "px", "label": "Paper name · desktop", "default": 84 },
+    { "type": "range", "id": "h1_m", "min": 22, "max": 44, "step": 1, "unit": "px", "label": "Lead headline · mobile", "default": 31 },
+    { "type": "range", "id": "h1_d", "min": 28, "max": 64, "step": 1, "unit": "px", "label": "Lead headline · desktop", "default": 42 },
 
-    { "type": "header", "content": "When there are no posts yet" },
-    { "type": "text", "id": "empty_title", "label": "Title", "default": "The first post is on its way" },
-    { "type": "textarea", "id": "empty_text", "label": "Text", "default": "Scent guides, layering notes and live reviews from the road — all of it lands here. Meanwhile, the shelf is open." },
+    { "type": "header", "content": "Paper and ink" },
+    { "type": "color", "id": "paper", "label": "Paper", "default": "#F6F2E7" },
+    { "type": "color", "id": "white", "label": "Cut background", "default": "#FBF8F1" },
+    { "type": "color", "id": "ink", "label": "Ink", "default": "#26211A" },
+    { "type": "color", "id": "ink2", "label": "Ink · softer", "default": "#4B4336" },
+    { "type": "color", "id": "soft", "label": "Furniture text", "default": "#7C7263" },
+    { "type": "color", "id": "rule", "label": "Rules", "default": "#C9BFA9" },
+    { "type": "color", "id": "rule2", "label": "Rules · faint", "default": "#DED5C1" },
+    { "type": "color", "id": "gold", "label": "Gold", "default": "#A9853C" },
+
+    { "type": "header", "content": "Spot colour · fragrance family" },
+    { "type": "color", "id": "c_fresh", "label": "Fresh & Aquatic", "default": "#5E8C88" },
+    { "type": "color", "id": "c_floral", "label": "Floral & Fruity", "default": "#B7736B" },
+    { "type": "color", "id": "c_woody", "label": "Woody & Oud", "default": "#95643A" },
+    { "type": "color", "id": "c_amber", "label": "Amber & Sweet", "default": "#BE8B3C" },
+
+    { "type": "header", "content": "When there are no entries yet" },
+    { "type": "text", "id": "empty_title", "label": "Title", "default": "The first report is on its way" },
+    { "type": "textarea", "id": "empty_text", "label": "Text", "default": "Scent guides, layering notes and live reports from the road — all of it lands here. Meanwhile, the shelf is open." },
     { "type": "text", "id": "empty_btn", "label": "Button", "default": "See the perfumes" },
-    { "type": "url", "id": "empty_link", "label": "Button link" },
-
-    { "type": "header", "content": "Colours" },
-    { "type": "color", "id": "bg", "label": "Background", "default": "#FFFDF9" },
-    { "type": "color", "id": "tint", "label": "Soft panel", "default": "#F7F4EC" },
-    { "type": "color", "id": "line", "label": "Lines", "default": "#E5DFD1" },
-    { "type": "color", "id": "ink", "label": "Text", "default": "#1A1712" },
-    { "type": "color", "id": "soft", "label": "Muted text", "default": "#6E6656" },
-    { "type": "color", "id": "gold", "label": "Gold", "default": "#BE9A54" },
-    { "type": "color", "id": "on_gold", "label": "Text on gold", "default": "#FFFDF9" },
-    { "type": "color", "id": "link", "label": "Links", "default": "#A8873F" }
+    { "type": "url", "id": "empty_link", "label": "Button link" }
   ]
 }
 {% endschema %}
