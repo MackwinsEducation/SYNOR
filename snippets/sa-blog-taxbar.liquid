@@ -19,38 +19,52 @@
   Namespace kaadhi nakhyu chhe: `occasion-office` → "office". Prefix e bot
   ni bhasha chhe, customer ni nahi.
 
-  Vaapar: {% render 'sa-blog-taxbar', blog: blog, current_tags: current_tags %}
+  `sort_label` aave to e jamni kor bese — chhapa ni patti ma kram no
+  ullekh evi j jagya e hoy. E button nathi: Shopify no blog sada sauthi
+  navo pehlo aape chhe ane Liquid ma kram badalvano rasto nathi, etle
+  khota control mukava karta saachu lakhvu saru.
+
+  Vaapar: {% render 'sa-blog-taxbar', blog: blog, current_tags: current_tags,
+             sort_label: s.word_latest %}
 {%- endcomment -%}
 
-{%- if blog.all_tags.size > 0 -%}
-  {%- capture pills -%}
-    {%- for t in blog.all_tags -%}
-      {%- liquid
-        assign low = t | downcase
-        assign k6 = low | slice: 0, 6
-        assign k7 = low | slice: 0, 7
-        assign k9 = low | slice: 0, 9
+{%- capture pills -%}
+  {%- for t in blog.all_tags -%}
+    {%- liquid
+      assign low = t | downcase
+      assign k6 = low | slice: 0, 6
+      assign k7 = low | slice: 0, 7
+      assign k9 = low | slice: 0, 9
 
-        assign keep = false
-        if k7 == 'family-' or k9 == 'occasion-' or k6 == 'gender' or k6 == 'brand-'
-          assign keep = true
-        endif
+      assign keep = false
+      if k7 == 'family-' or k9 == 'occasion-' or k6 == 'gender' or k6 == 'brand-'
+        assign keep = true
+      endif
 
-        assign lbl = low | remove_first: 'occasion-' | remove_first: 'family-'
-        assign lbl = lbl | remove_first: 'gender-' | remove_first: 'brand-' | replace: '-', ' '
-      -%}
-      {%- if keep -%}
-        {%- if current_tags contains t -%}
-          <a class="on" href="{{ blog.url }}">{{ lbl }}</a>
-        {%- else -%}
-          <a href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ lbl }}</a>
-        {%- endif -%}
+      assign lbl = low | remove_first: 'occasion-' | remove_first: 'family-'
+      assign lbl = lbl | remove_first: 'gender-' | remove_first: 'brand-' | replace: '-', ' '
+    -%}
+    {%- if keep -%}
+      {%- if current_tags contains t -%}
+        <a class="on" href="{{ blog.url }}">{{ lbl }}</a>
+      {%- else -%}
+        <a href="{{ blog.url }}/tagged/{{ t | handleize }}">{{ lbl }}</a>
       {%- endif -%}
-    {%- endfor -%}
-  {%- endcapture -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
 
-  {%- assign pills_t = pills | strip -%}
-  {%- if pills_t != blank -%}
-    <nav class="np-tax" aria-label="Topics">{{ pills }}</nav>
-  {%- endif -%}
+{%- assign pills_t = pills | strip -%}
+{%- if pills_t != blank or sort_label != blank -%}
+  <nav class="np-tax" aria-label="Topics">
+    {%- if pills_t != blank -%}
+      {%- unless current_tags and current_tags.size > 0 -%}
+        <a class="on" href="{{ blog.url }}">{{ all_label | default: 'All' }}</a>
+      {%- else -%}
+        <a href="{{ blog.url }}">{{ all_label | default: 'All' }}</a>
+      {%- endunless -%}
+      {{ pills }}
+    {%- endif -%}
+    {%- if sort_label != blank -%}<span class="so">{{ sort_label }}</span>{%- endif -%}
+  </nav>
 {%- endif -%}

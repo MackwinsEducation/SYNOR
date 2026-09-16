@@ -134,6 +134,12 @@
   if filtered
     assign cur = current_tags | first | downcase
   endif
+
+  assign n_entries = blog.articles_count
+  assign word_count = s.word_entries
+  if n_entries == 1
+    assign word_count = s.word_entry
+  endif
 -%}
 
 {%- if gf != blank -%}
@@ -142,7 +148,11 @@
 
 <div class="np">
 
-  {%- comment -%} ---- nameplate ---- {%- endcomment -%}
+  {%- comment -%}
+    ---- nameplate ----
+    Jaadi leeti upar, paatli niche. E be leetio j chhapa ne chhapu banave
+    chhe; eni vagar aa koi pan blog nu matthu chhe.
+  {%- endcomment -%}
   <header class="np-plate">
     <div class="np-ears">
       <span>{{ s.ear_left }}</span>
@@ -150,15 +160,27 @@
     </div>
     <h1 class="np-nm">{{ s.paper_name | default: blog.title }}</h1>
     {%- if s.creed != blank -%}
-      <p class="np-creed">{{ s.creed }}</p>
+      <p class="np-cr">{{ s.creed | replace: '[', '<em>' | replace: ']', '</em>' }}</p>
     {%- endif -%}
   </header>
 
-  <div class="np-hair"></div>
+  {%- comment -%} ---- dateline: traan khana, be leeti vacche ---- {%- endcomment -%}
+  <div class="np-dl">
+    <span>{{ s.vol }}</span>
+    <span>
+      {%- if filtered -%}
+        {{ cur | replace: '-', ' ' }}
+      {%- else -%}
+        {{ 'now' | date: s.date_long }}
+      {%- endif -%}
+    </span>
+    <span>{{ n_entries }} {{ word_count }}</span>
+  </div>
 
   {%- comment -%}
     Section patti. Dareki ek tag chhe, etle Shopify nu tagged URL j kaam kare
-    chhe — koi navu template ke app ni jarur nahi.
+    chhe — koi navu template ke app ni jarur nahi. Chalu shreni kaala
+    chorasa ma bese, ane vacche ubhi leetio — chhapa ni patti evi j hoy.
   {%- endcomment -%}
   <nav class="np-nav" aria-label="{{ s.word_sections | escape }}">
     <a href="{{ blog.url }}"{% unless filtered %} class="on" aria-current="page"{% endunless %}>{{ s.word_all }}</a>
@@ -182,18 +204,6 @@
       <a href="{{ blog.url }}/tagged/{{ k }}"{% if cur == k %} class="on" aria-current="page"{% endif %}>{{ kl }}</a>
     {%- endfor -%}
   </nav>
-
-  <div class="np-hair np-hair2"></div>
-
-  <p class="np-dline">
-    {%- if s.vol != blank -%}{{ s.vol }} &middot; {% endif -%}
-    {%- if filtered -%}
-      {{ cur | replace: '-', ' ' }}
-    {%- else -%}
-      {{ 'now' | date: s.date_long }}
-    {%- endif -%}
-    {%- if blog.articles_count > 0 %} &middot; {{ blog.articles_count }} {{ s.word_entries }}{% endif -%}
-  </p>
 
   {%- paginate blog.articles by s.per_page -%}
 
@@ -219,78 +229,170 @@
         endif
       -%}
 
-      {%- for a in blog.articles -%}
-        {%- liquid
-          assign kind = ''
-          assign series = ''
-          assign yt = ''
-          assign famkey = ''
-          assign place = a.metafields.custom.field_place.value
-
-          for t in a.tags
-            assign low = t | downcase
-            if low == 'vlog' or low == 'blog' or low == 'review' or low == 'letter'
-              assign kind = low
+      {%- comment -%}
+        Index ni rows alag capture ma bane chhe, karan Index nu matthu ane
+        filter patti tyare j chhapvi jethi niche kaik hoy. Ek j post hoy
+        tyare khali "Index" ane khali filter patti dekhaay e kharaab chhe.
+      {%- endcomment -%}
+      {%- capture rows -%}
+        {%- for a in blog.articles -%}
+          {%- liquid
+            assign skip = false
+            if show_lead and forloop.first
+              assign skip = true
             endif
-            assign k3 = low | slice: 0, 3
-            if k3 == 'yt-' and yt == ''
-              assign yt = t | slice: 3, 40
+          -%}
+          {%- unless skip -%}
+            {%- liquid
+              assign kind = ''
+              assign yt = ''
+              assign famkey = ''
+              assign place = a.metafields.custom.field_place.value
+
+              for t in a.tags
+                assign low = t | downcase
+                if low == 'vlog' or low == 'blog' or low == 'review' or low == 'letter'
+                  assign kind = low
+                endif
+                assign k3 = low | slice: 0, 3
+                if k3 == 'yt-' and yt == ''
+                  assign yt = t | slice: 3, 40
+                endif
+                assign k7 = low | slice: 0, 7
+                if k7 == 'family-' and famkey == ''
+                  assign famkey = low | remove_first: 'family-'
+                endif
+              endfor
+
+              assign mf_yt = a.metafields.custom.youtube_ids.value
+              if mf_yt != blank and yt == ''
+                assign yt = 'y'
+              endif
+
+              assign fam = 'default'
+              if famkey contains 'fresh' or famkey contains 'aquatic'
+                assign fam = 'fresh'
+              elsif famkey contains 'floral' or famkey contains 'fruity'
+                assign fam = 'floral'
+              elsif famkey contains 'woody' or famkey contains 'oud'
+                assign fam = 'woody'
+              elsif famkey contains 'amber' or famkey contains 'sweet'
+                assign fam = 'amber'
+              endif
+
+              assign kl = s.word_blog
+              if kind == 'vlog'
+                assign kl = s.word_vlog
+              elsif kind == 'review'
+                assign kl = s.word_review
+              elsif kind == 'letter'
+                assign kl = s.word_letters
+              endif
+
+              assign words = a.content | strip_html | split: ' ' | size
+              assign rt = words | divided_by: 200 | at_least: 1
+            -%}
+            <a class="np-row" href="{{ a.url }}" data-fam="{{ fam }}">
+              <span class="sq" aria-hidden="true"></span>
+              <span class="np-row-t">{{ a.title }}</span>
+              <span class="np-row-d">{{ a.published_at | date: s.date_short }}</span>
+              <span class="np-row-m">
+                <em>{{ kl }}</em>
+                {%- if yt != blank -%}<b>&#9654;&nbsp;{{ s.word_film }}</b>{%- endif -%}
+                {%- if place != blank -%}<span>{{ place }}</span>{%- endif -%}
+                <span>{{ rt }} {{ s.word_read }}</span>
+              </span>
+            </a>
+          {%- endunless -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+
+      {%- if show_lead -%}
+        {%- for a in blog.articles limit: 1 -%}
+          {%- liquid
+            assign kind = ''
+            assign series = ''
+            assign yt = ''
+            assign famkey = ''
+            assign place = a.metafields.custom.field_place.value
+
+            for t in a.tags
+              assign low = t | downcase
+              if low == 'vlog' or low == 'blog' or low == 'review' or low == 'letter'
+                assign kind = low
+              endif
+              assign k3 = low | slice: 0, 3
+              if k3 == 'yt-' and yt == ''
+                assign yt = t | slice: 3, 40
+              endif
+              assign k7 = low | slice: 0, 7
+              if k7 == 'series-'
+                assign series = low | slice: 7, 120
+              elsif k7 == 'family-' and famkey == ''
+                assign famkey = low | remove_first: 'family-'
+              endif
+            endfor
+
+            assign mf_yt = a.metafields.custom.youtube_ids.value
+            if mf_yt != blank and yt == ''
+              assign ids = mf_yt | replace: ' ', '' | split: ','
+              assign yt = ids | first
             endif
-            assign k7 = low | slice: 0, 7
-            if k7 == 'series-'
-              assign series = low | slice: 7, 120
-            elsif k7 == 'family-' and famkey == ''
-              assign famkey = low | remove_first: 'family-'
+
+            assign fam = 'default'
+            if famkey contains 'fresh' or famkey contains 'aquatic'
+              assign fam = 'fresh'
+            elsif famkey contains 'floral' or famkey contains 'fruity'
+              assign fam = 'floral'
+            elsif famkey contains 'woody' or famkey contains 'oud'
+              assign fam = 'woody'
+            elsif famkey contains 'amber' or famkey contains 'sweet'
+              assign fam = 'amber'
             endif
-          endfor
 
-          assign mf_yt = a.metafields.custom.youtube_ids.value
-          if mf_yt != blank and yt == ''
-            assign ids = mf_yt | replace: ' ', '' | split: ','
-            assign yt = ids | first
-          endif
+            assign kl = s.word_blog
+            if kind == 'vlog'
+              assign kl = s.word_vlog
+            elsif kind == 'review'
+              assign kl = s.word_review
+            elsif kind == 'letter'
+              assign kl = s.word_letters
+            endif
 
-          assign fam = 'default'
-          if famkey contains 'fresh' or famkey contains 'aquatic'
-            assign fam = 'fresh'
-          elsif famkey contains 'floral' or famkey contains 'fruity'
-            assign fam = 'floral'
-          elsif famkey contains 'woody' or famkey contains 'oud'
-            assign fam = 'woody'
-          elsif famkey contains 'amber' or famkey contains 'sweet'
-            assign fam = 'amber'
-          endif
+            assign fam_label = ''
+            if famkey != blank
+              assign fam_label = famkey | replace: '-', ' & '
+            endif
 
-          assign kl = s.word_blog
-          if kind == 'vlog'
-            assign kl = s.word_vlog
-          elsif kind == 'review'
-            assign kl = s.word_review
-          elsif kind == 'letter'
-            assign kl = s.word_letters
-          endif
+            assign words = a.content | strip_html | split: ' ' | size
+            assign rt = words | divided_by: 200 | at_least: 1
+          -%}
 
-          assign words = a.content | strip_html | split: ' ' | size
-          assign rt = words | divided_by: 200 | at_least: 1
+          {%- comment -%} Havaman nu khanu — chhapa na khune je hoy e. {%- endcomment -%}
+          {%- render 'sa-blog-fieldbox', article: a, s: s -%}
 
-          assign no = total | minus: offset | minus: forloop.index0
-          assign no_pad = no
-          if no < 10
-            assign no_pad = no | prepend: '0'
-          endif
-        -%}
+          {%- comment -%} Shreni ni leeti: chorasa, shabd, ane khali leeti. {%- endcomment -%}
+          <p class="np-srul" data-fam="{{ fam }}"><i aria-hidden="true"></i>{{ kl }}</p>
 
-        {%- if show_lead and forloop.first -%}
-
-          {%- comment -%} ---- mukhya ahevaal ---- {%- endcomment -%}
           <article class="np-lead" data-fam="{{ fam }}">
             <p class="np-kick">
-              <i aria-hidden="true"></i>{{ kl }}
-              {%- if place != blank %} &middot; {{ place }}{% endif -%}
+              {{ kl }}
+              {%- if fam_label != blank %} &middot; {{ fam_label }}{% endif -%}
               {%- if series != blank %} &middot; {{ series | replace: '-', ' ' }}{% endif -%}
             </p>
 
             <h2 class="np-h1"><a href="{{ a.url }}">{{ a.title }}</a></h2>
+
+            {%- if a.excerpt != blank -%}
+              <p class="np-dek">{{ a.excerpt | strip_html | truncatewords: 22 }}</p>
+            {%- endif -%}
+
+            <p class="np-byl">
+              {%- if place != blank -%}<span>{{ place }}</span>{%- endif -%}
+              <time datetime="{{ a.published_at | date: '%Y-%m-%d' }}">{{ a.published_at | date: s.date_short }}</time>
+              <span>{{ rt }} {{ s.word_read }}</span>
+              {%- if yt != blank -%}<span class="np-film">&#9654;&nbsp;{{ s.word_film }}</span>{%- endif -%}
+            </p>
 
             {%- if yt != blank -%}
               {%- render 'sa-blog-video', id: yt, title: a.title -%}
@@ -302,54 +404,32 @@
               </a>
             {%- endif -%}
 
-            {%- if a.excerpt_or_content != blank -%}
-              <p class="np-stand">{{ a.excerpt_or_content | strip_html | truncatewords: 34 }}</p>
+            {%- if yt != blank or a.image -%}
+              {%- if s.capt != blank -%}<p class="np-capt">{{ s.capt }}</p>{%- endif -%}
             {%- endif -%}
 
-            <p class="np-byl">
-              <time datetime="{{ a.published_at | date: '%Y-%m-%d' }}">{{ a.published_at | date: s.date_long }}</time>
-              <span>{{ rt }} {{ s.word_read }}</span>
-              {%- if yt != blank -%}<span class="np-film">&#9654;&nbsp;{{ s.word_film }}</span>{%- endif -%}
-            </p>
-
-            <a class="np-jump" href="{{ a.url }}">{{ s.word_full }}</a>
-          </article>
-
-          {%- render 'sa-blog-field', article: a, keys: s.lead_fields -%}
-
-          <div class="np-ix-open">
-            <div class="np-ix-h">
-              <p>{{ s.word_index }}</p>
-              <span>{{ s.word_latest }}</span>
-            </div>
-            {%- render 'sa-blog-taxbar', blog: blog, current_tags: current_tags -%}
-          </div>
-
-        {%- else -%}
-
-          {%- if forloop.first -%}
-            <div class="np-ix-open">
-              <div class="np-ix-h">
-                <p>{{ s.word_index }}</p>
-                <span>{{ s.word_latest }}</span>
+            {%- if a.content != blank -%}
+              <div class="np-body">
+                <p>{{ a.content | strip_html | truncatewords: s.lead_words }}</p>
               </div>
-              {%- render 'sa-blog-taxbar', blog: blog, current_tags: current_tags -%}
-            </div>
-          {%- endif -%}
+            {%- endif -%}
 
-          <a class="np-row" href="{{ a.url }}" data-fam="{{ fam }}">
-            <span class="np-row-t">{{ a.title }}</span>
-            <span class="np-row-d">{{ a.published_at | date: s.date_short }}</span>
-            <span class="np-row-m">
-              <i aria-hidden="true"></i>{{ kl }}
-              {%- if yt != blank -%}<b>&#9654;&nbsp;{{ s.word_film }}</b>{%- endif -%}
-              {%- if place != blank -%}<span>{{ place }}</span>{%- endif -%}
-              <span>{{ rt }} {{ s.word_read }}</span>
-            </span>
-          </a>
+            <a class="np-jump" href="{{ a.url }}">{{ s.word_full }} &rarr;</a>
+          </article>
+        {%- endfor -%}
+      {%- endif -%}
 
-        {%- endif -%}
-      {%- endfor -%}
+      {%- assign rows_t = rows | strip -%}
+      {%- if rows_t != blank -%}
+        <div class="np-cls">
+          <div class="np-ix-h">
+            <p>{{ s.word_index }}</p>
+            <span>{{ n_entries }} {{ word_count }}</span>
+          </div>
+          {%- render 'sa-blog-taxbar', blog: blog, current_tags: current_tags, sort_label: s.word_latest -%}
+          {{ rows }}
+        </div>
+      {%- endif -%}
 
       {%- if paginate.pages > 1 -%}
         <nav class="np-page" aria-label="{{ s.word_pages | escape }}">
@@ -373,198 +453,9 @@
   </p>
 </div>
 
-<style>
-#shopify-section-{{ sid }}{background:{{ s.paper }};
-  --dh:{{ f_head }};--d:{{ f_body }};--s:{{ f_furn }};
-  font-synthesis-weight:none}
-#shopify-section-{{ sid }} .np{font-family:var(--d);font-variation-settings:'opsz' 14;
-  color:{{ s.ink }};max-width:{{ s.max }}px;margin:0 auto;
-  padding:{{ s.pad_top }}px {{ s.gutter }}px {{ s.pad_bottom }}px}
-#shopify-section-{{ sid }} .np *{box-sizing:border-box}
-#shopify-section-{{ sid }} .np [data-fam="fresh"]{--c:{{ s.c_fresh }}}
-#shopify-section-{{ sid }} .np [data-fam="floral"]{--c:{{ s.c_floral }}}
-#shopify-section-{{ sid }} .np [data-fam="woody"]{--c:{{ s.c_woody }}}
-#shopify-section-{{ sid }} .np [data-fam="amber"]{--c:{{ s.c_amber }}}
-#shopify-section-{{ sid }} .np [data-fam="default"]{--c:{{ s.gold }}}
-
-/* ---- nameplate: koi jaadi leeti nahi ---- */
-#shopify-section-{{ sid }} .np-plate{text-align:center;padding-top:8px}
-#shopify-section-{{ sid }} .np-ears{display:flex;justify-content:space-between;
-  font-family:var(--s);font-size:7px;letter-spacing:.24em;
-  text-transform:uppercase;color:{{ s.soft }};padding-bottom:18px}
-#shopify-section-{{ sid }} .np-nm{font-family:var(--dh);
-  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:{{ s.nm_m }}px;font-weight:500;
-  line-height:.9;letter-spacing:-.025em;margin:0;text-transform:uppercase;color:{{ s.ink }}}
-#shopify-section-{{ sid }} .np-creed{font-family:var(--s);font-size:7px;
-  letter-spacing:.34em;text-transform:uppercase;color:{{ s.soft }};margin:15px 0 0}
-#shopify-section-{{ sid }} .np-hair{height:1px;background:{{ s.rule }};margin:22px 0 0}
-#shopify-section-{{ sid }} .np-hair2{margin:0}
-
-/* ---- section patti ---- */
-#shopify-section-{{ sid }} .np-nav{display:flex;overflow-x:auto;scrollbar-width:none;
-  justify-content:center;font-family:var(--s)}
-#shopify-section-{{ sid }} .np-nav::-webkit-scrollbar{display:none}
-#shopify-section-{{ sid }} .np-nav a{flex:none;text-decoration:none;font-size:8px;letter-spacing:.22em;
-  text-transform:uppercase;color:{{ s.soft }};padding:11px 10px;font-weight:500;white-space:nowrap}
-#shopify-section-{{ sid }} .np-nav a.on{color:{{ s.ink }};font-weight:700}
-#shopify-section-{{ sid }} .np-dline{font-family:var(--s);font-size:6.5px;
-  letter-spacing:.26em;text-transform:uppercase;color:{{ s.soft }};text-align:center;margin:16px 0 0;
-  font-variant-numeric:tabular-nums}
-
-/* ---- mukhya ahevaal ---- */
-#shopify-section-{{ sid }} .np-lead{padding:26px 0 0}
-#shopify-section-{{ sid }} .np-kick{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  font-family:var(--s);font-size:7px;letter-spacing:.28em;
-  text-transform:uppercase;color:{{ s.ink2 }};font-weight:600;margin:0}
-#shopify-section-{{ sid }} .np-kick i{width:6px;height:6px;background:var(--c,{{ s.gold }});
-  display:block;flex:none}
-#shopify-section-{{ sid }} .np-h1{font-family:var(--dh);
-  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:{{ s.h1_m }}px;font-weight:500;
-  line-height:1;letter-spacing:-.035em;margin:15px 0 0}
-#shopify-section-{{ sid }} .np-h1 a{color:{{ s.ink }};text-decoration:none}
-#shopify-section-{{ sid }} .np-stand{font-family:var(--d);
-  font-variation-settings:'opsz' 18,'WONK' 0;font-size:15px;line-height:1.66;color:{{ s.ink2 }};
-  margin:18px 0 0}
-#shopify-section-{{ sid }} .np-byl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-  font-family:var(--s);font-size:7px;letter-spacing:.2em;
-  text-transform:uppercase;color:{{ s.soft }};margin:18px 0 0}
-#shopify-section-{{ sid }} .np-film{color:{{ s.ink2 }};font-weight:700}
-#shopify-section-{{ sid }} .np-jump{font-family:var(--s);font-size:7.5px;
-  letter-spacing:.24em;text-transform:uppercase;color:{{ s.ink }};font-weight:700;margin:18px 0 0;
-  display:inline-block;text-decoration:none;border-bottom:1px solid {{ s.ink }};padding-bottom:2px}
-
-/* ---- cut: chitra ke film ---- */
-#shopify-section-{{ sid }} .ncut{position:relative;display:block;width:100%;margin:22px 0 0;
-  background:{{ s.white }};overflow:hidden}
-#shopify-section-{{ sid }} .ncut img{width:100%;height:auto;display:block}
-#shopify-section-{{ sid }} .ncut-film{aspect-ratio:3/2;cursor:pointer;display:grid;place-items:center}
-#shopify-section-{{ sid }} .ncut-th{width:100%;height:100%;object-fit:cover;display:block}
-#shopify-section-{{ sid }} .ncut-film iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-th,
-#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-go,
-#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-mark,
-#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-cr{display:none}
-#shopify-section-{{ sid }} .ncut-go{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:52px;height:52px;border-radius:50%;border:1px solid {{ s.ink2 }};background:{{ s.paper }}e6;
-  display:grid;place-items:center;cursor:pointer;padding:0;
-  transition:background .2s ease,transform .2s ease}
-#shopify-section-{{ sid }} .ncut-film:hover .ncut-go{background:{{ s.ink }};transform:translate(-50%,-50%) scale(1.05)}
-#shopify-section-{{ sid }} .ncut-go svg{width:18px;height:18px;fill:{{ s.ink }};margin-left:2px;display:block}
-#shopify-section-{{ sid }} .ncut-film:hover .ncut-go svg{fill:{{ s.paper }}}
-#shopify-section-{{ sid }} .ncut-mark{position:absolute;left:0;top:0;
-  font-family:var(--s);font-size:7px;letter-spacing:.2em;
-  text-transform:uppercase;color:{{ s.ink2 }};background:{{ s.paper }};padding:5px 9px;font-weight:700}
-#shopify-section-{{ sid }} .ncut-cr{position:absolute;bottom:7px;left:9px;
-  font-family:var(--s);font-size:7px;letter-spacing:.16em;
-  text-transform:uppercase;color:{{ s.soft }}}
-
-/* ---- field log: be paatli leeti vacche ---- */
-#shopify-section-{{ sid }} .nfield{display:flex;margin:30px 0 0;padding:14px 0;
-  border-top:1px solid {{ s.rule }};border-bottom:1px solid {{ s.rule }};
-  font-family:var(--s)}
-#shopify-section-{{ sid }} .nfield div{flex:1;text-align:center;position:relative;min-width:0}
-#shopify-section-{{ sid }} .nfield div+div::before{content:"";position:absolute;left:0;top:2px;
-  bottom:2px;width:1px;background:{{ s.rule2 }}}
-#shopify-section-{{ sid }} .nfield b{display:block;font-size:6px;letter-spacing:.2em;
-  text-transform:uppercase;color:{{ s.soft }};font-weight:500}
-#shopify-section-{{ sid }} .nfield s{display:block;text-decoration:none;font-family:var(--dh);
-  font-variation-settings:'opsz' 36,'WONK' 0;font-size:15px;font-weight:400;margin-top:5px;
-  font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:{{ s.ink }}}
-
-/* ---- index ---- */
-#shopify-section-{{ sid }} .np-ix-open{margin:34px 0 0}
-#shopify-section-{{ sid }} .np-ix-h{display:flex;justify-content:space-between;align-items:baseline;
-  padding-bottom:12px}
-#shopify-section-{{ sid }} .np-ix-h p{font-family:var(--dh);
-  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 96;font-size:22px;font-weight:500;
-  letter-spacing:-.028em;text-transform:uppercase;margin:0}
-#shopify-section-{{ sid }} .np-ix-h span{font-family:var(--s);font-size:6.5px;
-  letter-spacing:.22em;text-transform:uppercase;color:{{ s.soft }}}
-#shopify-section-{{ sid }} .np-tax{display:flex;overflow-x:auto;scrollbar-width:none;
-  font-family:var(--s);padding:0 0 4px}
-#shopify-section-{{ sid }} .np-tax::-webkit-scrollbar{display:none}
-#shopify-section-{{ sid }} .np-tax a{flex:none;text-decoration:none;font-size:8px;letter-spacing:.18em;
-  text-transform:uppercase;color:{{ s.soft }};padding:4px 9px;white-space:nowrap}
-#shopify-section-{{ sid }} .np-tax a:first-child{padding-left:0}
-#shopify-section-{{ sid }} .np-tax a.on{color:{{ s.ink }};font-weight:700}
-
-#shopify-section-{{ sid }} .np-row{display:grid;grid-template-columns:1fr auto;gap:7px 12px;
-  align-items:baseline;padding:17px 0;border-top:1px solid {{ s.rule2 }};text-decoration:none;
-  color:{{ s.ink }}}
-#shopify-section-{{ sid }} .np-row-t{font-family:var(--dh);
-  font-variation-settings:'opsz' 36,'WONK' 1;font-size:16px;font-weight:500;line-height:1.22;
-  letter-spacing:-.022em}
-#shopify-section-{{ sid }} .np-row-d{font-family:var(--s);font-size:6.5px;
-  letter-spacing:.18em;text-transform:uppercase;color:{{ s.soft }};white-space:nowrap;
-  font-variant-numeric:tabular-nums}
-#shopify-section-{{ sid }} .np-row-m{grid-column:1/-1;display:flex;gap:9px;align-items:center;
-  flex-wrap:wrap;font-family:var(--s);font-size:6.5px;letter-spacing:.22em;
-  text-transform:uppercase;color:{{ s.soft }}}
-#shopify-section-{{ sid }} .np-row-m i{width:5px;height:5px;background:var(--c,{{ s.gold }});
-  display:block;flex:none}
-#shopify-section-{{ sid }} .np-row-m b{color:{{ s.ink2 }};font-weight:700}
-
-#shopify-section-{{ sid }} .np-page{display:flex;align-items:center;justify-content:center;gap:16px;
-  margin:26px 0 0;padding-top:24px;border-top:1px solid {{ s.rule2 }};
-  font-family:var(--s);font-size:7.5px;letter-spacing:.24em;
-  text-transform:uppercase;color:{{ s.soft }}}
-#shopify-section-{{ sid }} .np-page a{color:{{ s.ink }};text-decoration:none;font-weight:700}
-
-/* ---- ek pan post na hoy tyare ---- */
-#shopify-section-{{ sid }} .np-none{margin:40px 0 0;padding:44px 20px;text-align:center;
-  border-top:1px solid {{ s.rule }};border-bottom:1px solid {{ s.rule }}}
-#shopify-section-{{ sid }} .np-none-h{font-family:var(--dh);
-  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:26px;font-weight:500;margin:0;
-  line-height:1.05;letter-spacing:-.03em}
-#shopify-section-{{ sid }} .np-none-p{font-family:var(--d);
-  font-variation-settings:'opsz' 18;font-size:14px;color:{{ s.ink2 }};margin:14px auto 0;max-width:40ch;
-  line-height:1.6}
-#shopify-section-{{ sid }} .np-none-b{display:inline-block;margin-top:20px;
-  font-family:var(--s);font-size:9.5px;font-weight:700;letter-spacing:.16em;
-  text-transform:uppercase;background:{{ s.ink }};color:{{ s.paper }};padding:12px 22px;
-  text-decoration:none}
-
-#shopify-section-{{ sid }} .np-folio{font-family:var(--s);font-size:6.5px;
-  letter-spacing:.28em;text-transform:uppercase;color:{{ s.soft }};text-align:center;
-  padding:34px 0 0;margin:0}
-
-/* ---------- desktop ---------- */
-@media (min-width:900px){
-  #shopify-section-{{ sid }} .np{padding:{{ s.pad_top | times: 1.6 | round }}px {{ s.gutter_d }}px {{ s.pad_bottom | times: 1.3 | round }}px}
-  #shopify-section-{{ sid }} .np-ears{font-size:9px;padding-bottom:26px}
-  #shopify-section-{{ sid }} .np-nm{font-size:{{ s.nm_d }}px}
-  #shopify-section-{{ sid }} .np-creed{font-size:9px}
-  #shopify-section-{{ sid }} .np-nav a{font-size:9.5px;padding:13px 14px}
-  #shopify-section-{{ sid }} .np-dline{font-size:8.5px}
-
-  /* mukhya ahevaal be bhaag ma khule */
-  #shopify-section-{{ sid }} .np-lead{display:grid;grid-template-columns:1.05fr 1fr;
-    gap:0 38px;align-items:start;padding-top:38px}
-  #shopify-section-{{ sid }} .np-kick,
-  #shopify-section-{{ sid }} .np-h1,
-  #shopify-section-{{ sid }} .np-stand,
-  #shopify-section-{{ sid }} .np-byl,
-  #shopify-section-{{ sid }} .np-jump{grid-column:1}
-  #shopify-section-{{ sid }} .np-lead .ncut{grid-column:2;grid-row:1/7;margin:4px 0 0}
-  #shopify-section-{{ sid }} .np-h1{font-size:{{ s.h1_d }}px}
-  #shopify-section-{{ sid }} .np-stand{font-size:17px;line-height:1.7}
-  #shopify-section-{{ sid }} .np-byl{font-size:8.5px}
-  #shopify-section-{{ sid }} .np-jump{font-size:9px;justify-self:start}
-
-  #shopify-section-{{ sid }} .nfield s{font-size:19px}
-  #shopify-section-{{ sid }} .nfield b{font-size:7.5px}
-  #shopify-section-{{ sid }} .np-ix-h p{font-size:32px}
-  #shopify-section-{{ sid }} .np-ix-h span{font-size:8.5px}
-  #shopify-section-{{ sid }} .np-tax a{font-size:9.5px;padding:5px 11px}
-
-  #shopify-section-{{ sid }} .np-row{grid-template-columns:1fr 230px 110px;gap:0 24px;padding:20px 0}
-  #shopify-section-{{ sid }} .np-row-t{font-size:21px}
-  #shopify-section-{{ sid }} .np-row-m{grid-column:2;margin:0;font-size:8px}
-  #shopify-section-{{ sid }} .np-row-d{font-size:8px;text-align:right}
-  #shopify-section-{{ sid }} .np-none{padding:80px 30px}
-  #shopify-section-{{ sid }} .np-none-h{font-size:38px}
-}
-</style>
+{%- comment -%} Dekhav alag file ma — docs/blog-layer.md jo. {%- endcomment -%}
+{%- render 'sa-blog-list-css', sid: sid, s: s,
+     f_head: f_head, f_body: f_body, f_furn: f_furn -%}
 
 <script>
 (function () {
@@ -597,12 +488,13 @@
 
     { "type": "header", "content": "Nameplate" },
     { "type": "text", "id": "paper_name", "label": "Paper name (blank = blog name)" },
-    { "type": "text", "id": "creed", "label": "Line under the name", "default": "For the Synorians" },
+    { "type": "text", "id": "creed", "label": "Line under the name — [brackets] go gold", "default": "For the [Synorians]" },
     { "type": "text", "id": "ear_left", "label": "Top left", "default": "Synor · Est. 2026" },
     { "type": "text", "id": "ear_right", "label": "Top right", "default": "₹49 a tester" },
     { "type": "text", "id": "vol", "label": "Volume line", "default": "Vol. I" },
     { "type": "text", "id": "date_long", "label": "Date format · long", "default": "%A, %d %B %Y" },
     { "type": "text", "id": "date_short", "label": "Date format · short", "default": "%d %b" },
+    { "type": "range", "id": "rule_thick", "min": 1, "max": 6, "step": 1, "unit": "px", "label": "Rule above the name", "default": 3 },
 
     { "type": "header", "content": "Section words" },
     { "type": "text", "id": "word_all", "label": "All", "default": "All" },
@@ -615,30 +507,35 @@
 
     { "type": "header", "content": "Other words" },
     { "type": "text", "id": "word_index", "label": "Index heading", "default": "Index" },
-    { "type": "text", "id": "word_entries", "label": "Word after the count", "default": "entries" },
-    { "type": "text", "id": "word_latest", "label": "Order note", "default": "Latest first" },
+    { "type": "text", "id": "word_entry", "label": "Count word · one", "default": "entry" },
+    { "type": "text", "id": "word_entries", "label": "Count word · many", "default": "entries" },
+    { "type": "text", "id": "word_latest", "label": "Order note", "default": "Latest ▾" },
     { "type": "text", "id": "word_read", "label": "Reading time", "default": "min read" },
     { "type": "text", "id": "word_film", "label": "Film mark", "default": "Film" },
     { "type": "text", "id": "word_full", "label": "Read-on link", "default": "Read the full report" },
+    { "type": "text", "id": "word_field", "label": "Field box heading", "default": "Today's field" },
     { "type": "text", "id": "word_pages", "label": "Pagination label", "default": "Pages" },
     { "type": "text", "id": "word_newer", "label": "Newer", "default": "Newer" },
     { "type": "text", "id": "word_older", "label": "Older", "default": "Older" },
 
-    { "type": "header", "content": "Layout" },
+    { "type": "header", "content": "Lead report" },
     { "type": "checkbox", "id": "lead_first", "label": "Newest entry as the lead report", "default": true },
-    { "type": "text", "id": "lead_fields", "label": "Field log on the front page", "default": "temp,humidity,asked" },
+    { "type": "text", "id": "lead_fields", "label": "Field box cells", "default": "temp,humidity,alt,held,asked,verdict" },
+    { "type": "range", "id": "lead_cols", "min": 1, "max": 2, "step": 1, "label": "Lead text columns · mobile", "default": 2 },
+    { "type": "range", "id": "lead_words", "min": 16, "max": 90, "step": 2, "label": "Lead text words", "default": 42 },
+    { "type": "text", "id": "capt", "label": "Caption under the picture" },
     { "type": "range", "id": "per_page", "min": 6, "max": 30, "step": 2, "label": "Entries per page", "default": 14 },
 
     { "type": "header", "content": "Size and spacing" },
     { "type": "range", "id": "max", "min": 700, "max": 1200, "step": 20, "unit": "px", "label": "Page width", "default": 900 },
-    { "type": "range", "id": "gutter", "min": 14, "max": 40, "step": 2, "unit": "px", "label": "Side margin · mobile", "default": 20 },
+    { "type": "range", "id": "gutter", "min": 10, "max": 40, "step": 2, "unit": "px", "label": "Side margin · mobile", "default": 14 },
     { "type": "range", "id": "gutter_d", "min": 20, "max": 80, "step": 4, "unit": "px", "label": "Side margin · desktop", "default": 40 },
-    { "type": "range", "id": "pad_top", "min": 0, "max": 70, "step": 2, "unit": "px", "label": "Top", "default": 26 },
-    { "type": "range", "id": "pad_bottom", "min": 0, "max": 90, "step": 2, "unit": "px", "label": "Bottom", "default": 40 },
-    { "type": "range", "id": "nm_m", "min": 24, "max": 56, "step": 1, "unit": "px", "label": "Paper name · mobile", "default": 34 },
-    { "type": "range", "id": "nm_d", "min": 40, "max": 130, "step": 2, "unit": "px", "label": "Paper name · desktop", "default": 84 },
-    { "type": "range", "id": "h1_m", "min": 22, "max": 44, "step": 1, "unit": "px", "label": "Lead headline · mobile", "default": 31 },
-    { "type": "range", "id": "h1_d", "min": 28, "max": 64, "step": 1, "unit": "px", "label": "Lead headline · desktop", "default": 42 },
+    { "type": "range", "id": "pad_top", "min": 0, "max": 70, "step": 2, "unit": "px", "label": "Top", "default": 16 },
+    { "type": "range", "id": "pad_bottom", "min": 0, "max": 90, "step": 2, "unit": "px", "label": "Bottom", "default": 34 },
+    { "type": "range", "id": "nm_m", "min": 24, "max": 56, "step": 1, "unit": "px", "label": "Paper name · mobile", "default": 38 },
+    { "type": "range", "id": "nm_d", "min": 40, "max": 130, "step": 2, "unit": "px", "label": "Paper name · desktop", "default": 78 },
+    { "type": "range", "id": "h1_m", "min": 22, "max": 44, "step": 1, "unit": "px", "label": "Lead headline · mobile", "default": 28 },
+    { "type": "range", "id": "h1_d", "min": 28, "max": 64, "step": 1, "unit": "px", "label": "Lead headline · desktop", "default": 40 },
 
     { "type": "header", "content": "Fonts" },
     { "type": "select", "id": "font_set", "label": "Font set", "default": "now",
@@ -658,7 +555,8 @@
     { "type": "text", "id": "cf_furn", "label": "Custom · small labels" },
 
     { "type": "header", "content": "Paper and ink" },
-    { "type": "color", "id": "paper", "label": "Paper", "default": "#F6F2E7" },
+    { "type": "color", "id": "paper", "label": "Paper", "default": "#F2EDE0" },
+    { "type": "color", "id": "paper2", "label": "Paper · box heading", "default": "#E9E2D2" },
     { "type": "color", "id": "white", "label": "Cut background", "default": "#FBF8F1" },
     { "type": "color", "id": "ink", "label": "Ink", "default": "#26211A" },
     { "type": "color", "id": "ink2", "label": "Ink · softer", "default": "#4B4336" },

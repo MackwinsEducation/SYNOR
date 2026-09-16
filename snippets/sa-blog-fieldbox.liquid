@@ -1,0 +1,97 @@
+{%- comment -%}
+  SYNOR DIARIES — HAVAMAN NU KHANU (chhapa na khune je chokathu hoy).
+
+  Pehla paana par aa chokathu chhapa ni sauthi olkhaay evi cheez chhe. Andar
+  havaman nahi, dispatch nu havaman: perfume kharekhar taapman ane bhej
+  pramane badlaay chhe, etle aa aankda content chhe, sajavat nahi.
+
+  Chokathu 3 khana ni line ma bandhaay chhe, etle jetla aankda hoy ene 3 na
+  gunak sudhi khali khana thi bharva pade chhe — nahi to chokathu adhuru
+  katayelu dekhaay. Chhapu pan e j kare chhe.
+
+  Be thi ochha aankda hoy to chokathu aavtu j nathi: guide post par eni
+  jarur nathi ane khali chokathu bhul jevu laage chhe.
+
+  METAFIELDS (namespace `custom`):
+    field_place · field_alt · field_temp · field_humidity · field_held
+    field_asked · field_verdict
+
+  Vaapar: {% render 'sa-blog-fieldbox', article: a, s: s %}
+{%- endcomment -%}
+
+{%- liquid
+  assign f_place = article.metafields.custom.field_place.value
+  assign f_alt = article.metafields.custom.field_alt.value
+  assign f_temp = article.metafields.custom.field_temp.value
+  assign f_hum = article.metafields.custom.field_humidity.value
+  assign f_held = article.metafields.custom.field_held.value
+  assign f_asked = article.metafields.custom.field_asked.value
+  assign f_verdict = article.metafields.custom.field_verdict.value
+
+  assign want = s.lead_fields | default: 'temp,humidity,alt,held,asked,verdict' | split: ','
+  assign filled = 0
+-%}
+
+{%- capture cells -%}
+  {%- for k in want -%}
+    {%- liquid
+      assign key = k | strip
+      assign lab = ''
+      assign val = ''
+      case key
+        when 'temp'
+          assign lab = 'Temp'
+          assign val = f_temp
+        when 'humidity'
+          assign lab = 'Humid'
+          assign val = f_hum
+        when 'alt'
+          assign lab = 'Alt'
+          assign val = f_alt
+        when 'held'
+          assign lab = 'Held'
+          assign val = f_held
+        when 'asked'
+          assign lab = 'Asked'
+          assign val = f_asked
+        when 'verdict'
+          assign lab = 'Verdict'
+          assign val = f_verdict
+        when 'place'
+          assign lab = 'Place'
+          assign val = f_place
+      endcase
+    -%}
+    {%- if val != blank -%}
+      {%- assign filled = filled | plus: 1 -%}
+      <div><b>{{ lab }}</b><s>{{ val }}</s></div>
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- liquid
+  comment
+    3 na gunak sudhi khali khana. 5 aankda hoy to ek khana khali jaay, ane
+    e chokathu tooti gayelu dekhaay — etle e khana bharvu pade.
+  endcomment
+  assign spare = filled | modulo: 3
+  assign pad = 0
+  if spare > 0
+    assign pad = 3 | minus: spare
+  endif
+-%}
+
+{%- if filled > 1 -%}
+  <div class="np-wx">
+    <div class="np-wx-h">
+      <span>{{ s.word_field }}</span>
+      {%- if f_place != blank -%}<span>{{ f_place }}</span>{%- endif -%}
+    </div>
+    <div class="np-wx-g">
+      {{ cells }}
+      {%- for i in (1..3) -%}
+        {%- if forloop.index <= pad -%}<div></div>{%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+{%- endif -%}
