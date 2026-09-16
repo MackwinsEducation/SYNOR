@@ -3,7 +3,7 @@
     "main": {
       "type": "sa-article",
       "settings": {
-        "cta_link": "/pages/try-before-you-buy"
+        "house_link": "/pages/try-before-you-buy"
       }
     }
   },
