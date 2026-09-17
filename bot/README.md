@@ -34,3 +34,19 @@ python write_shoot.py --shoot lift-test
 
 Full write-ups: [`../docs/auto-post.md`](../docs/auto-post.md) and
 [`../docs/vlog-agent.md`](../docs/vlog-agent.md).
+
+## Three agents
+
+| | Writes | Contract | Output |
+|---|---|---|---|
+| Track 2 | blog entries | `house-style.md` | a **draft** article in Shopify |
+| Track 3 | shoot sheets | `vlog-style.md` | a sheet in `shoots/` |
+| Track 4 | distribution packs | `social-style.md` | a pack in `social/` |
+
+```bash
+python write_social.py --from-shoot 2026-09-17-lift-test --dry-run
+python write_social.py --from-article office-perfume-six-that-dont-crowd-the-room
+```
+
+[`../docs/social-pack.md`](../docs/social-pack.md) also sets out what real
+auto-posting to Instagram, YouTube and WhatsApp would actually require.

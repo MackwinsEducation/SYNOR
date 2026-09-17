@@ -1,0 +1,89 @@
+name: Social · write the pack
+
+# The pack is printed in the run summary, so every channel's copy can be
+# copied out on a phone straight from the Actions tab.
+on:
+  workflow_dispatch:
+    inputs:
+      shoot:
+        description: "Shoot sheet stem from bot/shoots/ (e.g. 2026-09-17-lift-test)"
+        required: false
+        type: string
+      article:
+        description: "Or a published Diaries article handle"
+        required: false
+        type: string
+      language:
+        description: "Language for the WhatsApp message"
+        required: false
+        default: hinglish
+        type: choice
+        options: [hinglish, gujarati, english]
+      dry_run:
+        description: "Print the pack here, commit nothing"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: social-pack
+  cancel-in-progress: false
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -r bot/requirements.txt
+
+      - name: Write the pack
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          # Read as shell variables, never interpolated into the script, so a
+          # value typed in the Actions form cannot become a command.
+          SHOOT: ${{ inputs.shoot }}
+          ARTICLE: ${{ inputs.article }}
+          LANGUAGE: ${{ inputs.language }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        working-directory: bot
+        run: |
+          if [ -n "$SHOOT" ] && [ -n "$ARTICLE" ]; then
+            echo "Give a shoot or an article, not both." >&2
+            exit 1
+          fi
+          args=()
+          if [ -n "$SHOOT" ]; then
+            args+=(--from-shoot "$SHOOT")
+          elif [ -n "$ARTICLE" ]; then
+            args+=(--from-article "$ARTICLE")
+          else
+            echo "Give either a shoot sheet stem or an article handle." >&2
+            exit 1
+          fi
+          args+=(--language "$LANGUAGE")
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          python write_social.py "${args[@]}"
+
+      - name: Commit the pack
+        if: ${{ !inputs.dry_run }}
+        run: |
+          if [ -z "$(git status --porcelain bot/social)" ]; then
+            echo "nothing written"
+            exit 0
+          fi
+          git config user.name "synor-diaries-bot"
+          git config user.email "noreply@synorperfume.com"
+          git add bot/social
+          git commit -m "Social: a distribution pack"
+          git push
