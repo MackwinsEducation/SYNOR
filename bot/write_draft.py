@@ -1,0 +1,523 @@
+#!/usr/bin/env python3
+"""Write one SYNOR Diaries entry and file it as a draft.
+
+The agent never publishes. It creates the article with `isPublished: false`
+and prints the admin link, so the whole approval step is one tap by a human
+who can see the finished page first.
+
+    python bot/write_draft.py                  # first 'todo' topic in the queue
+    python bot/write_draft.py --topic gym-bag-heat
+    python bot/write_draft.py --dry-run        # write it, print it, file nothing
+
+Environment:
+    ANTHROPIC_API_KEY     required
+    SHOPIFY_STORE         perfume-rat  (or perfume-rat.myshopify.com)
+    SHOPIFY_ADMIN_TOKEN   custom app token with write_content + read_products
+    SHOPIFY_API_VERSION   optional, defaults to 2026-07
+    SYNOR_BLOG_HANDLE     optional, defaults to 'diaries'
+    SYNOR_FALLBACKS       optional, 'off' disables the server-side fallback
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+from datetime import date
+from pathlib import Path
+from typing import Any
+
+import anthropic
+
+from synor_shopify import Shop, ShopifyError, forbidden_phrases
+
+HERE = Path(__file__).resolve().parent
+
+MODEL = "claude-opus-5"
+MAX_TOKENS = 16000
+# One entry is ~1,000 words, so a single non-streaming call finishes well
+# inside the SDK's 10-minute default timeout.
+FALLBACK_BETA = "server-side-fallback-2026-07-01"
+
+KINDS = ("blog", "vlog", "review", "letter", "series")
+GENDERS = ("her", "him", "unisex")
+OCCASIONS = ("daily", "office", "date", "party", "festive", "gym")
+FAMILIES = ("fresh-aquatic", "woody-oud", "floral-fruity", "amber-sweet")
+
+# The theme reads these from the `custom` namespace. `field_*` fills the boxed
+# field log, `notes_*` fills the notes strip, `entry_no` is the folio number.
+TEXT_METAFIELDS = (
+    "field_place", "field_alt", "field_temp", "field_humidity",
+    "field_held", "field_asked", "field_verdict",
+    "notes_top", "notes_heart", "notes_base",
+    "youtube_ids",
+)
+
+ALLOWED_HTML_TAGS = {
+    "p", "h2", "h3", "blockquote", "ul", "ol", "li", "strong", "em", "a", "br",
+}
+
+POST_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "title": {"type": "string"},
+        "handle": {"type": "string"},
+        "summary_html": {"type": "string"},
+        "body_html": {"type": "string"},
+        "kind": {"type": "string", "enum": list(KINDS)},
+        "series_slug": {"type": "string"},
+        "gender": {
+            "type": "array",
+            "items": {"type": "string", "enum": list(GENDERS)},
+        },
+        "occasion": {
+            "type": "array",
+            "items": {"type": "string", "enum": list(OCCASIONS)},
+        },
+        "family": {
+            "type": "array",
+            "items": {"type": "string", "enum": list(FAMILIES)},
+        },
+        "product_handles": {"type": "array", "items": {"type": "string"}},
+        "field_place": {"type": "string"},
+        "field_alt": {"type": "string"},
+        "field_temp": {"type": "string"},
+        "field_humidity": {"type": "string"},
+        "field_held": {"type": "string"},
+        "field_asked": {"type": "string"},
+        "field_verdict": {"type": "string"},
+        "notes_top": {"type": "string"},
+        "notes_heart": {"type": "string"},
+        "notes_base": {"type": "string"},
+        "youtube_ids": {"type": "string"},
+    },
+    "required": [
+        "title", "handle", "summary_html", "body_html", "kind", "series_slug",
+        "gender", "occasion", "family", "product_handles",
+        "field_place", "field_alt", "field_temp", "field_humidity",
+        "field_held", "field_asked", "field_verdict",
+        "notes_top", "notes_heart", "notes_base", "youtube_ids",
+    ],
+    "additionalProperties": False,
+}
+
+
+# ---------------------------------------------------------------- queue
+
+def load_queue(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def save_queue(path: Path, data: dict[str, Any]) -> None:
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def pick_topic(queue: dict[str, Any], wanted: str | None) -> dict[str, Any]:
+    topics = queue.get("topics") or []
+    if wanted:
+        for topic in topics:
+            if topic.get("id") == wanted:
+                return topic
+        raise SystemExit(f"No topic with id {wanted!r} in the queue")
+    for topic in topics:
+        if topic.get("status") == "todo":
+            return topic
+    raise SystemExit(
+        "Nothing left to write — every topic in bot/queue.json is done. "
+        "Add one and run again."
+    )
+
+
+# ------------------------------------------------------------- prompting
+
+def catalogue_block(products: list[dict[str, Any]]) -> str:
+    """The catalogue as the writer sees it: name, handle, and only the tags
+    it is allowed to reason from. Designer and celebrity tags are stripped
+    here, so the names never enter the context in the first place."""
+    keep = ("family-", "gender-", "occasion-", "mood-", "scent-", "season-",
+            "longevity-", "band-", "tier-")
+    lines = []
+    for product in products:
+        if "synor" not in product["handle"]:
+            continue  # gift sets and bundles are not written about as scents
+        tags = sorted(t for t in (product.get("tags") or []) if t.startswith(keep))
+        if not any(t.startswith("family-") for t in tags):
+            continue
+        lines.append(f"- {product['title']} | {product['handle']} | {', '.join(tags)}")
+    return "\n".join(lines)
+
+
+def brief_block(topic: dict[str, Any], today: date) -> str:
+    parts = [
+        "# The brief for this entry",
+        "",
+        f"Today is {today.isoformat()}.",
+        f"Entry kind: {topic.get('kind', 'blog')}",
+        f"Where it was reported from: {topic.get('place', 'Ahmedabad')}",
+        f"Month it happened in: {topic.get('month', today.strftime('%B'))}",
+    ]
+    if topic.get("angle"):
+        parts.append(f"Territory it should cover: {topic['angle']}")
+    parts += ["", "What the entry is:", "", topic.get("brief", "").strip()]
+    parts += [
+        "",
+        "Write it now. Choose the products yourself from the catalogue above — "
+        "only ones whose tags genuinely fit — and keep every rule in the house "
+        "style, especially the ones about names and prices.",
+    ]
+    return "\n".join(parts)
+
+
+def call_claude(
+    client: anthropic.Anthropic,
+    system: list[dict[str, Any]],
+    messages: list[dict[str, Any]],
+    use_fallbacks: bool,
+) -> Any:
+    kwargs: dict[str, Any] = dict(
+        model=MODEL,
+        max_tokens=MAX_TOKENS,
+        system=system,
+        messages=messages,
+        thinking={"type": "adaptive"},
+        output_config={
+            "effort": "high",
+            "format": {"type": "json_schema", "schema": POST_SCHEMA},
+        },
+    )
+    if use_fallbacks:
+        kwargs["betas"] = [FALLBACK_BETA]
+        kwargs["fallbacks"] = "default"
+    return client.beta.messages.create(**kwargs)
+
+
+def response_json(response: Any) -> dict[str, Any]:
+    if response.stop_reason == "refusal":
+        detail = getattr(response, "stop_details", None)
+        raise RuntimeError(
+            "Claude declined to write this entry"
+            + (f" ({detail.category}: {detail.explanation})" if detail else "")
+            + ". Rewrite the brief in bot/queue.json."
+        )
+    if response.stop_reason == "max_tokens":
+        raise RuntimeError(
+            "The entry was cut off by max_tokens. Shorten the brief or raise "
+            "MAX_TOKENS in bot/write_draft.py."
+        )
+    text = next((b.text for b in response.content if b.type == "text"), None)
+    if not text:
+        raise RuntimeError("Claude returned no text block")
+    return json.loads(text)
+
+
+# ------------------------------------------------------------ validation
+
+def strip_tags(html: str) -> str:
+    return re.sub(r"<[^>]+>", " ", html)
+
+
+def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str],
+          used_handles: set[str]) -> list[str]:
+    """Everything a human would check before publishing, done cheaply.
+
+    Anything this returns goes back to Claude as a rewrite instruction, so the
+    messages are written to be read by the writer, not by an operator.
+    """
+    problems: list[str] = []
+    by_handle = {p["handle"]: p for p in products}
+    prose = " ".join([post["title"], strip_tags(post["summary_html"]),
+                      strip_tags(post["body_html"])])
+
+    # 1. No other house's name, no celebrity.
+    hits = sorted({
+        phrase for phrase in banned
+        if re.search(r"(?<![\w-])" + re.escape(phrase) + r"(?![\w-])", prose, re.I)
+    })
+    if hits:
+        problems.append(
+            "These names appear in the text and must not: "
+            + ", ".join(hits)
+            + ". Remove every one of them and describe the scent itself instead."
+        )
+
+    # 2. Only real products, and enough of them.
+    unknown = [h for h in post["product_handles"] if h not in by_handle]
+    if unknown:
+        problems.append(
+            "These product handles are not in the catalogue: "
+            + ", ".join(unknown)
+            + ". Use only handles exactly as printed in the catalogue."
+        )
+    real = [h for h in post["product_handles"] if h in by_handle]
+    if not 3 <= len(real) <= 6:
+        problems.append(
+            f"The entry recommends {len(real)} products; it needs between 3 and 6."
+        )
+    for handle in real:
+        if by_handle[handle]["title"].lower() not in prose.lower():
+            problems.append(
+                f"{by_handle[handle]['title']} is filed as a pick but is never "
+                "named in the text. Write about it or drop it."
+            )
+
+    # 3. Families must match the products actually recommended.
+    product_families = {
+        tag[len("family-"):]
+        for handle in real
+        for tag in by_handle[handle]["tags"] if tag.startswith("family-")
+    }
+    stray = [f for f in post["family"] if f not in product_families]
+    if stray:
+        problems.append(
+            "These families are filed but no recommended product carries them: "
+            + ", ".join(stray) + "."
+        )
+    if not post["family"]:
+        problems.append("The entry has no fragrance family filed.")
+    if not post["gender"]:
+        problems.append("The entry has no gender filed.")
+
+    # 4. Body shape.
+    body = post["body_html"].strip()
+    if not body.startswith("<p"):
+        problems.append(
+            "The body must open with a <p>, because the theme puts a drop cap "
+            "on the first letter of the first paragraph."
+        )
+    words = len(strip_tags(body).split())
+    if words < 600:
+        problems.append(f"The body is {words} words; it needs at least 700.")
+    if words > 1400:
+        problems.append(f"The body is {words} words; keep it under 1100.")
+    found_tags = {t.lower() for t in re.findall(r"<\s*([a-zA-Z0-9]+)", body)}
+    bad_tags = sorted(found_tags - ALLOWED_HTML_TAGS)
+    if bad_tags:
+        problems.append(
+            "These HTML tags are not allowed in the body: "
+            + ", ".join(bad_tags) + "."
+        )
+    if "<blockquote" not in body:
+        problems.append("The entry has no pull quote. Add one <blockquote>.")
+    if "!" in strip_tags(post["title"]) or "!" in strip_tags(body):
+        problems.append("Remove the exclamation marks.")
+
+    # 5. Summary length.
+    summary_words = len(strip_tags(post["summary_html"]).split())
+    if not 15 <= summary_words <= 45:
+        problems.append(
+            f"The summary is {summary_words} words; it should be 20 to 35."
+        )
+
+    # 6. Field log must be filled — the box is the spine of a dispatch.
+    empty = [k for k in ("field_place", "field_temp", "field_humidity",
+                         "field_held", "field_asked", "field_verdict")
+             if not str(post.get(k, "")).strip()]
+    if empty:
+        problems.append("The field log is missing: " + ", ".join(empty) + ".")
+
+    # 7. Handle must be new and URL-safe.
+    handle = post["handle"].strip().lower()
+    if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", handle):
+        problems.append(
+            f"The handle {post['handle']!r} must be lower-case words joined by "
+            "hyphens, nothing else."
+        )
+    elif handle in used_handles:
+        problems.append(
+            f"The handle {handle!r} is already used on the blog. Choose another."
+        )
+
+    # 8. Series needs both tags, which means it needs a slug.
+    if post["kind"] == "series" and not post["series_slug"].strip():
+        problems.append(
+            "A series entry needs a series_slug, e.g. 'matheran', because the "
+            "theme files it under both `series` and `series-<slug>`."
+        )
+    return problems
+
+
+def build_tags(post: dict[str, Any]) -> list[str]:
+    tags = [post["kind"]]
+    if post["kind"] == "series":
+        slug = post["series_slug"].strip().lower()
+        tags.append(f"series-{slug}")  # `series` itself is already the kind tag
+    tags += [f"gender-{g}" for g in post["gender"]]
+    tags += [f"occasion-{o}" for o in post["occasion"]]
+    tags += [f"family-{f}" for f in post["family"]]
+    tags += [f"pick-{h}" for h in post["product_handles"]]
+    seen: list[str] = []
+    for tag in tags:
+        if tag not in seen:
+            seen.append(tag)
+    return seen
+
+
+def build_metafields(post: dict[str, Any], entry_no: int) -> list[dict[str, str]]:
+    out = [{
+        "namespace": "custom",
+        "key": "entry_no",
+        "value": str(entry_no),
+        "type": "number_integer",  # the definition in the admin is an integer
+    }]
+    for key in TEXT_METAFIELDS:
+        value = str(post.get(key, "")).strip()
+        if not value:
+            continue
+        out.append({
+            "namespace": "custom",
+            "key": key,
+            "value": value,
+            "type": "single_line_text_field",
+        })
+    return out
+
+
+# ------------------------------------------------------------------ main
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Draft one SYNOR Diaries entry.")
+    parser.add_argument("--topic", help="topic id from bot/queue.json")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="write the entry and print it; file nothing")
+    parser.add_argument("--max-rounds", type=int, default=3,
+                        help="how many times to send the checks back for a rewrite")
+    args = parser.parse_args()
+
+    queue_path = HERE / "queue.json"
+    queue = load_queue(queue_path)
+    topic = pick_topic(queue, args.topic)
+    print(f"→ topic: {topic['id']}", flush=True)
+
+    shop = Shop(
+        os.environ.get("SHOPIFY_STORE", ""),
+        os.environ.get("SHOPIFY_ADMIN_TOKEN", ""),
+        os.environ.get("SHOPIFY_API_VERSION") or "2026-07",
+    )
+    blog_handle = os.environ.get("SYNOR_BLOG_HANDLE") or "diaries"
+    blog_gid = shop.blog_id(blog_handle)
+    products = shop.catalogue()
+    used_handles = shop.article_handles(blog_handle)
+    banned = forbidden_phrases(products)
+    print(f"→ {len(products)} products, {len(used_handles)} entries already filed",
+          flush=True)
+
+    client = anthropic.Anthropic()
+    use_fallbacks = (os.environ.get("SYNOR_FALLBACKS", "").lower() != "off")
+
+    # The house style and the catalogue are identical on every run, so they go
+    # in a cached prefix; only the brief changes.
+    system = [
+        {
+            "type": "text",
+            "text": (HERE / "house-style.md").read_text(encoding="utf-8"),
+        },
+        {
+            "type": "text",
+            "text": "# The catalogue\n\nName | handle | tags\n\n"
+                    + catalogue_block(products),
+            "cache_control": {"type": "ephemeral"},
+        },
+    ]
+    messages: list[dict[str, Any]] = [
+        {"role": "user", "content": brief_block(topic, date.today())}
+    ]
+
+    post: dict[str, Any] | None = None
+    for round_no in range(1, args.max_rounds + 1):
+        response = call_claude(client, system, messages, use_fallbacks)
+        candidate = response_json(response)
+        problems = check(candidate, products, banned, used_handles)
+        if not problems:
+            post = candidate
+            print(f"→ passed the checks on round {round_no}", flush=True)
+            break
+        print(f"→ round {round_no}: {len(problems)} problem(s) sent back",
+              flush=True)
+        for problem in problems:
+            print(f"   · {problem}", flush=True)
+        messages.append({"role": "assistant",
+                         "content": json.dumps(candidate, ensure_ascii=False)})
+        messages.append({
+            "role": "user",
+            "content": "The entry was checked and these need fixing:\n\n"
+                       + "\n".join(f"{i}. {p}" for i, p in enumerate(problems, 1))
+                       + "\n\nReturn the whole entry again, corrected. Keep "
+                         "everything that was not flagged.",
+        })
+    if post is None:
+        print("\n✗ Could not get a clean entry in "
+              f"{args.max_rounds} rounds. Nothing was filed.", file=sys.stderr)
+        return 1
+
+    tags = build_tags(post)
+    entry_no = len(used_handles) + 1
+    metafields = build_metafields(post, entry_no)
+
+    if args.dry_run:
+        print("\n--- DRY RUN, nothing filed -------------------------------")
+        print(f"title    : {post['title']}")
+        print(f"handle   : {post['handle']}")
+        print(f"summary  : {strip_tags(post['summary_html']).strip()}")
+        print(f"tags     : {', '.join(tags)}")
+        print(f"field log: {post['field_place']} · {post['field_temp']} · "
+              f"{post['field_humidity']} · held {post['field_held']} · "
+              f"{post['field_asked']} asked · {post['field_verdict']}")
+        print(f"words    : {len(strip_tags(post['body_html']).split())}")
+        print("\n" + post["body_html"])
+        return 0
+
+    article = shop.create_draft_article(
+        blog_id=blog_gid,
+        title=post["title"],
+        handle=post["handle"].strip().lower(),
+        summary_html=post["summary_html"],
+        body_html=post["body_html"],
+        tags=tags,
+        metafields=metafields,
+    )
+    link = shop.admin_url(article["id"], blog_gid)
+
+    topic["status"] = "drafted"
+    topic["article_id"] = article["id"]
+    topic["drafted_on"] = date.today().isoformat()
+    save_queue(queue_path, queue)
+
+    print(f"\n✓ Draft filed, not published: {post['title']}")
+    print(f"  {link}")
+    print("  Open it, read it, and press Publish if it is right.")
+
+    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_file:
+        with open(summary_file, "a", encoding="utf-8") as handle:
+            handle.write(
+                f"### New Diaries draft\n\n"
+                f"**{post['title']}**\n\n"
+                f"{strip_tags(post['summary_html']).strip()}\n\n"
+                f"Filed as a **draft**. Tags: `{'`, `'.join(tags)}`\n\n"
+                f"[Open it in Shopify and publish]({link})\n"
+            )
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except (ShopifyError, RuntimeError) as exc:
+        print(f"\n✗ {exc}", file=sys.stderr)
+        sys.exit(1)
+    except anthropic.AuthenticationError:
+        print("\n✗ ANTHROPIC_API_KEY is missing or wrong.", file=sys.stderr)
+        sys.exit(1)
+    except anthropic.RateLimitError as exc:
+        retry = exc.response.headers.get("retry-after", "60")
+        print(f"\n✗ Rate limited. Try again in {retry}s.", file=sys.stderr)
+        sys.exit(1)
+    except anthropic.APIStatusError as exc:
+        print(f"\n✗ Anthropic API error {exc.status_code}: {exc.message}",
+              file=sys.stderr)
+        sys.exit(1)
+    except anthropic.APIConnectionError:
+        print("\n✗ Could not reach the Anthropic API.", file=sys.stderr)
+        sys.exit(1)

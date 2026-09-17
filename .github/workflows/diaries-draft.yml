@@ -1,0 +1,71 @@
+name: Diaries · write a draft
+
+# Deliberately manual for now. Once a few drafts have come out right, add the
+# schedule block at the bottom and it runs on its own.
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "Topic id from bot/queue.json (blank = the next 'todo')"
+        required: false
+        type: string
+      dry_run:
+        description: "Write it and print it here, file nothing in Shopify"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diaries-draft
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -r bot/requirements.txt
+
+      - name: Write the entry
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          # Read as shell variables, never interpolated into the script, so a
+          # topic id typed in the Actions form cannot become a command.
+          TOPIC: ${{ inputs.topic }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        working-directory: bot
+        run: |
+          args=()
+          if [ -n "$TOPIC" ]; then args+=(--topic "$TOPIC"); fi
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          python write_draft.py "${args[@]}"
+
+      - name: Mark the topic as drafted
+        if: ${{ !inputs.dry_run }}
+        run: |
+          if git diff --quiet -- bot/queue.json; then
+            echo "queue unchanged"
+            exit 0
+          fi
+          git config user.name "synor-diaries-bot"
+          git config user.email "noreply@synorperfume.com"
+          git add bot/queue.json
+          git commit -m "Diaries: a topic moved to drafted"
+          git push
+
+# To put it on a schedule later, add this next to `workflow_dispatch:` above.
+# Times are UTC; 03:30 UTC is 09:00 IST.
+#
+#   schedule:
+#     - cron: "30 3 * * 2,5"   # Tuesday and Friday morning

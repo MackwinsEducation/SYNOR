@@ -1,0 +1,5 @@
+# Track 2 — the SYNOR Diaries drafting agent.
+# Claude is called through the official Anthropic SDK. Shopify's Admin API is
+# plain GraphQL over HTTPS and is called with the standard library, so this is
+# the only dependency.
+anthropic>=1.0.0

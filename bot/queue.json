@@ -1,0 +1,77 @@
+{
+  "_readme": "The topic queue. The agent takes the first entry whose status is 'todo', writes it, and sets that entry to 'drafted' with the article id. Add topics at the bottom; edit them freely. 'brief' is the only field that really matters — it is what the writer is told. Keep 'place' and 'month' honest, because the field log is printed next to the text.",
+  "topics": [
+    {
+      "id": "gym-bag-heat",
+      "status": "todo",
+      "kind": "blog",
+      "brief": "Four scents worn to a gym and back, to find out which ones survive sweat and which turn sour. Cover what happens in the twenty minutes after a workout, not just at the start. Be blunt about the one that failed.",
+      "place": "Ahmedabad, a gym on Sindhu Bhavan Road",
+      "month": "September",
+      "angle": "fresh-aquatic and light woody, for him and unisex, occasion gym and daily"
+    },
+    {
+      "id": "first-date-dinner",
+      "status": "todo",
+      "kind": "blog",
+      "brief": "A first date is a table two feet wide, indoors, for two hours. Test scents at that distance instead of across a room. Which ones read as intentional and which read as too much. Include one that is popular and wrong for this.",
+      "place": "Ahmedabad, a restaurant in Navrangpura",
+      "month": "September",
+      "angle": "amber-sweet and woody-oud, her and him, occasion date and evening reads as date"
+    },
+    {
+      "id": "wedding-season-long-day",
+      "status": "todo",
+      "kind": "blog",
+      "brief": "An Indian wedding day runs sixteen hours through marigold, food smoke, attar from other guests and a lot of bodies. Which scents hold their shape in that and which get buried. Write it as a long day, hour by hour.",
+      "place": "Ahmedabad, a wedding at a farmhouse off SP Ring Road",
+      "month": "November",
+      "angle": "amber-sweet, woody-oud, festive, her and him"
+    },
+    {
+      "id": "one-bottle-only",
+      "status": "todo",
+      "kind": "blog",
+      "brief": "A guide for a reader who will own exactly one bottle. Work out what one bottle has to do — office at 10am and dinner at 9pm — and name the few that genuinely cross over. Say plainly which popular choices do not.",
+      "place": "Ahmedabad, a day carried start to finish",
+      "month": "September",
+      "angle": "daily and office, all three genders, whichever families fit"
+    },
+    {
+      "id": "review-ocean-verve",
+      "status": "todo",
+      "kind": "review",
+      "brief": "One product, examined properly: SYNOR Ocean Verve. Three days of wear in different conditions. What it opens as, what it becomes by hour four, who it suited and who it did not. A review, so it needs a reservation that a buyer would want to know.",
+      "place": "Ahmedabad, three days across the city",
+      "month": "September",
+      "angle": "fresh-aquatic, him, daily and office"
+    },
+    {
+      "id": "her-office-close",
+      "status": "todo",
+      "kind": "blog",
+      "brief": "Office scents for her, tested by how close they stay. An open-plan floor punishes a scent that travels. Which ones sit within arm's length all day, and how to wear a stronger one at work without it becoming everyone's problem.",
+      "place": "Ahmedabad, an open-plan office in Prahlad Nagar",
+      "month": "September",
+      "angle": "floral-fruity and fresh-aquatic, her, occasion office"
+    },
+    {
+      "id": "party-two-sprays",
+      "status": "todo",
+      "kind": "blog",
+      "brief": "Party scents, and the real question with them: how many sprays. Test the same scents at two sprays and at five, in a crowded room, and report the difference. The point is that most people over-apply the right bottle.",
+      "place": "Ahmedabad, a rooftop bar in Thaltej",
+      "month": "October",
+      "angle": "amber-sweet and woody-oud, unisex and him, occasion party and evening"
+    },
+    {
+      "id": "humidity-test",
+      "status": "todo",
+      "kind": "blog",
+      "brief": "Humidity changes a perfume more than price does. Wear the same four scents on a dry day and on a wet one and report how each shifted. Useful for anyone in a coastal city. End with which family is the safest bet in high humidity.",
+      "place": "Ahmedabad and a day trip to the coast near Bhavnagar",
+      "month": "September",
+      "angle": "fresh-aquatic against amber-sweet, unisex, daily"
+    }
+  ]
+}
