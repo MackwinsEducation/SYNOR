@@ -207,8 +207,9 @@ cart, so the GoKwik and bundlr flows in `theme.liquid` are never bypassed.
 
 The store has **more than one session working on it**. Themes were being
 published from elsewhere while this layer was being built: the live theme
-moved from `SYNOR work copy 4` to `SYNOR work copy 5`, and `SYNOR work copy 6`
-was being edited the next morning.
+moved from `SYNOR work copy 4` to `SYNOR work copy 5`, `SYNOR work copy 6` was
+being edited the next morning, and by that afternoon the work had moved on
+again to `SYNOR work copy 7`.
 
 **Publishing a theme replaces the whole theme, not your part of it.** So:
 
@@ -226,14 +227,44 @@ easiest to merge:
    re-uploading).
 4. Publish the fork.
 
-`SYNOR blog preview` (id 188802629927) holds an early version of this layer
-and was forked from `work copy 4`. **It must not be published** — it is two
-generations behind and would roll the store back. Treat it as a holding pen.
+Verified at build time: neither the live theme nor `work copy 6` contained
+any `sa-blog-*` or `sa-article` file, and both still carried stock Dawn
+`blog.json` / `article.json`. Nobody else is doing blog work, so the merge had
+nothing to collide with. Re-check before installing into a new fork.
 
-Verified at build time: neither the live theme nor `work copy 6` contains any
-`sa-blog-*` or `sa-article` file, and both still carry stock Dawn
-`blog.json` / `article.json`. Nobody else is doing blog work, so the merge
-has nothing to collide with. Re-check before installing.
+## Where it actually lives
+
+The layer was installed into **`SYNOR work copy 6`** (188819407143), and
+`SYNOR work copy 7` (188836217127) was forked from it afterwards, so copy 7
+carries the whole layer already — all thirteen files, every checksum
+identical:
+
+| File | Bytes | md5 |
+| --- | --- | --- |
+| `sections/sa-blog-list.liquid` | 30132 | `e4d1a2de1fd5b145c201a6d81f8e0fae` |
+| `sections/sa-article.liquid` | 42407 | `9ff799a515035e3d347a9a86ab8af0ad` |
+| `snippets/sa-blog-list-css.liquid` | 15892 | `f3a2d94a3565a67f5d09e53f4bd89832` |
+| `snippets/sa-blog-fieldbox.liquid` | 3026 | `5255a3fc318e76fbea1278c97da0e10c` |
+| `snippets/sa-blog-taxbar.liquid` | 2668 | `760b6e387b77c79ca505d4d4a8c31b9e` |
+| `snippets/sa-blog-field.liquid` | 2356 | `0658e622902a5d536fc0400bd88869b2` |
+| `snippets/sa-blog-video.liquid` | 1445 | `fff2387f75ce80bfae1644d8cc9ea2f9` |
+| `snippets/sa-blog-product.liquid` | 3046 | `0259aef64830faa8684d37003d3c83e8` |
+| `snippets/sa-blog-alsorow.liquid` | 2000 | `36fdecc6677296f076713b6116cbb093` |
+| `templates/blog.json` | 172 | `6f7c5095da93e279671803490cf016ea` |
+| `templates/article.json` | 179 | `624f3c42eb7f948f91f375c2f2e62769` |
+| `sections/header-group.json` | 12140 | `0aadc815050e3f8f4d156a8739f5f147` |
+| `sections/footer-group.json` | 9277 | `bc1461ff84a9faea1d3fb14ab080979b` |
+
+**That checksum table is the point of this section.** A theme copy taken
+from a copy looks fine and can quietly be missing a file, so the way to check
+a new fork is to ask the Admin API for these thirteen filenames and compare
+the md5s, not to open the editor and see that the blog looks right.
+
+The menu and footer entries came across with the two group files, so there is
+nothing to add in the theme editor: `header-group.json` carries the
+`l_diaries` block *and* has it in `block_order`, and `l2` (Find my scent) and
+`l3` (Golden Scent Pass) are still in `blocks` but out of `block_order`, which
+is how they stay hidden without being lost.
 
 `templates/blog.json` and `templates/article.json` do replace existing files;
 the originals are kept in `docs/theme-backup/`.
