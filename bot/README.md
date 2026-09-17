@@ -50,3 +50,15 @@ python write_social.py --from-article office-perfume-six-that-dont-crowd-the-roo
 
 [`../docs/social-pack.md`](../docs/social-pack.md) also sets out what real
 auto-posting to Instagram, YouTube and WhatsApp would actually require.
+
+## And the publisher
+
+```bash
+python publish.py --pack 2026-09-17-lift-test --video-url https://...   # preflight
+python publish.py --pack 2026-09-17-lift-test --video-url https://... --publish
+```
+
+`publish.py` posts a pack to Instagram and Facebook. **Without `--publish` it
+posts nothing** — it is a preflight that checks the tokens, the video and the
+copy and prints what would go out. Needs `META_ACCESS_TOKEN`, `IG_USER_ID`,
+`FB_PAGE_ID`; setup is in [`../docs/publishing.md`](../docs/publishing.md).

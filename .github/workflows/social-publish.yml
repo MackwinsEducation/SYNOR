@@ -1,0 +1,89 @@
+name: Social · post it
+
+# Posting to a public account cannot be undone, so this workflow is manual
+# only, never scheduled, and "Actually post" defaults to off. Leave it off and
+# the run is a preflight: it checks the tokens, resolves the account names,
+# verifies the video is reachable, re-checks the copy, and prints what would
+# go out without posting anything.
+on:
+  workflow_dispatch:
+    inputs:
+      pack:
+        description: "Pack stem from bot/social/ (e.g. 2026-09-17-lift-test)"
+        required: true
+        type: string
+      video_url:
+        description: "Public HTTPS URL of the reel — required for Instagram"
+        required: false
+        type: string
+      channels:
+        description: "Where to post"
+        required: false
+        default: "ig,fb"
+        type: choice
+        options: ["ig,fb", "ig", "fb"]
+      publish:
+        description: "Actually post it (leave off for a preflight)"
+        required: false
+        type: boolean
+        default: false
+      again:
+        description: "Allow posting a pack that already went out"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: social-publish
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -r bot/requirements.txt
+
+      - name: Post it
+        env:
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          # Read as shell variables, never interpolated into the script, so a
+          # value typed in the Actions form cannot become a command.
+          PACK: ${{ inputs.pack }}
+          VIDEO_URL: ${{ inputs.video_url }}
+          CHANNELS: ${{ inputs.channels }}
+          DO_PUBLISH: ${{ inputs.publish }}
+          AGAIN: ${{ inputs.again }}
+        working-directory: bot
+        run: |
+          args=(--pack "$PACK" --channels "$CHANNELS")
+          if [ -n "$VIDEO_URL" ]; then args+=(--video-url "$VIDEO_URL"); fi
+          if [ "$DO_PUBLISH" = "true" ]; then args+=(--publish); fi
+          if [ "$AGAIN" = "true" ]; then args+=(--again); fi
+          python publish.py "${args[@]}"
+
+      - name: Record what went out
+        if: ${{ inputs.publish }}
+        run: |
+          if [ -z "$(git status --porcelain bot/social)" ]; then
+            echo "nothing recorded"
+            exit 0
+          fi
+          git config user.name "synor-diaries-bot"
+          git config user.email "noreply@synorperfume.com"
+          git add bot/social
+          git commit -m "Social: posted"
+          git push
