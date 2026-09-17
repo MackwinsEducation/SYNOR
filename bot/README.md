@@ -19,3 +19,18 @@ in this repository.**
 
 To change how the paper reads, edit `house-style.md`. To change what it writes
 about, edit `queue.json`. Neither needs a code change.
+
+## Two agents
+
+| | Writes | Contract | Queue | Output |
+|---|---|---|---|---|
+| Track 2 | blog entries | `house-style.md` | `queue.json` | a **draft** article in Shopify |
+| Track 3 | shoot sheets | `vlog-style.md` | `vlog_queue.json` | a sheet in `shoots/` |
+
+```bash
+python write_shoot.py --dry-run          # plan a shoot, print it
+python write_shoot.py --shoot lift-test
+```
+
+Full write-ups: [`../docs/auto-post.md`](../docs/auto-post.md) and
+[`../docs/vlog-agent.md`](../docs/vlog-agent.md).

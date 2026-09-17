@@ -1,0 +1,73 @@
+{
+  "_readme": "The shoot queue. The agent takes the first entry whose status is 'todo' and writes a full shoot sheet into bot/shoots/. 'brief' is what the planner is told; 'format' and 'seconds' steer the shape; 'language' is the spoken language ('hinglish', 'english' or 'gujarati'). Add ideas at the bottom.",
+  "defaults": {
+    "language": "hinglish",
+    "city": "Ahmedabad"
+  },
+  "shoots": [
+    {
+      "id": "lift-test",
+      "status": "todo",
+      "format": "street-test",
+      "seconds": 45,
+      "brief": "The lift test. A closed cabin is the harshest room a perfume ever enters, and it is where colleagues decide what they think of you. Spray one scent, ride the lift with real people, ask them what they smell. Use the reactions as they come, including the ones that say it is too strong.",
+      "where": "an office building lift, Prahlad Nagar"
+    },
+    {
+      "id": "nine-hour-shirt",
+      "status": "todo",
+      "format": "day-in-scent",
+      "seconds": 50,
+      "brief": "One scent, one shirt, one day, timestamps on screen. Prove or disprove nine hours on camera by smelling the same collar at 9am, 1pm, 4pm and 6pm and saying honestly what is left. If it dies at hour five, that is the video.",
+      "where": "across the city, one ordinary working day"
+    },
+    {
+      "id": "three-sprays-wrong",
+      "status": "todo",
+      "format": "two-bottle-face-off",
+      "seconds": 40,
+      "brief": "Most people spray the right bottle the wrong way. Same scent, two sprays against five, tested on two different people in the same room, and ask a third what the difference is. The point is that application beats price.",
+      "where": "a small room at home, and a friend"
+    },
+    {
+      "id": "gym-bag-truth",
+      "status": "todo",
+      "format": "hands-only",
+      "seconds": 35,
+      "brief": "What happens to a fresh scent twenty minutes after a workout. Hands only, no face. A gym bag, a wet towel, a wrist. Which family survives sweat and which one turns sour, said plainly.",
+      "where": "a gym and the car park outside it"
+    },
+    {
+      "id": "49-rupee-unboxing",
+      "status": "todo",
+      "format": "unboxing",
+      "seconds": 30,
+      "brief": "What ₹49 actually gets you. The tester arriving, opened, sprayed, on skin, and the honest first reaction. No build-up. The whole video is the argument that trying is cheaper than guessing.",
+      "where": "a table at home, natural light"
+    },
+    {
+      "id": "wedding-marigold",
+      "status": "todo",
+      "format": "street-test",
+      "seconds": 50,
+      "brief": "An Indian wedding smells of marigold, food smoke and forty other people's attar. Test whether a scent can still be noticed in that, by wearing it into exactly that air and asking people at the wedding. Say which one got buried.",
+      "where": "a wedding or a mandap being set up"
+    },
+    {
+      "id": "her-office-close",
+      "status": "todo",
+      "format": "talking-head",
+      "seconds": 40,
+      "brief": "The office problem nobody says out loud: a scent that travels makes you everyone's problem. One claim straight to camera — that at work the right scent is the one that stays inside arm's length — then the proof, then which ones actually do that.",
+      "where": "a desk, an open-plan floor"
+    },
+    {
+      "id": "dm-answered",
+      "status": "todo",
+      "format": "question-answer",
+      "seconds": 35,
+      "brief": "Answer the question that actually arrives in the DMs: 'ek hi bottle lena hai, kaunsi lu?' Work out on camera what one bottle has to do — 10am office and 9pm dinner — and name the few that genuinely cross over. Say which popular choice does not.",
+      "where": "anywhere, phone in hand"
+    }
+  ]
+}

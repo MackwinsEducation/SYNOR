@@ -26,25 +26,17 @@ import os
 import re
 import sys
 from datetime import date
-from pathlib import Path
 from typing import Any
 
 import anthropic
 
-from synor_shopify import Shop, ShopifyError, forbidden_phrases
-
-HERE = Path(__file__).resolve().parent
-
-MODEL = "claude-opus-5"
-MAX_TOKENS = 16000
-# One entry is ~1,000 words, so a single non-streaming call finishes well
-# inside the SDK's 10-minute default timeout.
-FALLBACK_BETA = "server-side-fallback-2026-07-01"
+from agent_common import (
+    FAMILIES, GENDERS, HERE, OCCASIONS, cached_system, name_hits, run_rounds,
+    shop_from_env, strip_tags,
+)
+from synor_shopify import ShopifyError, forbidden_phrases
 
 KINDS = ("blog", "vlog", "review", "letter", "series")
-GENDERS = ("her", "him", "unisex")
-OCCASIONS = ("daily", "office", "date", "party", "festive", "gym")
-FAMILIES = ("fresh-aquatic", "woody-oud", "floral-fruity", "amber-sweet")
 
 # The theme reads these from the `custom` namespace. `field_*` fills the boxed
 # field log, `notes_*` fills the notes strip, `entry_no` is the folio number.
@@ -132,23 +124,6 @@ def pick_topic(queue: dict[str, Any], wanted: str | None) -> dict[str, Any]:
 
 # ------------------------------------------------------------- prompting
 
-def catalogue_block(products: list[dict[str, Any]]) -> str:
-    """The catalogue as the writer sees it: name, handle, and only the tags
-    it is allowed to reason from. Designer and celebrity tags are stripped
-    here, so the names never enter the context in the first place."""
-    keep = ("family-", "gender-", "occasion-", "mood-", "scent-", "season-",
-            "longevity-", "band-", "tier-")
-    lines = []
-    for product in products:
-        if "synor" not in product["handle"]:
-            continue  # gift sets and bundles are not written about as scents
-        tags = sorted(t for t in (product.get("tags") or []) if t.startswith(keep))
-        if not any(t.startswith("family-") for t in tags):
-            continue
-        lines.append(f"- {product['title']} | {product['handle']} | {', '.join(tags)}")
-    return "\n".join(lines)
-
-
 def brief_block(topic: dict[str, Any], today: date) -> str:
     parts = [
         "# The brief for this entry",
@@ -170,53 +145,7 @@ def brief_block(topic: dict[str, Any], today: date) -> str:
     return "\n".join(parts)
 
 
-def call_claude(
-    client: anthropic.Anthropic,
-    system: list[dict[str, Any]],
-    messages: list[dict[str, Any]],
-    use_fallbacks: bool,
-) -> Any:
-    kwargs: dict[str, Any] = dict(
-        model=MODEL,
-        max_tokens=MAX_TOKENS,
-        system=system,
-        messages=messages,
-        thinking={"type": "adaptive"},
-        output_config={
-            "effort": "high",
-            "format": {"type": "json_schema", "schema": POST_SCHEMA},
-        },
-    )
-    if use_fallbacks:
-        kwargs["betas"] = [FALLBACK_BETA]
-        kwargs["fallbacks"] = "default"
-    return client.beta.messages.create(**kwargs)
-
-
-def response_json(response: Any) -> dict[str, Any]:
-    if response.stop_reason == "refusal":
-        detail = getattr(response, "stop_details", None)
-        raise RuntimeError(
-            "Claude declined to write this entry"
-            + (f" ({detail.category}: {detail.explanation})" if detail else "")
-            + ". Rewrite the brief in bot/queue.json."
-        )
-    if response.stop_reason == "max_tokens":
-        raise RuntimeError(
-            "The entry was cut off by max_tokens. Shorten the brief or raise "
-            "MAX_TOKENS in bot/write_draft.py."
-        )
-    text = next((b.text for b in response.content if b.type == "text"), None)
-    if not text:
-        raise RuntimeError("Claude returned no text block")
-    return json.loads(text)
-
-
 # ------------------------------------------------------------ validation
-
-def strip_tags(html: str) -> str:
-    return re.sub(r"<[^>]+>", " ", html)
-
 
 def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str],
           used_handles: set[str]) -> list[str]:
@@ -231,10 +160,7 @@ def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str
                       strip_tags(post["body_html"])])
 
     # 1. No other house's name, no celebrity.
-    hits = sorted({
-        phrase for phrase in banned
-        if re.search(r"(?<![\w-])" + re.escape(phrase) + r"(?![\w-])", prose, re.I)
-    })
+    hits = name_hits(prose, banned)
     if hits:
         problems.append(
             "These names appear in the text and must not: "
@@ -390,11 +316,7 @@ def main() -> int:
     topic = pick_topic(queue, args.topic)
     print(f"→ topic: {topic['id']}", flush=True)
 
-    shop = Shop(
-        os.environ.get("SHOPIFY_STORE", ""),
-        os.environ.get("SHOPIFY_ADMIN_TOKEN", ""),
-        os.environ.get("SHOPIFY_API_VERSION") or "2026-07",
-    )
+    shop = shop_from_env()
     blog_handle = os.environ.get("SYNOR_BLOG_HANDLE") or "diaries"
     blog_gid = shop.blog_id(blog_handle)
     products = shop.catalogue()
@@ -403,52 +325,17 @@ def main() -> int:
     print(f"→ {len(products)} products, {len(used_handles)} entries already filed",
           flush=True)
 
-    client = anthropic.Anthropic()
-    use_fallbacks = (os.environ.get("SYNOR_FALLBACKS", "").lower() != "off")
-
-    # The house style and the catalogue are identical on every run, so they go
-    # in a cached prefix; only the brief changes.
-    system = [
-        {
-            "type": "text",
-            "text": (HERE / "house-style.md").read_text(encoding="utf-8"),
-        },
-        {
-            "type": "text",
-            "text": "# The catalogue\n\nName | handle | tags\n\n"
-                    + catalogue_block(products),
-            "cache_control": {"type": "ephemeral"},
-        },
-    ]
-    messages: list[dict[str, Any]] = [
-        {"role": "user", "content": brief_block(topic, date.today())}
-    ]
-
-    post: dict[str, Any] | None = None
-    for round_no in range(1, args.max_rounds + 1):
-        response = call_claude(client, system, messages, use_fallbacks)
-        candidate = response_json(response)
-        problems = check(candidate, products, banned, used_handles)
-        if not problems:
-            post = candidate
-            print(f"→ passed the checks on round {round_no}", flush=True)
-            break
-        print(f"→ round {round_no}: {len(problems)} problem(s) sent back",
-              flush=True)
-        for problem in problems:
-            print(f"   · {problem}", flush=True)
-        messages.append({"role": "assistant",
-                         "content": json.dumps(candidate, ensure_ascii=False)})
-        messages.append({
-            "role": "user",
-            "content": "The entry was checked and these need fixing:\n\n"
-                       + "\n".join(f"{i}. {p}" for i, p in enumerate(problems, 1))
-                       + "\n\nReturn the whole entry again, corrected. Keep "
-                         "everything that was not flagged.",
-        })
+    post = run_rounds(
+        anthropic.Anthropic(),
+        cached_system("house-style.md", products),
+        brief_block(topic, date.today()),
+        POST_SCHEMA,
+        lambda candidate: check(candidate, products, banned, used_handles),
+        args.max_rounds,
+    )
     if post is None:
-        print("\n✗ Could not get a clean entry in "
-              f"{args.max_rounds} rounds. Nothing was filed.", file=sys.stderr)
+        print(f"\n✗ Could not get a clean entry in {args.max_rounds} rounds. "
+              "Nothing was filed.", file=sys.stderr)
         return 1
 
     tags = build_tags(post)

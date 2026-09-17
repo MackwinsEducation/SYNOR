@@ -1,0 +1,72 @@
+name: Vlog · plan a shoot
+
+# Manual for now. The sheet is printed in the run summary, so it can be read
+# on a phone from the Actions tab without opening a file.
+on:
+  workflow_dispatch:
+    inputs:
+      shoot:
+        description: "Shoot id from bot/vlog_queue.json (blank = the next 'todo')"
+        required: false
+        type: string
+      dry_run:
+        description: "Print the sheet here, commit nothing"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vlog-shoot
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -r bot/requirements.txt
+
+      - name: Plan the shoot
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          # Read as shell variables, never interpolated into the script, so a
+          # shoot id typed in the Actions form cannot become a command.
+          SHOOT: ${{ inputs.shoot }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        working-directory: bot
+        run: |
+          args=()
+          if [ -n "$SHOOT" ]; then args+=(--shoot "$SHOOT"); fi
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          python write_shoot.py "${args[@]}"
+
+      - name: Commit the sheet
+        if: ${{ !inputs.dry_run }}
+        run: |
+          if git diff --quiet && git diff --quiet --cached && \
+             [ -z "$(git ls-files --others --exclude-standard bot/shoots)" ]; then
+            echo "nothing written"
+            exit 0
+          fi
+          git config user.name "synor-diaries-bot"
+          git config user.email "noreply@synorperfume.com"
+          git add bot/shoots bot/vlog_queue.json
+          git commit -m "Vlog: a shoot sheet"
+          git push
+
+# To plan one automatically every week, add this next to `workflow_dispatch:`.
+# Times are UTC; 04:00 UTC is 09:30 IST.
+#
+#   schedule:
+#     - cron: "0 4 * * 1"   # Monday morning
