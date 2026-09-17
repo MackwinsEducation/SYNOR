@@ -236,7 +236,7 @@ nothing to collide with. Re-check before installing into a new fork.
 
 The layer was installed into **`SYNOR work copy 6`** (188819407143), and
 `SYNOR work copy 7` (188836217127) was forked from it afterwards, so copy 7
-carries the whole layer already — all thirteen files, every checksum
+carries the whole layer already — all fourteen files, every checksum
 identical:
 
 | File | Bytes | md5 |
@@ -250,6 +250,7 @@ identical:
 | `snippets/sa-blog-video.liquid` | 1445 | `fff2387f75ce80bfae1644d8cc9ea2f9` |
 | `snippets/sa-blog-product.liquid` | 3046 | `0259aef64830faa8684d37003d3c83e8` |
 | `snippets/sa-blog-alsorow.liquid` | 2000 | `36fdecc6677296f076713b6116cbb093` |
+| `snippets/sa-blog-seo.liquid` | 3356 | `d8d30c573d8bfc623ffd487b2e5f47ce` |
 | `templates/blog.json` | 172 | `6f7c5095da93e279671803490cf016ea` |
 | `templates/article.json` | 179 | `624f3c42eb7f948f91f375c2f2e62769` |
 | `sections/header-group.json` | 12140 | `0aadc815050e3f8f4d156a8739f5f147` |
@@ -257,8 +258,26 @@ identical:
 
 **That checksum table is the point of this section.** A theme copy taken
 from a copy looks fine and can quietly be missing a file, so the way to check
-a new fork is to ask the Admin API for these thirteen filenames and compare
+a new fork is to ask the Admin API for these fourteen filenames and compare
 the md5s, not to open the editor and see that the blog looks right.
+
+The table itself proved that. It was first written with thirteen rows, and
+`sa-blog-seo.liquid` — the JSON-LD snippet, rendered from `sa-article.liquid`
+line 236 — was the one left out. A list kept by hand drifts; the fix is to
+generate the check from the files, which is what the loop below does.
+
+```bash
+# Compare a fork against this table. Prints every file and whether it matches.
+for f in sections/sa-blog-list.liquid sections/sa-article.liquid \
+         snippets/sa-blog-list-css.liquid snippets/sa-blog-fieldbox.liquid \
+         snippets/sa-blog-taxbar.liquid snippets/sa-blog-field.liquid \
+         snippets/sa-blog-video.liquid snippets/sa-blog-product.liquid \
+         snippets/sa-blog-alsorow.liquid snippets/sa-blog-seo.liquid \
+         templates/blog.json templates/article.json \
+         sections/header-group.json sections/footer-group.json; do
+  md5sum "$f"
+done
+```
 
 The menu and footer entries came across with the two group files, so there is
 nothing to add in the theme editor: `header-group.json` carries the
