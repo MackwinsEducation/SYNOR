@@ -970,3 +970,90 @@ back to `display: block`.
 **not loaded by `layout/theme.liquid`**, so nothing reads it. The Admin API
 cannot delete a theme file, so it has been emptied and labelled "NOT USED.
 SAFE TO DELETE." Delete it from the theme editor when convenient.
+
+---
+
+## §15d — the product page below 1100, and two guards
+
+Built on **SYNOR work copy 7** (`188836217127`). The theme the earlier sections
+were written on — "SYNOR work copy" — has been deleted; work copies 5, 6 and 7
+all carry `sa-desktop.css` (`c62c3817…`) and `sa-desktop-wide.css` byte for
+byte, and **work copy 5 is now MAIN**, so §1–§15 is live. `templates/product.json`
+in copy 7 is structurally identical to the one §15 was written against: same
+17 sections in the same order, `above_stock: true`, `strip_key: "sa_wears"`,
+`dk_break: 900`, `gal_col: 56`, `page_max: 1620`.
+
+### The fault §15 left behind
+
+`sa-desktop.liquid` opens its two-column layout at `dk_break: 900` and splits
+56 / 44. Swept across every width:
+
+| window | photo | buy column |
+| --- | --- | --- |
+| 900 | 428 | **336** |
+| 1024 | 497 | **391** |
+| 1100 | 540 | 424 |
+| 1280 | 641 | 503 |
+
+336px is **narrower than the phone the page was drawn for**. Everything in that
+column is built for about 560 — a 30px title, a 36px price, four size tiles in
+a row, the promise pair, and Add-to-cart beside Buy-it-now. A laptop was being
+given something worse than a phone.
+
+§15's own fallback tier was **half a fix**: it sent urgency and the drawers
+down to full width below 1100 and left the info block up in the narrow column
+— the half of the problem that was easy to see, and none of the half that
+mattered.
+
+Below 1100 the page is now **one column**: photo, then everything else,
+centred at 760 with the photo cut to 560. Two columns start at 1100, where the
+buy column reaches 424 — about a large phone, which is what it was drawn for.
+
+### The bug only looking could catch
+
+The first version of §15d set `position: static` and `height: 560px` and both
+**lost the cascade**. `sa-desktop.liquid` writes
+`html.sy-pdp .syd-top > .syd-gal { position: sticky; top: 92px }` and
+`html.sy-pdp .gl-stage { height: 700px !important }` from a `<style>` **inside
+the body** — identical specificity, later in the document, so on a tie theirs
+win. The photo stayed sticky, pinned itself 92px down, hung 92px out of the
+bottom of its own row and **printed itself straight over the title and the
+price**. Every measurement I had taken said the rows were fine; the screenshot
+said otherwise.
+
+Fixed with `position: static !important` + `top: auto !important`, and the
+stage height written through `#MainContent` to outrank the tie.
+
+> The rule this leaves behind: against a section's own inline `<style>`,
+> equal specificity is a loss, not a draw. Either add `!important` or add the
+> `#MainContent` id — and take the screenshot, because a tie-loss is invisible
+> to geometry checks that only compare siblings.
+
+### Two guards
+
+`sa-promise` and `sa-wears` are both supposed to leave their own slot — promise
+walks its `.pr` into the info block, wears is swallowed whole by `sa-drawers` —
+and the template puts **both between the info block and the drawers**. Until
+those scripts run, and for good if a setting is unticked or the drawer that
+eats it is removed, each is a full-width band in the middle of the buy column,
+and a full-width item there **cuts the gallery's row span in half**.
+
+Both are now placed in the buy column by `:has([data-pr])` / `:has([data-ws])`
+— their own wrapper attributes. If they moved, the rules match nothing; if they
+did not, they land where they belong and the gallery is merely sticky one row
+less. Verified against a deliberately broken copy of the harness: at 1440 an
+unmoved promise and an unharvested wears each render at **574px in the buy
+column**, not full width, and the page holds.
+
+### Verified
+
+| window | shape | photo | buy column | overflow |
+| --- | --- | --- | --- | --- |
+| 390 · 749 | phone | full | full | 0 — **untouched** |
+| 900 · 960 · 1024 | **one column, 760 centred** | 760 | 760 | 0 |
+| 1100 · 1180 · 1280 | two columns | 540 · 585 · 641 | 424 · 459 · 503 | 0 |
+| 1366 · 1440 · 1536 · 1680 | two columns | 689 · 730 · 784 · 865 | 541 · 574 · 616 · 679 | 0 |
+| 1920 · 2560 | two columns, capped | 876 | 688 | 0 |
+
+No horizontal overflow at any width; the storytelling bands stay full-bleed at
+every width; below 900 every measurement is identical to today's.

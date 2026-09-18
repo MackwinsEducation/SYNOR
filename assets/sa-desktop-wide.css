@@ -1045,6 +1045,28 @@
     display: none !important;
   }
 
+  /* Two sections on this page are supposed to LEAVE their own slot, and the
+     layout above assumes they have:
+
+       sa-promise  walks its .pr into the info block  ("above_stock")
+       sa-wears    is swallowed whole by sa-drawers   ("strip_key")
+
+     Both happen in script, and the template puts both BETWEEN the info block
+     and the drawers. Until the script runs - and for good if the merchant
+     unticks the setting, or the drawer that eats it is removed - each one is
+     a full-width band sitting in the middle of the buy column, and a
+     full-width item there cuts the gallery's row span in half.
+
+     Putting them in the buy column instead means the page cannot break: if
+     they moved, these rules match nothing; if they did not, they land where
+     they belong anyway and the gallery is merely sticky one row less. Wrong
+     in the safe direction, which is the only kind of wrong worth designing
+     for. */
+  html.sy-pdp #MainContent > .shopify-section:has([data-pr]),
+  html.sy-pdp #MainContent > .shopify-section:has([data-ws]) {
+    grid-column: 4;
+  }
+
   /* ── 15b · urgency, back to the width it asked for ───────────────────── */
 
   html.sy-pdp #MainContent > .shopify-section:has(.ug-in) .ug-in {
@@ -1064,7 +1086,7 @@
     padding-left: 0 !important;
   }
 
-  /* ── 15c · the drawers, back to the width they asked for ────────────── */
+  /* ── 15c · the drawers, back to the width they asked for ───────────── */
 
   /* This undoes §10. §10 gave the drawer 1400px because the sections it
      swallows carry the page's two-column grids and had no room for them
@@ -1130,16 +1152,67 @@
   }
 }
 
-/* Between 900 and 1099 the buy column is about 400px, which is narrower than
-   a phone reads comfortably once the drawer contents are inside it. The
-   photo keeps its column; the buy column takes the full width below it. */
+/* ── 15d · below 1100 there is no room for two columns ──────────────────── */
+
+/* Measured, not guessed. sa-desktop.liquid opens its two-column layout at
+   dk_break: 900, and the split is 56 / 44 of the content width:
+
+     900 -> photo 428, buy column 336
+    1024 -> photo 497, buy column 391
+    1100 -> photo 540, buy column 424
+    1280 -> photo 641, buy column 503
+
+   336px is narrower than the phone the page was drawn for. Everything in the
+   buy column is built for about 560: the title at 30px, the price at 36, four
+   size tiles in a row, the promise pair, and an Add-to-cart and Buy-it-now
+   side by side. At 336 the size tiles are 78px each and the two buttons fight
+   over one line. A laptop was being given something worse than a phone.
+
+   The first version of this block sent only urgency and the drawers down and
+   left the info block up in the narrow column, which fixed the half of the
+   problem that was easy to see and none of the half that mattered.
+
+   So below 1100 the page is ONE column: the photo, then everything else,
+   centred at a readable 760 and the photo cut to a height that suits it.
+   Two columns start at 1100, where the buy column reaches 424 - about the
+   width of a large phone, which is what it was drawn for. */
+
 @media screen and (min-width: 900px) and (max-width: 1099px) {
-  html.sy-pdp .syd-top > .syd-gal {
-    grid-row: auto / span 1;
+  html.sy-pdp .syd-top > .syd-gal,
+  html.sy-pdp .syd-top > .syd-info,
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in),
+  html.sy-pdp #MainContent > .shopify-section:has(.dw),
+  html.sy-pdp #MainContent > .shopify-section:has([data-pr]),
+  html.sy-pdp #MainContent > .shopify-section:has([data-ws]) {
+    grid-column: 2 / 5;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
   }
 
-  html.sy-pdp #MainContent > .shopify-section:has(.ug-in),
-  html.sy-pdp #MainContent > .shopify-section:has(.dw) {
-    grid-column: 2 / 5;
+  /* One column, so there is nothing beside it to stay level with - and the
+     photo must stop being sticky, or it pins itself 92px down (124 with §6)
+     and hangs 92px out of the bottom of its own row, straight over the title
+     and the price. `position` and `top` both need !important here: the
+     section writes them from a <style> in the body with exactly this
+     specificity, so on a tie the later sheet wins and mine would lose. */
+  html.sy-pdp .syd-top > .syd-gal {
+    grid-row: auto / span 1;
+    position: static !important;
+    top: auto !important;
+    padding-bottom: 8px;
+  }
+
+  html.sy-pdp .syd-top > .syd-info {
+    padding-top: 4px;
+  }
+
+  /* 700px of photo above a 760px column is a wall; the section's own tablet
+     tier uses 430, and this sits between the two. Written through
+     #MainContent because the section's own `height: 700px !important` is a
+     tie on specificity and lands later. */
+  html.sy-pdp #MainContent .gl-stage {
+    height: 560px !important;
   }
 }
