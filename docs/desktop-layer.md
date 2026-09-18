@@ -1113,3 +1113,80 @@ Worth recording, since it explains why nothing here touches padding:
 
 Built on **work copy 7**; `sa-desktop-wide.css` is now 45479 bytes,
 `5f78a5eac8a35dcde4ef1d0bbb06354c`.
+
+---
+
+## §15f — the sticky buy pill is a phone device
+
+> "aa pill che e mobile mate che, aan dekstop,a jrur nthu"
+
+`.pillw` is `position: fixed` at the bottom of the window, carrying the price,
+the size, the cashback chip, Add to bag and Buy now. It rides above the mobile
+bottom menu and drops with it. That is a phone pattern, and on a phone it is
+the right one: the buy buttons scroll away, so they are brought back and
+pinned.
+
+In the buy column they never scroll away. `sa-pdp-buyrow` is already there,
+inside the form, a few hundred pixels up — the quantity stepper, Buy it now and
+the cart button — and the savings box above it already prints the cashback that
+the pill's chip repeats. On desktop the pill is a second set of the same
+controls, floating over the page.
+
+### Checked, not assumed
+
+Hiding a control that scripts bind to is the kind of change that looks free and
+is not, so each dependency was read before the rule was written:
+
+- **`snippets/sa-pdp-buyrow.liquid`** — with `buy_style: 'wide'` it renders its
+  own `<button type="button" class="bbtn b-solid" data-buynow>` and
+  `<button type="submit" name="add" class="bbtn b-line b-icon">`. Both are real
+  controls, not proxies for the pill.
+- **`snippets/sa-pdp-buy.liquid`** — `[data-buynow]` carries its own click
+  handler (`/cart/add.js` → `triggerGokwikCustomCheckout`). Independent of the
+  pill.
+- **`snippets/sa-pdp-core.liquid`** — the submit handler intercepts `#sy-form`,
+  which the buy row's submit button posts. Its binding is
+  `addBtn = form.querySelector('.add')` followed by `if (!addBtn) return;`, and
+  `display: none` keeps the pill's `.add` in the DOM — so the script still
+  binds and still runs. (Removing the node would have broken it; hiding it does
+  not.)
+
+### The one real loss, and the CSS-only answer
+
+`sa-pdp-core` confirms an add by putting `.ok` and "Added ✓" on the **pill's**
+button. With the pill hidden, a desktop customer clicks the cart and nothing
+happens on screen — the confirmation lands on an invisible element.
+
+Both buttons live inside the same `#sy-form`, so `:has()` carries the state
+across to the button that was actually pressed. No script, no section edit:
+
+```css
+html.sy-pdp #MainContent #sy-form:has(.pill .add.ok) .buyrow button[name='add'] {
+  background: #0c6b52 !important;
+  color: #fffdf8 !important;
+  box-shadow: none !important;
+}
+```
+
+### Measured
+
+Harness `info.html` (the info column, the pill and the buy row, driven
+headless), reading `.pillw` display, `.buyrow` display, and the cart button's
+background before and after `.ok` is set on the pill:
+
+| width | `.pillw` | `.buyrow` | add, before | add, after `.ok` |
+|------:|----------|-----------|-------------|------------------|
+| 1440  | none     | flex      | transparent | `rgb(12,107,82)` |
+| 1024  | none     | flex      | transparent | `rgb(12,107,82)` |
+| 900   | none     | flex      | transparent | `rgb(12,107,82)` |
+| 749   | block    | flex      | transparent | transparent      |
+| 390   | block    | flex      | transparent | transparent      |
+
+Desktop hides the pill and carries the confirmation across. **749 and 390 are
+byte-for-byte what they were** — the pill is there, and the confirmation is
+still its own.
+
+### Theme
+
+Built on **work copy 7**; `sa-desktop-wide.css` is now 47411 bytes,
+`ffab20f18a56990d0e3566cec0a0470c`.
