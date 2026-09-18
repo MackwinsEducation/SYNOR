@@ -1190,3 +1190,141 @@ still its own.
 
 Built on **work copy 7**; `sa-desktop-wide.css` is now 47411 bytes,
 `ffab20f18a56990d0e3566cec0a0470c`.
+
+---
+
+## §15g — the urgency block stops being a grey slab
+
+> "aama jo pchi ship valu ane next disaptach dekstop ma suit nthi thatu"
+
+The "This order ships free" and "Next dispatch in 19h 29m" lines were rendering
+as a square grey brick between two rounded cards. Nobody chose that colour — it
+leaked, and it took three files read together to see how.
+
+### The mechanism
+
+**1. `sections/sa-urgency.liquid` draws its divider with a background, not a
+border.**
+
+```css
+.ug-in  { display: grid; gap: 1px;
+          background: {{ s.line }};      /* #E5DFD1 */
+          border: 1px solid {{ s.line }} }
+.ug-row { background: {{ s.card }} }     /* #FFFDF8 */
+```
+
+The only part of that fill anyone is meant to see is the 1px seam between the
+two rows.
+
+**2. `snippets/sa-desktop-flat.liquid` then takes the rows' white away.**
+
+```css
+html.sy-pdp .ug-row { background: transparent !important }
+```
+
+That is the merchant's "No white boxes below the top block" setting
+(`flat: true`), and it is right for the full-width bands it was written for —
+`.n-list`, `.rv-c`, `.fq-it`, `.tg-row` — where the rows should sit straight on
+the page. Here it uncovers the fill underneath, and **the hairline colour
+becomes the whole surface**.
+
+**3. §15 moved the block into the buy column.** At 1400px the slab read as a
+faint band and nobody noticed. At 574px it is a brick. `radius` is `0` in the
+merchant's settings, so it has no corners; its border is `#E5DFD1` too, so it
+has no edge either — just a blob.
+
+Measured in a harness built from the real `product.json` settings, at 1440:
+
+| | value |
+|---|---|
+| `.ug-in` background | `rgb(229, 223, 209)` |
+| `.ug-row` background | `rgba(0, 0, 0, 0)` |
+| `.ug-in` border | `1px #E5DFD1` — an edge the colour of its own fill |
+| divider | `1px #ddd5c0` on `#e5dfd1` — present, invisible |
+| text → chip gap | 314px of dead grey |
+
+The harness reproduced the merchant's screenshot before anything was changed.
+That is what made the diagnosis a reading rather than a guess.
+
+### The fix
+
+Nothing is added. The fill and the border go, and the rows sit on the page's
+cream the way `.stockline` — "In stock — ships today", directly above them —
+already does. The hairline the section always wanted between the two rows
+becomes visible for the first time, because there is cream behind it rather
+than more hairline.
+
+The column then reads **card → three status lines → card**, and the two
+shipping lines join the stock line they belong with. Two smaller things ride
+along: 2px more room per row, and the small-caps tag from 8px to 9px — 8px is a
+phone measurement being read from a metre away.
+
+```css
+@media screen and (min-width: 900px) {
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in) .ug-in {
+    background: transparent !important;
+    border: 0 !important;
+    padding: 2px 0 6px !important;
+  }
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in) .ug-row {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in) .ug-tag {
+    font-size: 9px !important;
+  }
+}
+```
+
+The `padding` replaces §15b's `16px 0 0` — same selector, same specificity,
+later in the file. 16px of top padding was invisible while the fill was there
+to hold it; with the fill gone it is a gap above a line that already has one.
+
+### The alternative that was not taken
+
+A variant bracketing the pair with a hairline above and below was built and
+shown. It is tidier as an object, but it puts a rule between *In stock — ships
+today* and the two lines that say the same kind of thing, and it lands a second
+hairline directly above the drawers' 3px gold edge. Offered; the merchant chose
+the plain one.
+
+### Measured at every width
+
+| width | container fill | row fill | divider | tag |
+|------:|---|---|---|---|
+| **390** | `#e5dfd1` | `#fffdf8` | 1px grid gap | 8px |
+| **749** | `#e5dfd1` | `#fffdf8` | 1px grid gap | 8px |
+| 900 | none | none | `1px #ddd5c0` | 9px |
+| 1024 | none | none | `1px #ddd5c0` | 9px |
+| 1100 | none | none | `1px #ddd5c0` | 9px |
+| 1280 | none | none | `1px #ddd5c0` | 9px |
+| 1440 | none | none | `1px #ddd5c0` | 9px |
+| 1700 | none | none | `1px #ddd5c0` | 9px |
+| 1920 | none | none | `1px #ddd5c0` | 9px |
+
+The two phone rows are the numbers the theme produced before this change and
+produces after it. No section file is edited and no theme setting is changed —
+`radius: 0`, `line: #E5DFD1` and `card: #FFFDF8` all stay where the merchant
+put them. The guard was run against the rules extracted from the shipped
+stylesheet, not from a hand-written copy of them.
+
+### A correction to §15e
+
+§15e's note says the title band's padding is "left exactly as it is —
+17px 22px 16px". That is what `sa-pdp-title.liquid` writes, but on desktop
+`sa-desktop.liquid` has already zeroed it:
+
+```css
+html.sy-pdp .sy .info { padding: 0 !important }
+```
+
+The alignment §15e measured is real and unchanged; the reason given for it was
+wrong. Every block in the buy column lines up at x = 0 because sa-desktop.liquid
+strips the `side: 22` inset from all of them, not because §15e left a padding
+alone.
+
+### Theme
+
+Built on **work copy 7**; `sa-desktop-wide.css` is now 50270 bytes,
+`538ea43e7644b2935a5de0df484f0375`. The upload returned byte-identical to local
+on the first attempt.

@@ -1295,3 +1295,66 @@
     box-shadow: none !important;
   }
 }
+
+/* ── 15g · the urgency block stops being a grey slab ─────────────────── */
+
+/* Three files have to be read together to see this one.
+
+   `sections/sa-urgency.liquid` draws the divider between its two rows with a
+   BACKGROUND, not a border. The container is a grid with `gap: 1px` filled
+   with `line` (#E5DFD1), and the two rows sit on top of it in `card`
+   (#FFFDF8). The only part of that fill anyone is meant to see is the 1px
+   seam between them.
+
+   `snippets/sa-desktop-flat.liquid` - the merchant's "No white boxes below
+   the top block" setting - then takes the rows' white away:
+
+     html.sy-pdp .ug-row { background: transparent !important }
+
+   which is right for the full-width bands it was written for, where the rows
+   should sit straight on the page. Here it uncovers the fill underneath, and
+   the hairline colour becomes the whole surface.
+
+   And §15 moved the block into the buy column. At 1400px it read as a faint
+   band; at 574px it is a square grey brick between two rounded cards - the
+   merchant's `radius` is 0, so it has no corners either, and its 1px border
+   is #E5DFD1 as well, so it has no edge, just a blob. Measured in a harness
+   built from the real settings: container rgb(229,223,209), rows
+   rgba(0,0,0,0), border 1px #E5DFD1.
+
+   Nothing is added here. The fill and the border go, and the rows sit on the
+   page's cream the way `.stockline` - "In stock - ships today", directly
+   above them - already does. The hairline the section always wanted between
+   the two rows becomes visible for the first time, because there is cream
+   behind it rather than more hairline. The column then reads card - three
+   status lines - card, and the two shipping lines join the stock line they
+   belong with.
+
+   The rows get 2px more room each, and the small-caps tag goes from 8px to
+   9px: 8px is a phone measurement being read from a metre away.
+
+   The padding below replaces §15b's `16px 0 0` - same selector, same
+   specificity, later in the file. 16px of top padding was invisible while
+   the fill was there to hold it; with the fill gone it is just a gap above a
+   line that already has one.
+
+   No section file is edited and no theme setting is changed. `radius: 0`,
+   `line: #E5DFD1` and `card: #FFFDF8` all stay where the merchant put them,
+   and a phone still renders every one of them. */
+
+@media screen and (min-width: 900px) {
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in) .ug-in {
+    background: transparent !important;
+    border: 0 !important;
+    padding: 2px 0 6px !important;
+  }
+
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in) .ug-row {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  html.sy-pdp #MainContent > .shopify-section:has(.ug-in) .ug-tag {
+    font-size: 9px !important;
+  }
+}
