@@ -1216,3 +1216,43 @@
     height: 560px !important;
   }
 }
+
+/* ── 15e · the title stops being a band ───────────────────────────────── */
+
+/* `snippets/sa-pdp-title.liquid` draws the product name, the muse line and the
+   rating inside a band:
+
+     .info { padding: 17px 22px 16px;
+             background: rgba(gold, .05);
+             border-top: 1px solid rgba(gold, .24);
+             border-bottom: 1px solid rgba(gold, .24) }
+
+   On a phone that is right, and it is the only place it can be: `.sy` is the
+   whole page there, so the band runs edge to edge and reads as a masthead.
+
+   In the buy column it is the same rule doing the opposite job. The column is
+   already a column of content sitting on cream, so a tinted box with a rule
+   above it - a rule that is the very first thing in the column, with nothing
+   above it but §15a's 28px of air - reads as a label stuck onto a panel. The
+   merchant's word for it was that the title part looks like it has come away
+   from the rest, which is exactly what it is doing.
+
+   So on desktop the tint and the top rule go and the bottom rule stays, as the
+   divider between the head and the price. The padding is left exactly as it is
+   - 17px 22px 16px - because every other block in the column
+   (.rule, .slabel, .prow, .psub, .sizes, .valbar, .stockline) is inset by the
+   same `side: 22`, and changing it here is the one way to turn a cosmetic fix
+   into a misalignment. Measured: the h1, the price and the savings box all
+   start at the same x before and after.
+
+   The green per-ml shelf (.pshelf) bleeds the same way and is deliberately
+   left alone: it is a short highlight strip, not a header, and it is doing
+   the job it was drawn for. */
+
+@media screen and (min-width: 900px) {
+  html.sy-pdp #MainContent .sy .info {
+    background: transparent !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid rgba(42, 38, 32, .10) !important;
+  }
+}

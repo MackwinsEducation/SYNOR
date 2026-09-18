@@ -1057,3 +1057,59 @@ column**, not full width, and the page holds.
 
 No horizontal overflow at any width; the storytelling bands stay full-bleed at
 every width; below 900 every measurement is identical to today's.
+
+---
+
+## §15e — the title stops being a band
+
+Reported from a desktop screenshot: *the title part looks like it has come away
+from the rest.*
+
+`snippets/sa-pdp-title.liquid` wraps the product name, the muse line and the
+rating in a band:
+
+```css
+.info { padding: 17px 22px 16px;
+        background: rgba(gold, .05);
+        border-top: 1px solid rgba(gold, .24);
+        border-bottom: 1px solid rgba(gold, .24) }
+```
+
+On a phone that is right and it is the only place it can be: `.sy` is the whole
+page there, so the band runs edge to edge and reads as a masthead.
+
+In the buy column the same rule does the opposite job. The column is already a
+column of content sitting on cream, so a tinted box — with a hairline above it
+that is the very first thing in the column, nothing above it but §15a's 28px of
+air — reads as a label stuck onto a panel. The merchant's description was
+exactly what the CSS was doing.
+
+**The fix, and what it deliberately does not touch.** On desktop the tint and
+the top rule go; the bottom rule stays as the divider between the head and the
+price. `padding` is left exactly as it is — `17px 22px 16px` — because every
+other block in the column (`.rule`, `.slabel`, `.prow`, `.psub`, `.sizes`,
+`.valbar`, `.stockline`) is inset by the same `side: 22`, and changing it here
+is the one way to turn a cosmetic fix into a misalignment.
+
+Measured before and after, at 1440 and 1024: the h1, the size grid, the price
+row and the savings box all start at the same x. At 749 and 390 the band is
+untouched — gold tint, both rules.
+
+`.pshelf`, the green per-ml strip, bleeds the same way and is **left alone**:
+it is a short highlight, not a header, and it is doing the job it was drawn
+for. Flagged rather than changed.
+
+### Where the widths come from
+
+Worth recording, since it explains why nothing here touches padding:
+
+- `.sy` is `max-width: 520px` in `sa-pdp-core`, lifted to `none` by
+  `sa-desktop.liquid`'s `html.sy-pdp .sy` rule — so on desktop the info block
+  fills the buy column.
+- Every block inside is inset by `{{ s.side }}` = **22px**. Only two things
+  bleed past it: `.info` (the title band) and `.pshelf`.
+
+### Theme
+
+Built on **work copy 7**; `sa-desktop-wide.css` is now 45479 bytes,
+`5f78a5eac8a35dcde4ef1d0bbb06354c`.
