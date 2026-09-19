@@ -1,0 +1,83 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "grid": {
+      "type": "sa-collection",
+      "settings": {
+        "eyebrow": "The collection",
+        "show_desc": true,
+        "cnt_show": false,
+        "count_word": "fragrances",
+        "kick_gap": 6,
+        "head_pad_y": 14,
+        "head_gap": 8,
+        "tab_tint": 22,
+        "cols_m": "2",
+        "cols_d": "4",
+        "per_page": 24,
+        "say_show": false,
+        "scent_show": false,
+        "mood_show": false,
+        "word_allseason": "All",
+        "sea_pad": 11,
+        "sea_ic": 19,
+        "sx_head_pad": 11,
+        "sx_row_pad": 9,
+        "mood_mode": "family",
+        "fam_max": 4,
+        "fam_gap": 4,
+        "fam_pad_x": 6,
+        "fam_pad_y": 3,
+        "fam_radius": 100,
+        "fam_op": 90,
+        "fw_aqua": "Fresh Aquatic",
+        "fw_wood": "Woody Oud",
+        "fw_amber": "Amber Sweet",
+        "fw_floral": "Floral Fruity",
+        "mood_size": 7,
+        "mood_track": "0.10",
+        "mood_gap": 6,
+        "wm_size": 44,
+        "wm_bottom": -12,
+        "wm_opacity": 22,
+        "occ_max": 2,
+        "occ_ic": 12,
+        "occ_gap": 7,
+        "occ_stroke": 1.6,
+        "occ_track": "0.10",
+        "eye_size": 7,
+        "o_party": "Party",
+        "o_evening": "Evening",
+        "o_date": "Date",
+        "o_wedding": "Wedding",
+        "o_office": "Office",
+        "o_gym": "Gym",
+        "o_daily": "Everyday"
+      }
+    },
+    "foot": {
+      "type": "sa-collection-foot",
+      "blocks": {
+        "t1": { "type": "tick", "settings": { "value": "30%", "label": "Fragrance oil", "note": "Extrait de Parfum, every bottle" } },
+        "t2": { "type": "tick", "settings": { "value": "Rs 49", "label": "To try any of them", "note": "In 3ml, money comes back" } },
+        "t3": { "type": "tick", "settings": { "value": "Rs 299", "label": "Ships free above", "note": "Delivered across India" } }
+      },
+      "block_order": ["t1", "t2", "t3"],
+      "settings": {
+        "menu": "collections",
+        "all_link": "/collections/all-products",
+        "hook_link": "/collections/try-anything-49-testers",
+        "quiz_link": "/pages/scent-quiz"
+      }
+    }
+  },
+  "order": ["grid", "foot"]
+}
