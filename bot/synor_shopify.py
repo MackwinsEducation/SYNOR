@@ -38,6 +38,19 @@ class Shop:
         # Accept "perfume-rat" or "perfume-rat.myshopify.com".
         host = store.strip().removeprefix("https://").removesuffix("/")
         if not host.endswith(".myshopify.com"):
+            # The easy mistake: giving the customer-facing domain. The Admin
+            # API only answers on the myshopify host, and that name is fixed
+            # when the store is created — it is not the shop's real domain and
+            # Shopify never lets it change. Caught here because the alternative
+            # is a DNS failure on "synorperfume.com.myshopify.com", which tells
+            # nobody anything.
+            if "." in host:
+                raise ShopifyError(
+                    f"SHOPIFY_STORE is set to {store.strip()!r}, which looks "
+                    "like the shop's public domain. It needs the myshopify "
+                    "name instead — for SYNOR that is `perfume-rat`. Find it "
+                    "in the Shopify admin URL: admin.shopify.com/store/<name>."
+                )
             host = f"{host}.myshopify.com"
         self.host = host
         self.token = token.strip()

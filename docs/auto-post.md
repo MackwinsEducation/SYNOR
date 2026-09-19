@@ -65,8 +65,16 @@ printed by a run.
 | Secret | Value |
 | --- | --- |
 | `ANTHROPIC_API_KEY` | From console.anthropic.com → API keys. |
-| `SHOPIFY_STORE` | `perfume-rat` |
+| `SHOPIFY_STORE` | `perfume-rat` — the **myshopify** name, not `synorperfume.com` |
 | `SHOPIFY_ADMIN_TOKEN` | See below. |
+
+Those two names confuse people, so: a Shopify store has a fixed
+`*.myshopify.com` name from the day it is created, and a public domain put on
+top of it later. `synorperfume.com` is the one customers see; `perfume-rat` is
+the one the Admin API answers on, and Shopify never lets it change. It is the
+last part of the admin URL: `admin.shopify.com/store/perfume-rat`. Giving the
+public domain here is caught with a message saying so, rather than failing as
+a DNS error on `synorperfume.com.myshopify.com`.
 
 The admin token comes from a custom app, not from a password:
 
