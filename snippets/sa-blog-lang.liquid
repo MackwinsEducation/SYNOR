@@ -1,0 +1,24 @@
+{%- comment -%}
+  SYNOR DIARIES — bhasha switch (English / Hinglish).
+
+  Aa alag file kem: sa-article.liquid 46 KB nu chhe, ane e file ne ek nana
+  badlaav mate pan aakhi fari chadaavvi pade chhe. Switch ni design ma
+  aagal jaine jo kaik badalvu hoy, to aa 4 KB j fari mokalvanu rahe.
+  Eaj karan thi listing nu CSS pan sa-blog-list-css.liquid ma chhe.
+
+  Hinglish machine translation nathi. E j ahevaal, fari thi lakhelo — e
+  bhasha ma je ma dukan na moti bhag na graahak vichare chhe. Jene Hinglish
+  body nathi, e post English ma j vanchaay ane switch dekhaato j nathi.
+
+  Vaapar:
+    {%- render 'sa-blog-lang', s: s, sid: sid, hi_title: hi_title,
+        hi_dek: hi_dek, on: has_hi -%}
+{%- endcomment -%}
+
+{%- if on -%}
+  <div class="nd-lang" role="group" aria-label="{{ s.lang_note | escape }}">
+    <span class="nd-lang-n">{{ s.lang_note }}</span>
+    <button type="button" class="on" data-lang="en" aria-pressed="true">{{ s.lang_en }}</button>
+    <button type="button" data-lang="hi" aria-pressed="false">{{ s.lang_hi }}</button>
+  </div>
+{%- endif -%}

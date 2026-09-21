@@ -44,8 +44,13 @@ TEXT_METAFIELDS = (
     "field_place", "field_alt", "field_temp", "field_humidity",
     "field_held", "field_asked", "field_verdict",
     "notes_top", "notes_heart", "notes_base",
-    "youtube_ids",
+    "youtube_ids", "title_hinglish",
 )
+
+# The two long ones. Stored as multi_line so the HTML body survives intact;
+# the article page reads body_hinglish and shows the language switch when it
+# is there, so an entry without them simply reads in English.
+LONG_METAFIELDS = ("summary_hinglish", "body_hinglish")
 
 ALLOWED_HTML_TAGS = {
     "p", "h2", "h3", "blockquote", "ul", "ol", "li", "strong", "em", "a", "br",
@@ -84,6 +89,9 @@ POST_SCHEMA = {
         "notes_heart": {"type": "string"},
         "notes_base": {"type": "string"},
         "youtube_ids": {"type": "string"},
+        "title_hinglish": {"type": "string"},
+        "summary_hinglish": {"type": "string"},
+        "body_hinglish": {"type": "string"},
     },
     "required": [
         "title", "handle", "summary_html", "body_html", "kind", "series_slug",
@@ -91,6 +99,7 @@ POST_SCHEMA = {
         "field_place", "field_alt", "field_temp", "field_humidity",
         "field_held", "field_asked", "field_verdict",
         "notes_top", "notes_heart", "notes_base", "youtube_ids",
+        "title_hinglish", "summary_hinglish", "body_hinglish",
     ],
     "additionalProperties": False,
 }
@@ -243,7 +252,50 @@ def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str
     if empty:
         problems.append("The field log is missing: " + ", ".join(empty) + ".")
 
-    # 7. Handle must be new and URL-safe.
+    # 7. The Hinglish telling, checked as hard as the English one.
+    hi_body = post["body_hinglish"].strip()
+    if not hi_body:
+        problems.append(
+            "The entry has no Hinglish body. Every entry is written twice — "
+            "English and Hinglish — because the page carries a switch."
+        )
+    else:
+        hi_prose = " ".join([post["title_hinglish"],
+                             strip_tags(post["summary_hinglish"]),
+                             strip_tags(hi_body)])
+        hi_hits = name_hits(hi_prose, banned)
+        if hi_hits:
+            problems.append(
+                "These names appear in the Hinglish text and must not: "
+                + ", ".join(hi_hits) + "."
+            )
+        if not hi_body.startswith("<p"):
+            problems.append("The Hinglish body must also open with a <p>.")
+        hi_words = len(strip_tags(hi_body).split())
+        if hi_words < 600:
+            problems.append(
+                f"The Hinglish body is {hi_words} words against the English "
+                f"{words}. It is the same report told again, not a summary."
+            )
+        hi_tags = {t.lower() for t in re.findall(r"<\s*([a-zA-Z0-9]+)", hi_body)}
+        hi_bad = sorted(hi_tags - ALLOWED_HTML_TAGS)
+        if hi_bad:
+            problems.append(
+                "These HTML tags are not allowed in the Hinglish body: "
+                + ", ".join(hi_bad) + "."
+            )
+        if "<blockquote" not in hi_body:
+            problems.append("The Hinglish body has no pull quote.")
+        if hi_body.count("<h2") != body.count("<h2"):
+            problems.append(
+                f"The English body has {body.count('<h2')} sections and the "
+                f"Hinglish one has {hi_body.count('<h2')}. The switch swaps "
+                "one body for the other, so they have to match."
+            )
+        if not post["title_hinglish"].strip():
+            problems.append("The Hinglish headline is missing.")
+
+    # 8. Handle must be new and URL-safe.
     handle = post["handle"].strip().lower()
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", handle):
         problems.append(
@@ -255,7 +307,7 @@ def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str
             f"The handle {handle!r} is already used on the blog. Choose another."
         )
 
-    # 8. Series needs both tags, which means it needs a slug.
+    # 9. Series needs both tags, which means it needs a slug.
     if post["kind"] == "series" and not post["series_slug"].strip():
         problems.append(
             "A series entry needs a series_slug, e.g. 'matheran', because the "
@@ -296,6 +348,16 @@ def build_metafields(post: dict[str, Any], entry_no: int) -> list[dict[str, str]
             "key": key,
             "value": value,
             "type": "single_line_text_field",
+        })
+    for key in LONG_METAFIELDS:
+        value = str(post.get(key, "")).strip()
+        if not value:
+            continue
+        out.append({
+            "namespace": "custom",
+            "key": key,
+            "value": value,
+            "type": "multi_line_text_field",
         })
     return out
 

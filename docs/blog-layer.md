@@ -119,6 +119,39 @@ its own words and offers the way back. Its heading is the section's own name,
 which is also what the Index heading becomes on any filtered page: standing on
 the Vlog page, the list is headed VLOG, not Index.
 
+## Two languages, one page
+
+Most of the shop's customers read English perfectly well and still think in
+Hindi. So an entry carries a second telling in **Hinglish** — Roman script,
+Hindi grammar, English words where a real person would use them — and the page
+puts a switch above the headline: **Read it in · English · Hinglish**.
+
+It is not a translation. Translating this voice sentence by sentence produces
+mush: "the one that curdled" has no machine equivalent worth reading. The
+agent writes the report again, in the other language, with the same findings,
+the same honest negative and the same sections — and the check refuses a
+Hinglish body whose `<h2>` count does not match the English one, because the
+switch swaps one body for the other and they have to be the same furniture.
+
+Three metafields carry it: `title_hinglish`, `summary_hinglish` and
+`body_hinglish`. **An entry without `body_hinglish` simply reads in English
+and no switch appears**, which is the point — a bad second telling is worse
+than none, so it is never padded out to fill a field.
+
+Two details worth keeping:
+
+- The Hinglish body rides in a `<template>`, not in a CSS-hidden `<div>`.
+  Hiding it with CSS would have been fewer lines and would have shown Google
+  the same report twice on one URL. A `<template>` is not rendered and not
+  indexed; the switch injects it once, on first use.
+- The choice is remembered in `localStorage`, so a reader who switches once
+  gets Hinglish on the next entry too, without asking again.
+
+`snippets/sa-blog-lang.liquid` holds the switch and
+`snippets/sa-article-css.liquid` the page's CSS. Both came out of
+`sa-article.liquid` for the same reason the listing's CSS did: at 46 KB, a
+one-line change meant re-uploading the whole file.
+
 ## Metafields — the field log
 
 Six numbers as six tags would be unreadable, so the field log comes from
@@ -236,13 +269,15 @@ nothing to collide with. Re-check before installing into a new fork.
 
 The layer was installed into **`SYNOR work copy 6`** (188819407143), and
 `SYNOR work copy 7` (188836217127) was forked from it afterwards, so copy 7
-carries the whole layer already — all fourteen files, every checksum
+carries the whole layer already — all sixteen files, every checksum
 identical:
 
 | File | Bytes | md5 |
 | --- | --- | --- |
 | `sections/sa-blog-list.liquid` | 30132 | `e4d1a2de1fd5b145c201a6d81f8e0fae` |
-| `sections/sa-article.liquid` | 42407 | `9ff799a515035e3d347a9a86ab8af0ad` |
+| `sections/sa-article.liquid` | 27616 | `e79423c0e4e563deb5a29ee5433ad8a5` |
+| `snippets/sa-article-css.liquid` | 19748 | `0888d40ff6fe731e6efe9fc08e52a960` |
+| `snippets/sa-blog-lang.liquid` | 1066 | `ce31889163ac8f88ffd623b02bdd41c8` |
 | `snippets/sa-blog-list-css.liquid` | 15892 | `f3a2d94a3565a67f5d09e53f4bd89832` |
 | `snippets/sa-blog-fieldbox.liquid` | 3026 | `5255a3fc318e76fbea1278c97da0e10c` |
 | `snippets/sa-blog-taxbar.liquid` | 2668 | `760b6e387b77c79ca505d4d4a8c31b9e` |
@@ -258,7 +293,7 @@ identical:
 
 **That checksum table is the point of this section.** A theme copy taken
 from a copy looks fine and can quietly be missing a file, so the way to check
-a new fork is to ask the Admin API for these fourteen filenames and compare
+a new fork is to ask the Admin API for these sixteen filenames and compare
 the md5s, not to open the editor and see that the blog looks right.
 
 The table itself proved that. It was first written with thirteen rows, and

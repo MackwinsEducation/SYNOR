@@ -124,6 +124,36 @@ right next to the text and a reader who lives there will notice.
 each, lower case, the accords of the *lead* product of the entry. Plain
 material names: bergamot, cardamom, cedar, vanilla. Not "notes of".
 
+## The same entry, again, in Hinglish
+
+Every entry is written **twice**: once in English, and once in **Hinglish** —
+Roman script, Hindi grammar with English words where a real person would use
+them. Most of the shop's customers read English perfectly well and still think
+in Hindi, and the paper puts a switch on the page so they can choose.
+
+This is **not a translation**. Do not translate sentence by sentence; the
+result reads like a machine and loses the whole point of the voice. Tell the
+same report again, to the same reader, in the other language — the same
+findings, the same honest negative, the same products, the same structure and
+headings, but the sentences a Hindi speaker would actually say.
+
+- **Write it the way it is spoken**, not the way it is taught. "Do spray, ek
+  ek kalai par" — not "Do spray, pratyek kalai par".
+- **Keep English where English is natural.** Nobody says "sugandh"; they say
+  scent. Nobody says "aardrata"; they say humidity. Gym, base, top notes,
+  bottle, tester, skin, fresh, woody — all stay in English.
+- **Product names never change.** SYNOR Aqua Royale is SYNOR Aqua Royale.
+- **Same HTML, same shape**: opens with a `<p>`, the same `<h2>` sections, one
+  `<blockquote>`, the ₹49 line at the end. The theme swaps one body for the
+  other, so they have to be the same piece of furniture.
+- **Every hard rule above applies equally.** No other house's name, no
+  celebrity's name, no price but ₹49 — in Hinglish too.
+- 700 to 1100 words, like the English.
+
+Give it as `title_hinglish`, `summary_hinglish` and `body_hinglish`. An entry
+without them simply reads in English and the switch does not appear, so never
+pad them out — a bad Hinglish telling is worse than none.
+
 ## Filing
 
 You choose the entry's own filing from these closed sets, and nothing outside

@@ -1,0 +1,296 @@
+{%- comment -%}
+  SYNOR DIARIES — andar na paana nu CSS.
+
+  Section ma j hatu, pan e file 46 KB ni thai gai hati, ane ek nana
+  design badlaav mate pan aakhi fari chadaavvi padti hati. Etle CSS
+  ahiya alag — listing nu CSS pan sa-blog-list-css.liquid ma chhe,
+  e j karan thi.
+
+  Badhu #shopify-section-{{ sid }} ni andar j rahe chhe, etle blog na
+  paana sivay store ma kyay kai adtu nathi. Assets ma stylesheet mukvathi
+  aa thai na sake: ID-scoped niyam ne e haravi na sake (docs/desktop-layer.md).
+{%- endcomment -%}
+<style>
+#shopify-section-{{ sid }}{background:{{ s.paper }};
+  --dh:{{ f_head }};--d:{{ f_body }};--s:{{ f_furn }};
+  font-synthesis-weight:none}
+#shopify-section-{{ sid }} .nd{font-family:var(--d);font-variation-settings:'opsz' 14;
+  color:{{ s.ink }};max-width:{{ s.max }}px;margin:0 auto;padding:0 0 {{ s.pad_bottom }}px}
+#shopify-section-{{ sid }} .nd *{box-sizing:border-box}
+#shopify-section-{{ sid }} .nd[data-fam="fresh"]{--c:{{ s.c_fresh }}}
+#shopify-section-{{ sid }} .nd[data-fam="floral"]{--c:{{ s.c_floral }}}
+#shopify-section-{{ sid }} .nd[data-fam="woody"]{--c:{{ s.c_woody }}}
+#shopify-section-{{ sid }} .nd[data-fam="amber"]{--c:{{ s.c_amber }}}
+#shopify-section-{{ sid }} .nd[data-fam="default"]{--c:{{ s.gold }}}
+
+/* ---- upar ni patti ---- */
+#shopify-section-{{ sid }} .nd-strip{display:flex;justify-content:space-between;align-items:center;
+  gap:10px;padding:11px {{ s.gutter }}px;border-bottom:2px solid {{ s.ink }};
+  font-family:var(--s);font-size:7px;letter-spacing:.22em;
+  text-transform:uppercase;color:{{ s.ink2 }};font-variant-numeric:tabular-nums}
+#shopify-section-{{ sid }} .nd-strip a{text-decoration:none;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nd-strip b{font-family:var(--dh);
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 96;font-size:15px;font-weight:700;
+  letter-spacing:-.02em;text-transform:uppercase}
+#shopify-section-{{ sid }} .nd-rib{display:flex;justify-content:space-between;align-items:center;
+  gap:10px;padding:8px {{ s.gutter }}px;background:{{ s.ink }};color:{{ s.paper }};
+  font-family:var(--s);font-size:7px;letter-spacing:.22em;
+  text-transform:uppercase}
+#shopify-section-{{ sid }} .nd-rib span{display:flex;align-items:center;gap:8px}
+#shopify-section-{{ sid }} .nd-rib i{width:7px;height:7px;background:var(--c,{{ s.gold }});display:block;flex:none}
+#shopify-section-{{ sid }} .nd-lang{display:flex;align-items:center;gap:0;
+  padding:10px {{ s.gutter }}px 0;font-family:var(--s);font-size:8px;
+  letter-spacing:.2em;text-transform:uppercase}
+#shopify-section-{{ sid }} .nd-lang-n{color:{{ s.soft }};margin-right:9px}
+#shopify-section-{{ sid }} .nd-lang button{font:inherit;letter-spacing:inherit;
+  text-transform:inherit;padding:5px 10px;background:{{ s.paper }};color:{{ s.ink }};
+  border:1px solid {{ s.ink }};cursor:pointer;-webkit-appearance:none;appearance:none}
+#shopify-section-{{ sid }} .nd-lang button + button{border-left:0}
+#shopify-section-{{ sid }} .nd-lang button.on{background:{{ s.ink }};color:{{ s.paper }}}
+#shopify-section-{{ sid }} .nd-lang button:focus-visible{outline:2px solid var(--c,{{ s.gold }});outline-offset:2px}
+
+/* ---- matthu ---- */
+#shopify-section-{{ sid }} .nd-head{padding:20px {{ s.gutter }}px 0}
+#shopify-section-{{ sid }} .nd-kick{display:inline-block;font-family:var(--s);
+  font-size:7.5px;letter-spacing:.22em;text-transform:uppercase;color:{{ s.paper }};
+  background:var(--c,{{ s.gold }});padding:4px 9px;font-weight:700;
+  font-variant-numeric:tabular-nums}
+#shopify-section-{{ sid }} .nd-head h1{font-family:var(--dh);
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:{{ s.h1_m }}px;font-weight:900;
+  line-height:.87;letter-spacing:-.05em;margin:13px 0 0;text-transform:uppercase;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nd-dek{font-family:var(--d);
+  font-variation-settings:'opsz' 24;font-size:15px;font-style:italic;line-height:1.45;
+  color:{{ s.ink2 }};margin:14px 0 0}
+
+/* ---- cut ---- */
+#shopify-section-{{ sid }} .ncut{position:relative;display:block;width:100%;
+  margin:16px {{ s.gutter }}px 0;width:calc(100% - {{ s.gutter | times: 2 }}px);
+  border:2px solid {{ s.ink }};background:{{ s.white }};overflow:hidden}
+#shopify-section-{{ sid }} .ncut img{width:100%;height:auto;display:block}
+#shopify-section-{{ sid }} .ncut-film{aspect-ratio:16/10;cursor:pointer;display:grid;place-items:center}
+#shopify-section-{{ sid }} .ncut-th{width:100%;height:100%;object-fit:cover;display:block}
+#shopify-section-{{ sid }} .ncut-film iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-th,
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-go,
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-mark,
+#shopify-section-{{ sid }} .ncut-film[data-on] .ncut-cr{display:none}
+#shopify-section-{{ sid }} .ncut-go{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:62px;height:62px;border-radius:50%;border:2px solid {{ s.ink }};background:{{ s.paper }}ee;
+  display:grid;place-items:center;cursor:pointer;padding:0;
+  transition:background .2s ease,transform .2s ease}
+#shopify-section-{{ sid }} .ncut-film:hover .ncut-go{background:{{ s.ink }};transform:translate(-50%,-50%) scale(1.05)}
+#shopify-section-{{ sid }} .ncut-go svg{width:23px;height:23px;fill:{{ s.ink }};margin-left:2px;display:block}
+#shopify-section-{{ sid }} .ncut-film:hover .ncut-go svg{fill:{{ s.paper }}}
+#shopify-section-{{ sid }} .ncut-mark{position:absolute;left:0;top:0;
+  font-family:var(--s);font-size:7px;letter-spacing:.2em;
+  text-transform:uppercase;color:{{ s.paper }};background:{{ s.ink }};padding:5px 9px;font-weight:700}
+#shopify-section-{{ sid }} .ncut-cr{position:absolute;bottom:0;right:0;
+  font-family:var(--s);font-size:7px;letter-spacing:.16em;
+  text-transform:uppercase;color:{{ s.ink2 }};background:{{ s.paper }};padding:4px 8px}
+
+/* ---- field log ---- */
+#shopify-section-{{ sid }} .nfield{display:flex;margin:0 {{ s.gutter }}px;
+  border:2px solid {{ s.ink }};font-family:var(--s);flex-wrap:wrap}
+#shopify-section-{{ sid }} .ncut + .nfield{border-top:0}
+#shopify-section-{{ sid }} .nfield div{flex:1 1 33%;padding:8px 3px 9px;text-align:center;
+  border-right:1px solid {{ s.rule }};border-top:1px solid {{ s.rule }};min-width:0}
+#shopify-section-{{ sid }} .nfield div:nth-child(-n+3){border-top:0}
+#shopify-section-{{ sid }} .nfield div:nth-child(3n){border-right:0}
+#shopify-section-{{ sid }} .nfield b{display:block;font-size:6px;letter-spacing:.16em;
+  text-transform:uppercase;color:{{ s.soft }};font-weight:500}
+#shopify-section-{{ sid }} .nfield s{display:block;text-decoration:none;font-family:var(--dh);
+  font-variation-settings:'opsz' 36,'WONK' 1;font-size:14px;font-weight:700;margin-top:3px;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:{{ s.ink }}}
+
+#shopify-section-{{ sid }} .nd-byl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  padding:14px {{ s.gutter }}px 0;font-family:var(--s);font-size:7px;
+  letter-spacing:.2em;text-transform:uppercase;color:{{ s.soft }};margin:0}
+
+/* ---- lakhan ---- */
+#shopify-section-{{ sid }} .nd-body{padding:16px {{ s.gutter }}px 0;
+  font-variation-settings:'opsz' 12;font-size:{{ s.body_m }}px;line-height:1.62;color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nd-body > *:first-child{margin-top:0}
+#shopify-section-{{ sid }} .nd-body p{margin:0 0 1em}
+#shopify-section-{{ sid }} .nd-body > p:first-of-type::first-letter{
+  font-variation-settings:'opsz' 144,'WONK' 1;font-size:{{ s.body_m | times: 2.9 | round }}px;
+  line-height:.82;float:left;margin:4px 8px 0 0;font-weight:900;color:var(--c,{{ s.gold }})}
+#shopify-section-{{ sid }} .nd-body h2{font-family:var(--dh);
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 72;font-size:{{ s.h2_m }}px;font-weight:900;
+  line-height:1.08;letter-spacing:-.035em;margin:1.5em 0 .45em;text-transform:uppercase;
+  scroll-margin-top:90px}
+#shopify-section-{{ sid }} .nd-body h3{font-family:var(--dh);
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 48;font-size:{{ s.h2_m | minus: 3 }}px;
+  font-weight:700;line-height:1.16;margin:1.3em 0 .4em}
+#shopify-section-{{ sid }} .nd-body a{color:{{ s.ink }};text-decoration:underline;
+  text-decoration-color:var(--c,{{ s.gold }});text-underline-offset:3px;text-decoration-thickness:2px}
+#shopify-section-{{ sid }} .nd-body strong{font-weight:700}
+#shopify-section-{{ sid }} .nd-body ul,#shopify-section-{{ sid }} .nd-body ol{margin:0 0 1em;padding-left:22px}
+#shopify-section-{{ sid }} .nd-body li{margin:0 0 .4em}
+#shopify-section-{{ sid }} .nd-body img{max-width:100%;height:auto;border:2px solid {{ s.ink }};margin:.6em 0}
+#shopify-section-{{ sid }} .nd-body blockquote{margin:1.4em 0;padding:15px 16px;
+  background:var(--c,{{ s.gold }});color:{{ s.paper }};
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 96;font-size:{{ s.body_m | plus: 3 }}px;
+  font-weight:700;line-height:1.26;letter-spacing:-.025em}
+#shopify-section-{{ sid }} .nd-body blockquote p:last-child{margin:0}
+#shopify-section-{{ sid }} .nd-body table{width:100%;border-collapse:collapse;font-size:13px;
+  margin:1.2em 0;display:block;overflow-x:auto}
+#shopify-section-{{ sid }} .nd-body th,#shopify-section-{{ sid }} .nd-body td{
+  border:1px solid {{ s.rule }};padding:8px 10px;text-align:left}
+#shopify-section-{{ sid }} .nd-body th{background:{{ s.ink }};color:{{ s.paper }};font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase}
+
+#shopify-section-{{ sid }} .nd-h{font-family:var(--dh);
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 96;font-size:{{ s.h2_m | plus: 1 }}px;
+  font-weight:900;letter-spacing:-.032em;margin:0 0 4px;text-transform:uppercase}
+
+/* ---- reel ---- */
+#shopify-section-{{ sid }} .nd-reel{margin:{{ s.blk }}px 0 0;padding:{{ s.blk }}px {{ s.gutter }}px 0;
+  border-top:2px solid {{ s.ink }}}
+#shopify-section-{{ sid }} .nd-reel .ncut{margin:12px 0 0;width:100%}
+
+/* ---- notes ---- */
+#shopify-section-{{ sid }} .nd-tbl{margin:{{ s.blk }}px {{ s.gutter }}px 0;border:2px solid {{ s.ink }}}
+#shopify-section-{{ sid }} .nd-tbl-h{margin:0;padding:6px 10px;background:{{ s.ink }};color:{{ s.paper }};
+  font-family:var(--s);font-size:6.5px;letter-spacing:.22em;
+  text-transform:uppercase}
+#shopify-section-{{ sid }} .nd-tbl-r{display:grid;grid-template-columns:48px 1fr;gap:11px;padding:9px 10px;
+  border-bottom:1px solid {{ s.rule2 }};align-items:baseline}
+#shopify-section-{{ sid }} .nd-tbl-r:last-child{border-bottom:0}
+#shopify-section-{{ sid }} .nd-tbl-r b{font-family:var(--s);font-size:6.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:{{ s.soft }};font-weight:700}
+#shopify-section-{{ sid }} .nd-tbl-r span{font-variation-settings:'opsz' 36,'WONK' 1;font-size:14px;
+  font-weight:700}
+
+/* ---- classified ads ---- */
+#shopify-section-{{ sid }} .nd-ads{margin:{{ s.blk }}px 0 0;padding:{{ s.blk }}px {{ s.gutter }}px 0;
+  border-top:2px solid {{ s.ink }}}
+#shopify-section-{{ sid }} .nd-ads-n{font-family:var(--s);font-size:8.5px;
+  color:{{ s.soft }};margin:6px 0 2px;line-height:1.6;letter-spacing:.04em}
+#shopify-section-{{ sid }} .nad{display:grid;grid-template-columns:auto 1fr auto;gap:11px;
+  align-items:center;padding:12px 0;border-bottom:1px solid {{ s.rule2 }}}
+#shopify-section-{{ sid }} .nad[data-fam="fresh"]{--c:{{ s.c_fresh }}}
+#shopify-section-{{ sid }} .nad[data-fam="floral"]{--c:{{ s.c_floral }}}
+#shopify-section-{{ sid }} .nad[data-fam="woody"]{--c:{{ s.c_woody }}}
+#shopify-section-{{ sid }} .nad[data-fam="amber"]{--c:{{ s.c_amber }}}
+#shopify-section-{{ sid }} .nad[data-fam="default"]{--c:{{ s.gold }}}
+#shopify-section-{{ sid }} .nad-sq{width:9px;height:9px;background:var(--c,{{ s.gold }});display:block}
+#shopify-section-{{ sid }} .nad-w b{font-family:var(--dh);
+  font-variation-settings:'opsz' 48,'WONK' 1;font-size:17px;font-weight:700;display:block;
+  line-height:1.12;letter-spacing:-.025em}
+#shopify-section-{{ sid }} .nad-w s{text-decoration:none;font-family:var(--s);
+  font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:{{ s.soft }};display:block;
+  margin-top:5px;text-transform:capitalize}
+#shopify-section-{{ sid }} .nad-b{text-align:right}
+#shopify-section-{{ sid }} .nad-b a{text-decoration:none;display:block;
+  font-family:var(--s);font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;background:{{ s.ink }};color:{{ s.paper }};padding:8px 11px;white-space:nowrap}
+#shopify-section-{{ sid }} .nad-b s{text-decoration:none;display:block;
+  font-family:var(--s);font-size:7.5px;color:{{ s.soft }};margin-top:5px;
+  letter-spacing:.1em;font-variant-numeric:tabular-nums}
+
+/* ---- topics ane share ---- */
+#shopify-section-{{ sid }} .nd-top{margin:{{ s.blk }}px {{ s.gutter }}px 0;display:flex;flex-wrap:wrap;
+  gap:8px;align-items:center;font-family:var(--s)}
+#shopify-section-{{ sid }} .nd-top > span{font-size:7px;letter-spacing:.22em;text-transform:uppercase;
+  color:{{ s.soft }};font-weight:700}
+#shopify-section-{{ sid }} .nd-top a{font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:{{ s.ink2 }};text-decoration:none;border:1px solid {{ s.rule }};padding:4px 9px;font-weight:600}
+#shopify-section-{{ sid }} .nd-top a:hover{border-color:{{ s.ink }};color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nd-share{margin:{{ s.blk }}px {{ s.gutter }}px 0;padding:14px 0;
+  border-top:1px solid {{ s.rule }};border-bottom:1px solid {{ s.rule }};display:flex;flex-wrap:wrap;
+  gap:9px;align-items:center;font-family:var(--s)}
+#shopify-section-{{ sid }} .nd-share > span{font-size:7px;letter-spacing:.22em;text-transform:uppercase;
+  color:{{ s.soft }};font-weight:700}
+#shopify-section-{{ sid }} .nd-share a,#shopify-section-{{ sid }} .nd-share button{
+  font-family:inherit;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:{{ s.ink }};text-decoration:none;background:none;border:1px solid {{ s.rule }};
+  padding:6px 10px;cursor:pointer}
+#shopify-section-{{ sid }} .nd-share a:hover,#shopify-section-{{ sid }} .nd-share button:hover{
+  border-color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nd-share .wa{border-color:#25d36659;color:#0f7a3d}
+
+/* ---- house notice ---- */
+#shopify-section-{{ sid }} .nd-house{margin:{{ s.blk }}px {{ s.gutter }}px 0;border:2px solid {{ s.ink }};
+  padding:24px 18px;text-align:center}
+#shopify-section-{{ sid }} .nd-house .m{font-family:var(--s);font-size:7px;
+  letter-spacing:.3em;text-transform:uppercase;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .nd-house b{font-family:var(--dh);
+  font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 144;font-size:27px;font-weight:900;line-height:1;
+  letter-spacing:-.045em;display:block;margin:12px auto 0;max-width:20ch;text-transform:uppercase}
+#shopify-section-{{ sid }} .nd-house p{font-variation-settings:'opsz' 18;font-size:13.5px;line-height:1.5;
+  color:{{ s.ink2 }};margin:12px auto 17px;max-width:30ch;font-style:italic}
+#shopify-section-{{ sid }} .nd-house a{text-decoration:none;display:inline-block;
+  font-family:var(--s);font-size:10.5px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;background:{{ s.ink }};color:{{ s.paper }};padding:13px 24px}
+
+/* ---- also in this issue ---- */
+#shopify-section-{{ sid }} .nd-also{margin:{{ s.blk }}px {{ s.gutter }}px 0;padding-top:{{ s.blk }}px;
+  border-top:2px solid {{ s.ink }}}
+#shopify-section-{{ sid }} .nd-also-h{font-family:var(--s);font-size:7px;
+  letter-spacing:.24em;text-transform:uppercase;color:{{ s.soft }};margin:0 0 4px}
+#shopify-section-{{ sid }} .nalso{display:grid;grid-template-columns:1fr auto;gap:4px 10px;
+  align-items:center;padding:12px 0;border-top:1px solid {{ s.rule2 }};text-decoration:none;
+  color:{{ s.ink }}}
+#shopify-section-{{ sid }} .nalso[data-fam="fresh"]{--c:{{ s.c_fresh }}}
+#shopify-section-{{ sid }} .nalso[data-fam="floral"]{--c:{{ s.c_floral }}}
+#shopify-section-{{ sid }} .nalso[data-fam="woody"]{--c:{{ s.c_woody }}}
+#shopify-section-{{ sid }} .nalso[data-fam="amber"]{--c:{{ s.c_amber }}}
+#shopify-section-{{ sid }} .nalso[data-fam="default"]{--c:{{ s.gold }}}
+#shopify-section-{{ sid }} .nalso b{font-family:var(--dh);
+  font-variation-settings:'opsz' 36,'WONK' 1;font-size:16px;font-weight:700;line-height:1.16;
+  display:block;letter-spacing:-.025em}
+#shopify-section-{{ sid }} .nalso .sq{width:8px;height:8px;background:var(--c,{{ s.gold }});display:block}
+#shopify-section-{{ sid }} .nalso s{grid-column:1/-1;text-decoration:none;
+  font-family:var(--s);font-size:7px;letter-spacing:.2em;
+  text-transform:uppercase;color:{{ s.soft }}}
+#shopify-section-{{ sid }} .nd-all{display:inline-block;margin-top:18px;
+  font-family:var(--s);font-size:7.5px;letter-spacing:.24em;
+  text-transform:uppercase;color:{{ s.ink }};font-weight:700;text-decoration:none;
+  border-bottom:1px solid {{ s.ink }};padding-bottom:2px}
+#shopify-section-{{ sid }} .nd-folio{font-family:var(--s);font-size:6.5px;
+  letter-spacing:.28em;text-transform:uppercase;color:{{ s.soft }};text-align:center;
+  padding:30px {{ s.gutter }}px 0;margin:0}
+
+/* ---------- desktop ---------- */
+@media (min-width:900px){
+  #shopify-section-{{ sid }} .nd{padding-bottom:{{ s.pad_bottom | times: 1.3 | round }}px}
+  #shopify-section-{{ sid }} .nd-strip{padding:14px {{ s.gutter_d }}px;font-size:9px}
+  #shopify-section-{{ sid }} .nd-strip b{font-size:19px}
+  #shopify-section-{{ sid }} .nd-rib{padding:10px {{ s.gutter_d }}px;font-size:8.5px}
+  #shopify-section-{{ sid }} .nd-lang{padding:14px {{ s.gutter_d }}px 0;font-size:9px}
+  #shopify-section-{{ sid }} .nd-head{padding:34px {{ s.gutter_d }}px 0}
+  #shopify-section-{{ sid }} .nd-kick{font-size:9px;padding:5px 11px}
+  #shopify-section-{{ sid }} .nd-head h1{font-size:{{ s.h1_d }}px}
+  #shopify-section-{{ sid }} .nd-dek{font-size:19px;line-height:1.42}
+  #shopify-section-{{ sid }} .ncut{margin:22px {{ s.gutter_d }}px 0;
+    width:calc(100% - {{ s.gutter_d | times: 2 }}px)}
+  #shopify-section-{{ sid }} .ncut-film{aspect-ratio:16/9}
+  #shopify-section-{{ sid }} .nfield{margin:0 {{ s.gutter_d }}px;flex-wrap:nowrap}
+  #shopify-section-{{ sid }} .nfield div{flex:1;border-top:0}
+  #shopify-section-{{ sid }} .nfield div:nth-child(3n){border-right:1px solid {{ s.rule }}}
+  #shopify-section-{{ sid }} .nfield div:last-child{border-right:0}
+  #shopify-section-{{ sid }} .nfield b{font-size:7px}
+  #shopify-section-{{ sid }} .nfield s{font-size:17px}
+  #shopify-section-{{ sid }} .nd-byl{padding:18px {{ s.gutter_d }}px 0;font-size:8.5px}
+  #shopify-section-{{ sid }} .nd-body{padding:22px {{ s.gutter_d }}px 0;font-size:{{ s.body_d }}px;
+    line-height:1.7}
+  #shopify-section-{{ sid }} .nd-body > p:first-of-type::first-letter{
+    font-size:{{ s.body_d | times: 3 | round }}px}
+  #shopify-section-{{ sid }} .nd-body h2{font-size:{{ s.h2_d }}px}
+  #shopify-section-{{ sid }} .nd-body h3{font-size:{{ s.h2_d | minus: 6 }}px}
+  #shopify-section-{{ sid }} .nd-body blockquote{padding:22px 24px;font-size:{{ s.body_d | plus: 5 }}px}
+  #shopify-section-{{ sid }} .nd-h{font-size:{{ s.h2_d }}px}
+  #shopify-section-{{ sid }} .nd-reel,
+  #shopify-section-{{ sid }} .nd-ads{padding-left:{{ s.gutter_d }}px;padding-right:{{ s.gutter_d }}px}
+  #shopify-section-{{ sid }} .nd-tbl,
+  #shopify-section-{{ sid }} .nd-top,
+  #shopify-section-{{ sid }} .nd-share,
+  #shopify-section-{{ sid }} .nd-house,
+  #shopify-section-{{ sid }} .nd-also{margin-left:{{ s.gutter_d }}px;margin-right:{{ s.gutter_d }}px}
+  #shopify-section-{{ sid }} .nd-folio{padding-left:{{ s.gutter_d }}px;padding-right:{{ s.gutter_d }}px}
+  #shopify-section-{{ sid }} .nad-w b{font-size:20px}
+  #shopify-section-{{ sid }} .nd-house b{font-size:38px}
+  #shopify-section-{{ sid }} .nd-house p{font-size:15px}
+  #shopify-section-{{ sid }} .nalso b{font-size:20px}
+}
+</style>
