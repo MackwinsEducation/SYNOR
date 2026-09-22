@@ -31,8 +31,8 @@ from typing import Any
 import anthropic
 
 from agent_common import (
-    FAMILIES, GENDERS, HERE, OCCASIONS, cached_system, name_hits, run_rounds,
-    shop_from_env, strip_tags,
+    FAMILIES, GENDERS, HERE, OCCASIONS, cached_system, human_check, name_hits,
+    run_rounds, shop_from_env, strip_tags,
 )
 from synor_shopify import ShopifyError, forbidden_phrases
 
@@ -238,6 +238,11 @@ def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str
     if "!" in strip_tags(post["title"]) or "!" in strip_tags(body):
         problems.append("Remove the exclamation marks.")
 
+    # Does it read like a person wrote it, or like it was generated? Measured
+    # rather than asked for, because an unprompted model writes evenly and
+    # cannot hear that it is doing it.
+    problems += human_check(body, "body", contractions_required=8)
+
     # 5. Summary length.
     summary_words = len(strip_tags(post["summary_html"]).split())
     if not 15 <= summary_words <= 45:
@@ -294,6 +299,9 @@ def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str
             )
         if not post["title_hinglish"].strip():
             problems.append("The Hinglish headline is missing.")
+        # Contractions work differently in Hinglish, so only the rhythm
+        # faults are measured there.
+        problems += human_check(hi_body, "Hinglish body", contractions_required=0)
 
     # 8. Handle must be new and URL-safe.
     handle = post["handle"].strip().lower()

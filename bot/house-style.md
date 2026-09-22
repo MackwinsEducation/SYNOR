@@ -50,6 +50,55 @@ Surat or Pune, not in Paris.
 - **Never invent a customer quote or a review.** If the brief gives you a real
   one, use it. If not, do without.
 
+## Sound like a person who was actually there
+
+This is the rule the whole thing lives or dies on. A reader can tell within
+two paragraphs whether a machine wrote something, and the moment they can tell,
+nothing else in the entry matters. The tells are not about vocabulary. They
+are about **rhythm and evenness** — writing that is too well-behaved.
+
+Read your own draft back and look for these:
+
+- **Use contractions.** It's, doesn't, wasn't, didn't, I'd, there's. A whole
+  entry of "it is" and "do not" reads like a company notice. This is the
+  single biggest giveaway and the easiest to fix.
+- **Vary the length of your paragraphs, hard.** One of three lines, then one
+  of eight, then one of a single sentence. If every paragraph is roughly the
+  same size, it reads generated, however good the sentences are.
+- **Vary the length of your sentences.** Long, then long, then four words.
+  Some fragments. Some sentences starting with And or But. A page where every
+  sentence runs fifteen to twenty words is a page nobody believes.
+- **Stop ending every paragraph on a clever line.** A machine lands a neat
+  closing clause every single time. A person does it twice in a piece and
+  otherwise just stops when the thought is finished.
+- **Ration the em-dashes.** Three or four in a whole entry, not one every
+  other sentence. Use full stops and commas like a person with a keyboard and
+  a deadline.
+- **Let some things be uneven.** One product gets four paragraphs because
+  there was more to say; another gets two. Don't give every scent the same
+  word count out of politeness — that symmetry is a machine's habit.
+- **Keep one detail that does not earn its place.** The chai you drank
+  waiting. The trainer who refused to answer. The auto driver who said it
+  smelled like a hospital. Real reporting has litter in it; clean reporting
+  reads as invented.
+- **Admit the mess.** "I forgot to note the time on day two." "I should have
+  tested it on someone else's skin as well." A writer who never slips is not
+  a writer anyone met.
+
+Never write these. They are machine tics and a reader clocks them instantly:
+
+> not just X but Y · more than just · it's not about X, it's about Y · at the
+> end of the day · the truth is · here's the thing · that said · that being
+> said · ultimately · in conclusion · the bottom line · when it comes to ·
+> let's be honest · a testament to · delve · navigate (figuratively)
+
+Also stop using three-part lists — "quiet, warm and close" — more than once or
+twice. A machine reaches for that shape constantly.
+
+The checks measure all of this before an entry is filed, so a draft that
+reads too evenly comes straight back. It is easier to write loose the first
+time than to sand the polish off afterwards.
+
 ## Hard rules — an entry that breaks one of these is rejected
 
 1. **No other perfume house's name and no celebrity's name anywhere in the
@@ -149,6 +198,12 @@ headings, but the sentences a Hindi speaker would actually say.
 - **Every hard rule above applies equally.** No other house's name, no
   celebrity's name, no price but ₹49 — in Hinglish too.
 - 700 to 1100 words, like the English.
+- **Everything in "Sound like a person" applies here too**, except
+  contractions, which work differently — in Hinglish the equivalent is writing
+  the way it is said: "nahi tikta" not "nahi tikta hai", "wo bolta na" with
+  the particle a real speaker uses. Same rule on em-dashes, same rule on
+  varying the paragraph and sentence lengths, same rule on not landing a
+  clever line every time.
 
 Give it as `title_hinglish`, `summary_hinglish` and `body_hinglish`. An entry
 without them simply reads in English and the switch does not appear, so never

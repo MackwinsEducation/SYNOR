@@ -42,9 +42,51 @@ exactly these mistakes, and each one would be visible on the live page.
 | Body opens with a `<p>` | The theme sets a drop cap on the first paragraph's first letter. |
 | Only the HTML tags the article page styles | A stray `<div>` or inline style breaks the column. |
 | 700–1100 words, one pull quote, no exclamation marks | House style, mechanically. |
+| **Does it read like a person wrote it** | See below. |
 | Handle is URL-safe and not already used | Shopify would silently append `-1`. |
 | Field log filled | The box is printed beside the text; a half-empty one looks broken. |
 | A `series` entry has a slug | It needs **both** `series` and `series-<slug>`. |
+
+## The tone check, which is the one that matters
+
+A reader can tell within two paragraphs whether a machine wrote something, and
+once they can tell, nothing else in the entry matters. So this is measured,
+not asked for — an unprompted model writes *evenly*, and it cannot hear itself
+doing it.
+
+The first entry this bot produced was checked against its own rules and failed
+all four:
+
+| | Before | After a rewrite |
+| --- | --- | --- |
+| Paragraph length variation | 0.35 | 0.53 |
+| Short sentences (≤5 words) | 3 of 52 | 9 of 70 |
+| Em-dashes | 10 | 0 |
+| Contractions | **0** | 24 |
+| Shortest paragraph | 17 words | 7 words |
+
+Zero contractions in a thousand words is the clearest tell there is. Nobody
+writing a blog says "it is not" — they say "it isn't". The em-dash count was
+the second: one every ninety words is a tic, not a style.
+
+What gets measured now, in both languages:
+
+- **Paragraph variation** under 0.40 → rejected. If every paragraph is the
+  same size the piece reads generated however good the sentences are.
+- **At least one very short paragraph**, under 22 words.
+- **Short sentences** — a four-word sentence after two long ones.
+- **Em-dashes** capped at one per 250 words.
+- **Contractions** — at least eight in an English body.
+- **Machine phrasings** banned outright: *not just X but Y · more than just ·
+  at the end of the day · the truth is · here's the thing · that said ·
+  ultimately · in conclusion · when it comes to · a testament to · delve*.
+- **Three-part lists** ("quiet, warm and close") capped at two. A model
+  reaches for that shape constantly.
+
+`bot/house-style.md` carries the same rules in words, including the ones a
+number can't catch: stop landing a clever line at the end of every paragraph,
+let one product get more room than another, keep one detail that doesn't earn
+its place, and admit what you got wrong.
 
 ## Files
 

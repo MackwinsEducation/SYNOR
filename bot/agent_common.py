@@ -156,6 +156,101 @@ def run_rounds(
     return None
 
 
+# The phrasings that mark writing as machine-made. A reader clocks these
+# instantly, and once they have, nothing else in the entry matters.
+MACHINE_TICS = (
+    r"\bnot just\b.{0,40}\bbut\b", r"\bisn'?t just\b", r"\bis not just\b",
+    r"\bmore than just\b", r"\bit'?s not about\b.{0,40}\bit'?s about\b",
+    r"\bat the end of the day\b", r"\bthe truth is\b", r"\bhere'?s the thing\b",
+    r"\bthat'?s the thing\b", r"\bthe reality is\b", r"\bin today'?s world\b",
+    r"\bwhen it comes to\b", r"\blet'?s be honest\b", r"\bthe bottom line\b",
+    r"\bdelve\b", r"\ba testament to\b", r"\bin conclusion\b",
+    r"\bultimately,", r"\bthat said,", r"\bthat being said\b",
+)
+
+
+def prose_of(html: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html)).strip()
+
+
+def human_check(html: str, label: str, contractions_required: int) -> list[str]:
+    """Measure the evenness that gives machine writing away.
+
+    Every one of these is a *rhythm* fault, not a vocabulary one. Writing
+    reads generated when its paragraphs are all the same size, its sentences
+    all the same length, and every one of them lands neatly — which is
+    exactly what an unprompted model produces, so it has to be measured
+    rather than asked for.
+    """
+    import statistics
+
+    problems: list[str] = []
+    text = prose_of(html)
+    words = len(text.split())
+    if words < 50:
+        return problems
+
+    paragraphs = [prose_of(p) for p in re.findall(r"<p>(.*?)</p>", html, re.S)]
+    lengths = [len(p.split()) for p in paragraphs if p]
+    sentences = [x for x in re.split(r"(?<=[.!?])\s+", text) if x.strip()]
+
+    if len(lengths) > 2:
+        spread = statistics.stdev(lengths) / statistics.mean(lengths)
+        if spread < 0.40:
+            problems.append(
+                f"The {label} paragraphs are all about the same length "
+                f"({min(lengths)}–{max(lengths)} words, variation {spread:.2f}). "
+                "Break the rhythm: one paragraph of two lines, one of eight, "
+                "one that is a single sentence."
+            )
+        if min(lengths) > 22:
+            problems.append(
+                f"The shortest {label} paragraph is {min(lengths)} words. At "
+                "least one should be very short — a line or two, on its own."
+            )
+
+    short = sum(1 for x in sentences if len(x.split()) <= 5)
+    if short < max(4, len(sentences) // 12):
+        problems.append(
+            f"The {label} has {short} short sentences out of {len(sentences)}. "
+            "Real writing punches: a four-word sentence after two long ones."
+        )
+
+    dashes = html.count("—")
+    if dashes > max(4, words // 250):
+        problems.append(
+            f"The {label} uses {dashes} em-dashes in {words} words. Three or "
+            "four in a whole entry. Full stops and commas do the same work "
+            "without the tic."
+        )
+
+    if contractions_required:
+        found = len(re.findall(r"\b\w+'(s|t|re|ve|ll|d|m)\b", text))
+        if found < contractions_required:
+            problems.append(
+                f"The {label} has {found} contractions. Write it's, doesn't, "
+                "wasn't, there's. A whole entry of 'it is' and 'do not' reads "
+                "like a company notice, and it is the clearest tell there is."
+            )
+
+    tics = sorted({
+        re.sub(r"\\b|\.\{0,40\}|\?|\\", "", t)
+        for t in MACHINE_TICS if re.search(t, text, re.I)
+    })
+    if tics:
+        problems.append(
+            f"The {label} uses machine phrasing: {', '.join(tics)}. Cut it."
+        )
+
+    tricolons = len(re.findall(r"\w+, \w[\w ]{0,20}, and \w", text))
+    if tricolons > 2:
+        problems.append(
+            f"The {label} has {tricolons} three-part lists. A machine reaches "
+            "for that shape constantly. Keep one or two."
+        )
+    return problems
+
+
 def name_hits(text: str, banned: list[str]) -> list[str]:
     return sorted({
         phrase for phrase in banned
