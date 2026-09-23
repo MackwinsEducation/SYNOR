@@ -97,8 +97,10 @@ POST_SCHEMA = {
                     "after": {"type": "string"},
                     "prompt": {"type": "string"},
                     "caption": {"type": "string"},
+                    "ref_handle": {"type": "string"},
+                    "ref_size": {"type": "string"},
                 },
-                "required": ["after", "prompt", "caption"],
+                "required": ["after", "prompt", "caption", "ref_handle", "ref_size"],
                 "additionalProperties": False,
             },
         },
@@ -327,28 +329,70 @@ def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str
         )
     for i, brief in enumerate(briefs, 1):
         words = len(brief["prompt"].split())
-        if not 18 <= words <= 60:
+        if not 110 <= words <= 260:
             problems.append(
-                f"Shot brief {i} is {words} words. Between 25 and 45: what is "
-                "in frame, the light, the time of day, what is happening."
+                f"Shot brief {i} is {words} words; it wants 120 to 220. "
+                "Somebody pastes this straight into an image tool, and "
+                "whatever is left out gets invented — frame, lens, light, "
+                "hour, colour, grain, what is worn and dusty and out of place."
             )
-        low = brief["prompt"].lower()
-        for banned_word in ("bottle", "perfume bottle", "flacon", "label",
-                            "packaging", "box of", "vial", "atomiser"):
-            if banned_word in low:
+        # Collapse the whitespace first. A brief is written as wrapped
+        # prose, so a phrase being looked for can be split across a line
+        # break — which is exactly how the "reproduce this bottle" check
+        # first failed on briefs that plainly contained it.
+        low = re.sub(r"\s+", " ", brief["prompt"].lower())
+        # A bottle in frame is fine now — the real product photograph is
+        # attached as a reference, so the label comes out right. What is not
+        # fine is a bottle nobody named, which the model then invents.
+        wants_bottle = any(w in low for w in ("bottle", "tester", "flacon", "vial"))
+        if wants_bottle:
+            if not brief["ref_handle"].strip():
                 problems.append(
-                    f"Shot brief {i} asks for a {banned_word}. The shop's own "
-                    "photographs show every bottle already, and a drawn label "
-                    "comes out as nonsense. Brief the place, not the product."
+                    f"Shot brief {i} has a bottle in frame but names no "
+                    "ref_handle. Say which product, so the real photograph can "
+                    "be attached and the label comes out right."
                 )
-                break
+            if brief["ref_size"].strip() not in ("3ml", "15ml", "50ml", "100ml"):
+                problems.append(
+                    f"Shot brief {i} has a bottle in frame but ref_size is "
+                    f"{brief['ref_size']!r}. One of 3ml, 15ml, 50ml, 100ml."
+                )
+            copy_line = ("reproduce this bottle exactly" in low
+                         or "reproduce these" in low and "bottles exactly" in low)
+            if not copy_line:
+                problems.append(
+                    f"Shot brief {i} has a bottle in frame but never tells the "
+                    "model to copy the reference. Include: \"Reproduce this "
+                    "bottle exactly as it appears in the attached reference "
+                    "photograph, including its label, cap and proportions.\""
+                )
+        elif brief["ref_handle"].strip():
+            problems.append(
+                f"Shot brief {i} names a reference product but has no bottle "
+                "in frame. Leave ref_handle and ref_size empty."
+            )
+        if brief["ref_handle"].strip() and brief["ref_handle"] not in by_handle:
+            problems.append(
+                f"Shot brief {i} references {brief['ref_handle']!r}, which is "
+                "not in the catalogue."
+            )
+        # "no face, no watch" is the brief doing the right thing, so only a
+        # face that is actually being asked for counts.
         for face_word in ("face", "portrait", "smiling", "looking at camera",
                           "his eyes", "her eyes", "expression"):
-            if face_word in low:
+            asked = [m.start() for m in re.finditer(re.escape(face_word), low)]
+            wanted = False
+            for at in asked:
+                before = low[max(0, at - 24):at]
+                if not re.search(r"\b(no|not|without|never|avoid|nobody|hide)\b[\w ,]*$",
+                                 before):
+                    wanted = True
+                    break
+            if wanted:
                 problems.append(
-                    f"Shot brief {i} asks for a face. Hands, backs, shoulders "
-                    "and distant figures only — a drawn face reads as a claim "
-                    "about somebody who was really there."
+                    f"Shot brief {i} asks for a {face_word}. Hands, backs, "
+                    "shoulders and distant figures only — a drawn face reads "
+                    "as a claim about somebody who was really there."
                 )
                 break
         cap = len(brief["caption"].split())

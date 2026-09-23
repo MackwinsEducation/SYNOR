@@ -224,23 +224,42 @@ would come out as nonsense. So the briefs are for the *world the report went
 into*: the gym at four in the afternoon, the lift doors half shut, a wet towel
 over a bench, marigold being strung at a mandap, a car park in September light.
 
+The pictures are made by hand, from these briefs, with the **real bottle
+attached as a reference photograph** — so the bottle in the finished picture
+is the actual SYNOR bottle with its actual label, not an invention.
+
 - **One brief per `<h2>`**, plus one for the top of the piece. Four to six in
   a normal entry.
-- **25 to 45 words each.** Concrete and visual: what is in frame, the light,
-  the time of day, what is happening. Not a mood.
-- **No bottles, no boxes, no labels, ever.** This is enforced in the code as
-  well, not just here.
-- **No faces.** Hands, backs, shoulders, figures at a distance. A face makes a
-  drawn picture look like a claim about a person who was actually asked, and
-  the nine people in a report are real even when the photograph is not.
+- **120 to 220 words each.** This is a full photographic brief, not a
+  sketch, because somebody is going to paste it straight into an image tool
+  and whatever you leave out gets invented. Say: what is in frame and where
+  in the frame; the lens and how shallow the focus is; where the light comes
+  from and what hour it is; the colour and the grain; what is worn, dusty,
+  chipped or out of place. Then say plainly what must *not* be in it.
+- **Name the bottle and the size.** Give `ref_handle` (the product) and
+  `ref_size` (`3ml`, `15ml`, `50ml` or `100ml`) so the right reference photo
+  can be attached. The 3ml tester is the one to reach for by default: it is
+  what the entry is asking the reader to spend ₹49 on. Use a bigger bottle
+  only when the story is about owning one. A brief with no bottle in frame
+  leaves both empty.
+- **Whichever bottle is in frame, say it exactly.** Include the sentence
+  "Reproduce this bottle exactly as it appears in the attached reference
+  photograph, including its label, cap and proportions." Without it the model
+  redraws the label as nonsense.
+- **No faces.** Hands, wrists, backs, shoulders, figures at a distance. A
+  face makes a drawn picture look like a claim about a person who was
+  actually asked, and the nine people in a report are real even when the
+  photograph is not. This one is enforced in the code.
 - **Real, ordinary India.** Not a stock-photo gym in California. The specific
-  street, the specific kind of building, the light at that hour.
+  street, the specific kind of building, the light at that hour, the dust.
+  Chipped, worn and a little untidy beats clean every time.
 - **A caption of four to nine words** for each, in the paper's voice —
   reporting what is in the frame, not explaining the joke.
 
 Give them as `shot_briefs`, a JSON list of
 `{"after": "<the exact heading it follows, or empty for the top>",
-"prompt": "<the scene>", "caption": "<the words under it>"}`.
+"prompt": "<the full brief>", "caption": "<the words under it>",
+"ref_handle": "<product handle, or empty>", "ref_size": "<3ml|15ml|50ml|100ml, or empty>"}`.
 
 The `after` value has to match one of the entry's headings word for word, or
 the picture has nowhere to go.
