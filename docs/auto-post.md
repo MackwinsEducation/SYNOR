@@ -88,6 +88,56 @@ number can't catch: stop landing a clever line at the end of every paragraph,
 let one product get more room than another, keep one detail that doesn't earn
 its place, and admit what you got wrong.
 
+## The pictures
+
+An entry ends by asking for its own photographs. The writing agent produces a
+**shot brief** per section — the scene that belongs at that point — and
+`bot/make_images.py` draws them, uploads them to Shopify Files, and writes the
+CDN URLs back onto the article so the page can place them.
+
+```bash
+python bot/make_images.py --article gym-perfume-three-that-held-one-that-curdled --dry-run
+python bot/make_images.py --article gym-perfume-three-that-held-one-that-curdled
+```
+
+**Place, not product.** The shop's own photographs already show every bottle,
+twice — at the top of the entry and in the classified ads at the foot. A drawn
+bottle would be a worse copy of a picture the reader already has, and the
+label would come out as nonsense. So the briefs are for the world the report
+went into: the gym at four, the lift doors half shut, a wet towel over a bench.
+`bottle`, `label`, `packaging`, `vial` in a brief is a failed check.
+
+**No faces.** Hands, backs, shoulders, figures at a distance. A drawn face
+reads as a claim about a person who was really asked, and the nine people in a
+report are real even when the photograph is not. That is a failed check too.
+
+**Every drawn picture is marked.** A small `Illustration` sits in the caption
+bar. The paper's entire claim is that somebody actually went and did the test,
+and that claim survives an illustrated page only if the illustration says what
+it is. Newspapers have labelled artwork this way for two centuries.
+
+The briefs are also checked for the names nothing may print, for length, for a
+caption in the paper's voice, and — the one that actually bites — that
+`after` matches one of the entry's own headings word for word, or the picture
+has nowhere to go.
+
+### What it costs
+
+About **$0.04–0.07 an image** on `gemini-3.1-flash-image`, so four to six
+pictures is roughly **₹15–30 an entry**. Set `GEMINI_API_KEY` from
+aistudio.google.com. `SYNOR_IMAGE_MODEL` switches the model.
+
+The Shopify side is three steps and each fails differently, which is why
+`bot/shopify_files.py` keeps them apart: a staged upload target is issued, the
+bytes go to Google Cloud Storage rather than to Shopify, and only then is the
+file registered — arriving as `UPLOADED`, not usable, and polled until
+`READY` before a CDN URL exists. Reading `image.url` straight after
+`fileCreate` returns null. That whole path was run against the live store
+before the script was written.
+
+**Look at them before publishing.** The model draws what it likes, not what
+happened.
+
 ## Files
 
 | File | What it is |
@@ -96,6 +146,8 @@ its place, and admit what you got wrong.
 | `bot/queue.json` | The topic queue. Each topic is a brief, a place and a month. |
 | `bot/write_draft.py` | The agent. Prompting, the checks, the rewrite loop, filing. |
 | `bot/synor_shopify.py` | The Admin API calls, and the forbidden-names list. |
+| `bot/shopify_files.py` | Getting a picture into Shopify Files and back out as a CDN URL. |
+| `bot/make_images.py` | Draws an entry's pictures from its briefs. |
 | `.github/workflows/diaries-draft.yml` | Runs it. Manual for now. |
 
 ## Setting it up

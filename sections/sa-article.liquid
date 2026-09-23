@@ -471,6 +471,7 @@
       });
       /* Ek page par pasand karyu to biji post par pan e j bhasha rahe. */
       if (remember) { try { localStorage.setItem(KEY, lang); } catch (e) {} }
+      if (typeof addDrawn === 'function') addDrawn();
       if (typeof addShots === 'function') addShots();
     };
 
@@ -493,12 +494,64 @@
   var pics = [];
   if (picsTag) { try { pics = JSON.parse(picsTag.textContent); } catch (e) {} }
 
+  var drawnTag = document.getElementById('nd-drawn-{{ sid }}');
+  var drawn = [];
+  if (drawnTag) { try { drawn = JSON.parse(drawnTag.textContent); } catch (e) {} }
+
+  /* Jagya na chitro — headline na naam thi bethaay chhe, ane 'after' khali
+     hoy to sauthi pehla fakra pehla. */
+  var addDrawn = function () {
+    if (!drawn.length) return;
+    var body = root.querySelector('.nd-body');
+    if (!body) return;
+    var heads = body.querySelectorAll('h2');
+    drawn.forEach(function (d) {
+      if (!d.url) return;
+      var fig = document.createElement('figure');
+      fig.className = 'nd-drawn';
+      var im = document.createElement('img');
+      im.src = d.url;
+      im.alt = d.caption || '';
+      im.loading = 'lazy';
+      var cap = document.createElement('figcaption');
+      var words = document.createElement('span');
+      words.textContent = d.caption || '';
+      var mark = document.createElement('em');
+      mark.textContent = {{ s.drawn_mark | default: 'Illustration' | json }};
+      cap.appendChild(words);
+      cap.appendChild(mark);
+      fig.appendChild(im);
+      fig.appendChild(cap);
+
+      var where = (d.after || '').trim().toLowerCase();
+      if (!where) {
+        var lead = body.querySelector('p');
+        if (lead) lead.insertAdjacentElement('beforebegin', fig);
+        return;
+      }
+      for (var i = 0; i < heads.length; i++) {
+        if (heads[i].textContent.trim().toLowerCase() === where) {
+          heads[i].insertAdjacentElement('afterend', fig);
+          return;
+        }
+      }
+    });
+  };
+
   var addShots = function () {
     if (!pics.length) return;
     var body = root.querySelector('.nd-body');
     if (!body) return;
     body.querySelectorAll('h2').forEach(function (h) {
       if (h.nextElementSibling && h.nextElementSibling.classList.contains('nd-shot')) return;
+      /* Jo ahiya pehle thi jagya nu chitra muki didhu hoy, to product no
+         photo ena pachhi jaay — be photo saathe na aavi jaay. */
+      var anchor = h;
+      if (h.nextElementSibling && h.nextElementSibling.classList.contains('nd-drawn')) {
+        anchor = h.nextElementSibling;
+        if (anchor.nextElementSibling &&
+            anchor.nextElementSibling.classList.contains('nd-shot')) return;
+      }
       var head = h.textContent.trim().toLowerCase();
       var hit = null;
       for (var i = 0; i < pics.length; i++) {
@@ -523,9 +576,11 @@
       cap.appendChild(go);
       fig.appendChild(im);
       fig.appendChild(cap);
-      h.insertAdjacentElement('afterend', fig);
+      anchor.insertAdjacentElement('afterend', fig);
     });
   };
+
+  addDrawn();
   addShots();
 
   /* Copy link. */
@@ -610,6 +665,8 @@
     { "type": "text", "id": "plate_note", "label": "Line under the strip", "default": "The scents in this report" },
     { "type": "checkbox", "id": "show_shots", "label": "A photo under each product heading in the text", "default": true },
     { "type": "text", "id": "shot_link", "label": "Link on those photos", "default": "See it" },
+    { "type": "paragraph", "content": "Drawn pictures of the places the report went are filled in by bot/make_images.py and appear on their own. Each one is marked, because the paper's claim is that somebody really went — and that survives an illustrated page only if the illustration says so." },
+    { "type": "text", "id": "drawn_mark", "label": "The word marking a drawn picture", "default": "Illustration" },
 
     { "type": "header", "content": "Language switch" },
     { "type": "paragraph", "content": "Shows only on an entry that has a Hinglish body in its custom.body_hinglish metafield. Entries without one simply read in English, with no switch." },

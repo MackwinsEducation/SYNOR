@@ -209,6 +209,49 @@ Give it as `title_hinglish`, `summary_hinglish` and `body_hinglish`. An entry
 without them simply reads in English and the switch does not appear, so never
 pad them out — a bad Hinglish telling is worse than none.
 
+## The pictures
+
+An entry with no pictures is a wall, and a perfume report is exactly the thing
+a reader wants to *see* while reading. So each entry also asks for its own
+photographs by writing a **shot brief** for each one — a sentence describing
+the scene that belongs at that point in the piece. They are drawn afterwards
+and placed under the heading they name.
+
+**Write the place, not the product.** The shop's own photographs already show
+every bottle, at the top of the entry and again at the foot. A drawn bottle
+would be a worse version of a picture the reader already has, and the label
+would come out as nonsense. So the briefs are for the *world the report went
+into*: the gym at four in the afternoon, the lift doors half shut, a wet towel
+over a bench, marigold being strung at a mandap, a car park in September light.
+
+- **One brief per `<h2>`**, plus one for the top of the piece. Four to six in
+  a normal entry.
+- **25 to 45 words each.** Concrete and visual: what is in frame, the light,
+  the time of day, what is happening. Not a mood.
+- **No bottles, no boxes, no labels, ever.** This is enforced in the code as
+  well, not just here.
+- **No faces.** Hands, backs, shoulders, figures at a distance. A face makes a
+  drawn picture look like a claim about a person who was actually asked, and
+  the nine people in a report are real even when the photograph is not.
+- **Real, ordinary India.** Not a stock-photo gym in California. The specific
+  street, the specific kind of building, the light at that hour.
+- **A caption of four to nine words** for each, in the paper's voice —
+  reporting what is in the frame, not explaining the joke.
+
+Give them as `shot_briefs`, a JSON list of
+`{"after": "<the exact heading it follows, or empty for the top>",
+"prompt": "<the scene>", "caption": "<the words under it>"}`.
+
+The `after` value has to match one of the entry's headings word for word, or
+the picture has nowhere to go.
+
+These pictures are **drawn, not taken**, and the page says so under each one.
+The paper's whole claim is that somebody really went and did the test, and
+that claim survives an illustrated page only if the illustration is labelled.
+Never write a brief that would read as evidence — no photograph of "the
+trainer who said it smelled like a swimming pool", no shot of "the nine people
+asked". Atmosphere is honest; a staged witness is not.
+
 ## Filing
 
 You choose the entry's own filing from these closed sets, and nothing outside

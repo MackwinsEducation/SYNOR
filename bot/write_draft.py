@@ -89,6 +89,19 @@ POST_SCHEMA = {
         "notes_heart": {"type": "string"},
         "notes_base": {"type": "string"},
         "youtube_ids": {"type": "string"},
+        "shot_briefs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "after": {"type": "string"},
+                    "prompt": {"type": "string"},
+                    "caption": {"type": "string"},
+                },
+                "required": ["after", "prompt", "caption"],
+                "additionalProperties": False,
+            },
+        },
         "title_hinglish": {"type": "string"},
         "summary_hinglish": {"type": "string"},
         "body_hinglish": {"type": "string"},
@@ -99,7 +112,7 @@ POST_SCHEMA = {
         "field_place", "field_alt", "field_temp", "field_humidity",
         "field_held", "field_asked", "field_verdict",
         "notes_top", "notes_heart", "notes_base", "youtube_ids",
-        "title_hinglish", "summary_hinglish", "body_hinglish",
+        "title_hinglish", "summary_hinglish", "body_hinglish", "shot_briefs",
     ],
     "additionalProperties": False,
 }
@@ -303,7 +316,67 @@ def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str
         # faults are measured there.
         problems += human_check(hi_body, "Hinglish body", contractions_required=0)
 
-    # 8. Handle must be new and URL-safe.
+    # 8. The shot briefs — the pictures the entry is asking for.
+    briefs = post["shot_briefs"]
+    heads = [h.strip() for h in re.findall(r"<h2[^>]*>(.*?)</h2>", body, re.S)]
+    heads = [strip_tags(h).strip() for h in heads]
+    if not 3 <= len(briefs) <= 7:
+        problems.append(
+            f"There are {len(briefs)} shot briefs; an entry wants 4 to 6 — "
+            "one for the top and one under each section."
+        )
+    for i, brief in enumerate(briefs, 1):
+        words = len(brief["prompt"].split())
+        if not 18 <= words <= 60:
+            problems.append(
+                f"Shot brief {i} is {words} words. Between 25 and 45: what is "
+                "in frame, the light, the time of day, what is happening."
+            )
+        low = brief["prompt"].lower()
+        for banned_word in ("bottle", "perfume bottle", "flacon", "label",
+                            "packaging", "box of", "vial", "atomiser"):
+            if banned_word in low:
+                problems.append(
+                    f"Shot brief {i} asks for a {banned_word}. The shop's own "
+                    "photographs show every bottle already, and a drawn label "
+                    "comes out as nonsense. Brief the place, not the product."
+                )
+                break
+        for face_word in ("face", "portrait", "smiling", "looking at camera",
+                          "his eyes", "her eyes", "expression"):
+            if face_word in low:
+                problems.append(
+                    f"Shot brief {i} asks for a face. Hands, backs, shoulders "
+                    "and distant figures only — a drawn face reads as a claim "
+                    "about somebody who was really there."
+                )
+                break
+        cap = len(brief["caption"].split())
+        if not 3 <= cap <= 12:
+            problems.append(
+                f"Shot brief {i} has a {cap}-word caption; four to nine, in "
+                "the paper's voice."
+            )
+        target = brief["after"].strip()
+        if target and target not in heads:
+            problems.append(
+                f"Shot brief {i} sits after {target!r}, which is not one of "
+                "this entry's headings. It has to match word for word, or the "
+                "picture has nowhere to go. The headings are: "
+                + "; ".join(heads) + "."
+            )
+    if briefs and not any(not b["after"].strip() for b in briefs):
+        problems.append(
+            "No shot brief is marked for the top of the piece. Leave one with "
+            "an empty \"after\"."
+        )
+    hits = name_hits(" ".join(b["prompt"] for b in briefs), banned)
+    if hits:
+        problems.append(
+            "These names appear in the shot briefs: " + ", ".join(hits) + "."
+        )
+
+    # 9. Handle must be new and URL-safe.
     handle = post["handle"].strip().lower()
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", handle):
         problems.append(
@@ -315,7 +388,7 @@ def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str
             f"The handle {handle!r} is already used on the blog. Choose another."
         )
 
-    # 9. Series needs both tags, which means it needs a slug.
+    # 10. Series needs both tags, which means it needs a slug.
     if post["kind"] == "series" and not post["series_slug"].strip():
         problems.append(
             "A series entry needs a series_slug, e.g. 'matheran', because the "
@@ -356,6 +429,13 @@ def build_metafields(post: dict[str, Any], entry_no: int) -> list[dict[str, str]
             "key": key,
             "value": value,
             "type": "single_line_text_field",
+        })
+    if post.get("shot_briefs"):
+        out.append({
+            "namespace": "custom",
+            "key": "shot_briefs",
+            "value": json.dumps(post["shot_briefs"], ensure_ascii=False),
+            "type": "multi_line_text_field",
         })
     for key in LONG_METAFIELDS:
         value = str(post.get(key, "")).strip()
