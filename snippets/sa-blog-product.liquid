@@ -16,6 +16,9 @@
   Chorasa no rang = product ni fragrance family. E j char rang aakha
   chhapa ma vaparaay chhe, etle ek j bhasha.
 
+  Photo hoy to nano photo, na hoy to pehla jevo rang no chorasa — ad ni
+  line kyarey tuti na jaay.
+
   Vaapar: {% render 'sa-blog-product', product: p, try_label: 'Try 3ml' %}
 {%- endcomment -%}
 
@@ -75,7 +78,14 @@
   -%}
 
   <div class="nad" data-fam="{{ swatch }}">
-    <span class="nad-sq" aria-hidden="true"></span>
+    {%- if product.featured_image != blank -%}
+      <a class="nad-im" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+        {{ product.featured_image | image_url: width: 180 | image_tag:
+             widths: '90,140,180', sizes: '60px', loading: 'lazy', alt: '' }}
+      </a>
+    {%- else -%}
+      <span class="nad-sq" aria-hidden="true"></span>
+    {%- endif -%}
     <span class="nad-w">
       <b>{{ product.title | remove_first: 'SYNOR ' }}</b>
       <s>

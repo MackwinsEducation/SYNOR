@@ -1,0 +1,160 @@
+{%- comment -%}
+  SYNOR DIARIES — paana na photo.
+
+  Dukaan ma dar product na paanch photo pehle thi padya chhe. Blog ek pan
+  nahoto vaaprato, etle paanu fakt lakhan nu lagtu hatu. Ahiya e jodaay chhe,
+  ane jodaay chhe aapoaap: post na `pick-<handle>` tag j kahe chhe ke kaya
+  product chhe, etle lakhnaar ne koi photo upload karvano j nathi.
+
+  Traan jagya:
+    1. PLATE — upar, jyare hero photo ke video na hoy. "Aa char, jem testaya."
+       Chhapa ma pan pehla paana par photo ni patti aavi j rite aave chhe.
+    2. SHOT  — lakhan ni andar, dar <h2> pachhi je product nu naam dharave.
+       Aa j asli kaam chhe: lakhan no divaal tute chhe tyaan j jyaan tutvo
+       joiye. Ene JS jode chhe, karan ke body HTML lakhnaar likhe chhe ane
+       Liquid ene chirfaadi na sake.
+    3. THUMB — niche na classified ad ma, nanu.
+
+  Photo Shopify mathi live aave chhe, body ma URL chhapati nathi — product no
+  photo badlaay to blog ma pan badlaay jaay chhe.
+
+  Dukaan na photo chorasa chhe (1254x1254), etle kyay crop nathi karyu.
+  Andar no photo 250px no chorasa chhe — aakhi botal dekhaay, ane lakhan
+  ni vachche moto khado pan na pade.
+
+  Vaapar: {%- render 'sa-blog-pics', picks: picks, s: s, sid: sid -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign shown = 0
+  capture rows
+    for h in picks limit: 6
+      assign p = all_products[h]
+      if p != blank and p.featured_image != blank
+        assign shown = shown | plus: 1
+      endif
+    endfor
+  endcapture
+-%}
+
+{%- if shown > 0 -%}
+  {%- if s.show_plate -%}
+    <figure class="nd-plate" data-count="{{ shown }}">
+      <div class="nd-plate-in">
+        {%- for h in picks limit: 6 -%}
+          {%- assign p = all_products[h] -%}
+          {%- if p != blank and p.featured_image != blank -%}
+            {%- liquid
+              assign sw = 'default'
+              for t in p.tags
+                assign low = t | downcase
+                if low contains 'family-'
+                  if low contains 'fresh' or low contains 'aquatic'
+                    assign sw = 'fresh'
+                  elsif low contains 'floral' or low contains 'fruity'
+                    assign sw = 'floral'
+                  elsif low contains 'woody' or low contains 'oud'
+                    assign sw = 'woody'
+                  elsif low contains 'amber' or low contains 'sweet'
+                    assign sw = 'amber'
+                  endif
+                  break
+                endif
+              endfor
+            -%}
+            <a href="{{ p.url }}" data-fam="{{ sw }}">
+              {{ p.featured_image | image_url: width: 420 | image_tag:
+                   widths: '150,220,300,420', sizes: '(min-width:900px) 180px, 34vw',
+                   loading: 'lazy', alt: p.title | escape }}
+              <s>{{ p.title | remove_first: 'SYNOR ' }}</s>
+            </a>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      {%- if s.plate_note != blank -%}
+        <figcaption>{{ s.plate_note }}</figcaption>
+      {%- endif -%}
+    </figure>
+  {%- endif -%}
+
+  {%- comment -%}
+    Lakhan ni andar na photo mate ni yaadi. JS aane vaanche chhe ane dar
+    <h2> ne ena naam thi match kare chhe.
+  {%- endcomment -%}
+  {%- if s.show_shots -%}
+    <script type="application/json" id="nd-pics-{{ sid }}">
+      [
+        {%- assign first = true -%}
+        {%- for h in picks limit: 6 -%}
+          {%- assign p = all_products[h] -%}
+          {%- if p != blank and p.featured_image != blank -%}
+            {%- unless first %},{% endunless -%}
+            {%- assign first = false -%}
+            {
+              "name": {{ p.title | json }},
+              "short": {{ p.title | remove_first: 'SYNOR ' | json }},
+              "url": {{ p.url | json }},
+              "img": {{ p.featured_image | image_url: width: 900 | json }},
+              "alt": {{ p.title | json }}
+            }
+          {%- endif -%}
+        {%- endfor -%}
+      ]
+    </script>
+  {%- endif -%}
+{%- endif -%}
+
+<style>
+#shopify-section-{{ sid }} .nd-plate{margin:16px {{ s.gutter }}px 0;
+  width:calc(100% - {{ s.gutter | times: 2 }}px);border:2px solid {{ s.ink }};
+  background:{{ s.white }};padding:0}
+#shopify-section-{{ sid }} .nd-plate-in{display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:1px;
+  background:{{ s.rule }}}
+#shopify-section-{{ sid }} .nd-plate a{display:block;background:{{ s.white }};
+  padding:9px 7px 8px;text-decoration:none;color:{{ s.ink }};position:relative}
+#shopify-section-{{ sid }} .nd-plate a::before{content:'';position:absolute;
+  left:7px;top:7px;width:7px;height:7px;background:var(--c,{{ s.gold }});z-index:1}
+#shopify-section-{{ sid }} .nd-plate a[data-fam="fresh"]{--c:{{ s.c_fresh }}}
+#shopify-section-{{ sid }} .nd-plate a[data-fam="floral"]{--c:{{ s.c_floral }}}
+#shopify-section-{{ sid }} .nd-plate a[data-fam="woody"]{--c:{{ s.c_woody }}}
+#shopify-section-{{ sid }} .nd-plate a[data-fam="amber"]{--c:{{ s.c_amber }}}
+#shopify-section-{{ sid }} .nd-plate img{width:100%;height:auto;display:block;
+  aspect-ratio:1;object-fit:cover}
+#shopify-section-{{ sid }} .nd-plate s{display:block;text-decoration:none;
+  font-family:var(--s);font-size:7px;letter-spacing:.14em;text-transform:uppercase;
+  color:{{ s.ink2 }};margin-top:6px;line-height:1.35;text-align:center}
+#shopify-section-{{ sid }} .nd-plate figcaption{font-family:var(--s);font-size:7px;
+  letter-spacing:.2em;text-transform:uppercase;color:{{ s.soft }};
+  border-top:1px solid {{ s.rule }};padding:7px 9px;text-align:center}
+
+/* lakhan ni andar no photo */
+#shopify-section-{{ sid }} .nd-shot{margin:0 auto 1.2em;border:2px solid {{ s.ink }};
+  background:{{ s.white }};display:block;max-width:250px}
+#shopify-section-{{ sid }} .nd-shot img{width:100%;height:auto;display:block;
+  aspect-ratio:1;object-fit:contain}
+#shopify-section-{{ sid }} .nd-shot figcaption{font-family:var(--s);font-size:7px;
+  letter-spacing:.18em;text-transform:uppercase;color:{{ s.soft }};
+  border-top:1px solid {{ s.rule }};padding:6px 9px;display:flex;
+  justify-content:space-between;gap:10px;align-items:center}
+#shopify-section-{{ sid }} .nd-shot a{color:{{ s.ink }};text-decoration:none;
+  border-bottom:1px solid {{ s.ink }};white-space:nowrap}
+
+/* classified ad no nano photo */
+#shopify-section-{{ sid }} .nad-im{width:46px;height:46px;flex:none;display:block;
+  border:1px solid {{ s.rule }};background:{{ s.white }};position:relative}
+#shopify-section-{{ sid }} .nad-im img{width:100%;height:100%;object-fit:cover;
+  display:block}
+#shopify-section-{{ sid }} .nad-im::after{content:'';position:absolute;left:0;bottom:0;
+  width:100%;height:3px;background:var(--c,{{ s.gold }})}
+
+@media (min-width:900px){
+  #shopify-section-{{ sid }} .nd-plate{margin:22px {{ s.gutter_d }}px 0;
+    width:calc(100% - {{ s.gutter_d | times: 2 }}px)}
+  #shopify-section-{{ sid }} .nd-plate-in{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+  #shopify-section-{{ sid }} .nd-plate s{font-size:8.5px}
+  #shopify-section-{{ sid }} .nd-plate figcaption{font-size:8.5px}
+  #shopify-section-{{ sid }} .nd-shot figcaption{font-size:8.5px;padding:8px 12px}
+  #shopify-section-{{ sid }} .nad-im{width:60px;height:60px}
+}
+</style>

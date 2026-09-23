@@ -285,6 +285,12 @@
            widths: '480,720,1000,1400', sizes: '(min-width: 900px) 760px, 100vw',
            loading: 'eager', fetchpriority: 'high', alt: article.title | escape }}
     </figure>
+  {%- else -%}
+    {%- comment -%}
+      Na film, na photo — tya sudhi paanu khali lagtu hatu. Post na product
+      j e jagya bhare chhe, ane e jagya j chhapa ma photo ni patti ni chhe.
+    {%- endcomment -%}
+    {%- render 'sa-blog-pics', picks: picks, s: s, sid: sid -%}
   {%- endif -%}
 
   {%- render 'sa-blog-field', article: article -%}
@@ -465,6 +471,7 @@
       });
       /* Ek page par pasand karyu to biji post par pan e j bhasha rahe. */
       if (remember) { try { localStorage.setItem(KEY, lang); } catch (e) {} }
+      if (typeof addShots === 'function') addShots();
     };
 
     root.addEventListener('click', function (e) {
@@ -476,6 +483,50 @@
     try { saved = localStorage.getItem(KEY); } catch (e) {}
     if (saved === 'hi') setLang('hi', false);
   }
+
+  /* Lakhan ni andar product na photo.
+
+     Body nu HTML lakhnaar likhe chhe, etle Liquid ene chirfaadi na sake —
+     JS dar <h2> nu naam joine tya photo mukse. Bhasha badlaay tyare fari
+     chalvu pade chhe, karan ke tyare aakhu body badlaay jaay chhe. */
+  var picsTag = document.getElementById('nd-pics-{{ sid }}');
+  var pics = [];
+  if (picsTag) { try { pics = JSON.parse(picsTag.textContent); } catch (e) {} }
+
+  var addShots = function () {
+    if (!pics.length) return;
+    var body = root.querySelector('.nd-body');
+    if (!body) return;
+    body.querySelectorAll('h2').forEach(function (h) {
+      if (h.nextElementSibling && h.nextElementSibling.classList.contains('nd-shot')) return;
+      var head = h.textContent.trim().toLowerCase();
+      var hit = null;
+      for (var i = 0; i < pics.length; i++) {
+        var p = pics[i];
+        if (head.indexOf(p.name.toLowerCase()) === 0 ||
+            head.indexOf(p.short.toLowerCase()) === 0) { hit = p; break; }
+      }
+      if (!hit) return;
+      var fig = document.createElement('figure');
+      fig.className = 'nd-shot';
+      var im = document.createElement('img');
+      im.src = hit.img;
+      im.alt = hit.alt;
+      im.loading = 'lazy';
+      var cap = document.createElement('figcaption');
+      var who = document.createElement('span');
+      who.textContent = hit.short;
+      var go = document.createElement('a');
+      go.href = hit.url;
+      go.textContent = {{ s.shot_link | default: 'See it' | json }};
+      cap.appendChild(who);
+      cap.appendChild(go);
+      fig.appendChild(im);
+      fig.appendChild(cap);
+      h.insertAdjacentElement('afterend', fig);
+    });
+  };
+  addShots();
 
   /* Copy link. */
   root.addEventListener('click', function (e) {
@@ -552,6 +603,13 @@
     { "type": "range", "id": "h2_d", "min": 18, "max": 40, "step": 1, "unit": "px", "label": "Sub-heading · desktop", "default": 26 },
     { "type": "range", "id": "body_m", "min": 13, "max": 19, "step": 1, "unit": "px", "label": "Text · mobile", "default": 15 },
     { "type": "range", "id": "body_d", "min": 15, "max": 22, "step": 1, "unit": "px", "label": "Text · desktop", "default": 17 },
+
+    { "type": "header", "content": "Pictures" },
+    { "type": "paragraph", "content": "The product photos already in the shop. Nothing to upload per entry — the pick- tags say which scents the entry is about, and the photos follow." },
+    { "type": "checkbox", "id": "show_plate", "label": "Photo strip at the top, when there is no film or hero image", "default": true },
+    { "type": "text", "id": "plate_note", "label": "Line under the strip", "default": "The scents in this report" },
+    { "type": "checkbox", "id": "show_shots", "label": "A photo under each product heading in the text", "default": true },
+    { "type": "text", "id": "shot_link", "label": "Link on those photos", "default": "See it" },
 
     { "type": "header", "content": "Language switch" },
     { "type": "paragraph", "content": "Shows only on an entry that has a Hinglish body in its custom.body_hinglish metafield. Entries without one simply read in English, with no switch." },

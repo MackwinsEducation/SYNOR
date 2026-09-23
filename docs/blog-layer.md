@@ -119,6 +119,46 @@ its own words and offers the way back. Its heading is the section's own name,
 which is also what the Index heading becomes on any filtered page: standing on
 the Vlog page, the list is headed VLOG, not Index.
 
+## Pictures, without anybody uploading one
+
+The entries read well and looked like nothing. All text, no photographs — and
+a perfume report is exactly the thing a reader wants to *see* while reading it.
+
+The shop already had the pictures. Every product carries five images on the
+Shopify CDN, square, 1254px, including the 3ml tester shot. The blog was using
+none of them, and the fix is that it never needs a photo uploaded per entry:
+an entry's `pick-<handle>` tags already say which scents it is about, so the
+photographs follow from the filing.
+
+Three places, all automatic:
+
+| Where | What |
+| --- | --- |
+| **The plate** | A strip of the scents across the top, one square each with its family colour, shown only when the entry has no film and no hero image — which is exactly the gap that made the page look bare. A real paper puts a photo strip in the same place. |
+| **The shot** | A photograph under each `<h2>` that names a product. This is the one that matters: it breaks the wall of text exactly where it should break. |
+| **The thumb** | A small photo in each classified ad at the foot, in place of the coloured square. |
+
+The shot is injected by JavaScript rather than Liquid, because the body HTML is
+written by the agent and Liquid cannot reach inside it to find the headings. It
+re-runs when the language switch swaps the body, so the Hinglish telling gets
+its pictures too — which works only because the Hinglish `<h2>`s carry the same
+product names, and that is now a checked rule rather than a hope.
+
+Two things were nearly shipped wrong and are worth writing down:
+
+- The in-body shot was first styled `aspect-ratio: 16/10` with `object-fit:
+  cover`. The product photographs are **square**, so that would have sliced
+  the top and bottom off every bottle. It is a 250px square with
+  `object-fit: contain` now, centred, and nothing is cropped anywhere on the
+  page.
+- `mix-blend-mode: multiply` would make a white-background cut-out sit on the
+  cream paper beautifully, and would make a dark-background photograph look
+  broken. The photographs have not been checked one by one, so it does not
+  ship on a guess.
+
+Everything is a setting: the strip on or off, its caption, the in-body photos
+on or off, and the words on their link.
+
 ## Two languages, one page
 
 Most of the shop's customers read English perfectly well and still think in
