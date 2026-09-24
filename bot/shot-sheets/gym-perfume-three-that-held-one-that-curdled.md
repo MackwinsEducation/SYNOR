@@ -1,31 +1,35 @@
-# Image sheet — "Gym perfume, tested through the sweat"
+# Image sheet — Gym perfume, tested through the sweat: three that held, one that curdled
 
 `gym-perfume-three-that-held-one-that-curdled` · 6 images
 
-Everything on this sheet is **3:2 landscape, 1536 × 1024 px**. That is not a
-preference — the article page crops in-body pictures to exactly 3:2, so
-anything else loses its top and bottom.
+Everything on this sheet is **3:2 landscape, 1536 × 1024**. That is not a preference —
+the article page crops in-body pictures to exactly 3:2, so anything
+else loses its top and bottom.
 
-**How to make each one:** open the reference link below, save the photograph,
-attach it so the model copies the real bottle and the real label, paste the
-prompt, generate at 1536 × 1024, then upload.
+**How to make each one:** open the reference link, save the
+photograph, attach it, paste the whole prompt, generate, upload.
 
-Five photographs cover all six pictures — the same ones come round again.
+The long block at the foot of each prompt is there for one reason:
+the model reproduces the bottle correctly and then leaves it looking
+stuck on, because it carries the reference photograph's studio light
+in with it. That block forces one light, one focus plane, one grain
+— and a contact shadow where the glass meets the surface, which is
+the single thing that stops an object floating.
 
-**Where the files go:** Shopify admin → Content → Files. Name them
-`gym-1-hero.jpg`, `gym-2-royale.jpg` and so on, so the order is obvious later.
+**Where the files go:** Shopify admin → Content → Files.
 
-**One rule that is not about looks.** No faces anywhere. Hands, wrists, backs,
-shoulders and distant figures only. The nine people in this report are real
-people who really answered; a generated face turns them into a claim we did
-not earn. Each picture also carries a small `Illustration` on the page.
+**One rule that is not about looks.** No faces anywhere — hands,
+wrists, backs, shoulders and distant figures only. The people in a
+report are real people who really answered; a generated face turns
+them into a claim we did not earn. Each picture also carries a small
+`Illustration` on the page.
 
 ---
 
 ## Shared negative prompt
 
-Paste this into the negative field on every one of the six, or append it to
-the prompt if the tool has no negative field.
+Paste into the negative field on every one, or append to the prompt
+if the tool has no negative field.
 
 ```
 no faces, no portraits, no people looking at camera, no text, no lettering,
@@ -37,15 +41,16 @@ flare, no vignette, no beauty retouching, not clean, not tidy
 
 ---
 
-## 1 — Hero · the four testers
+## 1 — Hero · top of the entry
 
 **Also set this one as the article's featured image in Shopify.**
-Attach all four 3ml photos:
 
-- Aqua Royale 3ml — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg
-- Aqua Chill 3ml — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-chill-3ml-1_9edc363b-53a5-48c8-9a70-3770fb55d0db.jpg
-- Urban Hero 3ml — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-urban-hero-3ml-1_fc3e1fc1-f253-4a03-b93e-21aeffcc808e.jpg
-- Eros Flame 3ml — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-eros-flame-3ml-1_7bd8e3b3-b893-4133-bc21-e0ae8181061e.jpg
+**Attach all 4 photographs:**
+
+- **Aqua Royale 3ml** — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg
+- **Aqua Chill 3ml** — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-chill-3ml-1_9edc363b-53a5-48c8-9a70-3770fb55d0db.jpg
+- **Urban Hero 3ml** — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-urban-hero-3ml-1_fc3e1fc1-f253-4a03-b93e-21aeffcc808e.jpg
+- **Eros Flame 3ml** — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-eros-flame-3ml-1_7bd8e3b3-b893-4133-bc21-e0ae8181061e.jpg
 
 ```
 A documentary photograph taken inside an ordinary Indian gym in Ahmedabad at
@@ -69,6 +74,45 @@ and no fill. Muted warm colour, slightly faded, visible film grain, mild
 highlight bloom where the sun hits the floor. The frame is a little
 off-centre and unposed, as if grabbed between sets.
 
+The same hard late-afternoon sun from the glass frontage on the right rakes across the four bottles, throwing four long shadows to the left across the black vinyl. The bench surface is slightly reflective, so each bottle shows a short soft reflection beneath it. A towel's corner overlaps the base of the nearest bottle.
+
+IMPORTANT — the bottle was photographed here, in this light, in this same
+frame. It is not a product shot composited into a scene. Make that literally
+true:
+
+Only the light already described in this scene falls on the bottle, from the
+same direction and the same colour. No studio softbox, no second light, no rim
+light that nothing in this room could cast.
+
+It casts a real contact shadow where the glass meets the surface it stands on
+— darkest and tightest exactly at the point of contact, spreading and
+softening outward. Without that shadow it floats, and floating is the failure.
+
+The glass takes colour from the room around it and reflects what is actually
+there. The label is dulled by the same air, the same distance and the same
+haze as everything else at that depth.
+
+The bottle sits in the same plane of focus as whatever surrounds it, and its
+far edge falls away into exactly the same softness. A bottle that is sharper
+than its surroundings is the giveaway.
+
+Something in the scene overlaps or touches the bottle so the eye reads real
+depth and real contact.
+
+The same film grain, the same warm cast and the same loss of contrast lie
+across the bottle as across the rest of the frame. The bottle is not cleaner,
+sharper or better exposed than the picture it is in.
+
+The glass is not showroom clean: a thumbprint on the side, a speck of dust,
+one corner of the label very slightly scuffed, a highlight that has blown out
+rather than rolled off politely.
+
+Shot from the same eye level and the same lens as the rest of the frame — not
+straight on, not centred, slightly turned, as it happened to be sitting.
+
+Imagine the photographer noticed the bottle was already there and took one
+frame, handheld, without moving it or cleaning it.
+
 3:2 landscape, 1536 × 1024.
 ```
 
@@ -76,9 +120,11 @@ off-centre and unposed, as if grabbed between sets.
 
 ---
 
-## 2 — SYNOR Aqua Royale · the wrist, in the car
+## 2 — SYNOR Aqua Royale
 
-Attach: https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg
+**Attach photograph:**
+
+- **Aqua Royale 3ml** — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg
 
 ```
 A documentary photograph taken from the driver's seat of a small Indian
@@ -102,16 +148,57 @@ f/2.0 so the wrist is sharp and the dashboard dissolves. Natural light only.
 Muted warm colour, visible grain, slight highlight bloom off the windscreen.
 Handheld, slightly tilted, unposed.
 
+The blown-out band of windscreen light falls across the bottle's shoulder from behind, leaving its front face in shade. The bottle sits deep in the moulded cup holder, its lower third hidden inside, with a tight dark shadow in the well around it. The scratched grey plastic of the console reflects a dull smear of the glass.
+
+IMPORTANT — the bottle was photographed here, in this light, in this same
+frame. It is not a product shot composited into a scene. Make that literally
+true:
+
+Only the light already described in this scene falls on the bottle, from the
+same direction and the same colour. No studio softbox, no second light, no rim
+light that nothing in this room could cast.
+
+It casts a real contact shadow where the glass meets the surface it stands on
+— darkest and tightest exactly at the point of contact, spreading and
+softening outward. Without that shadow it floats, and floating is the failure.
+
+The glass takes colour from the room around it and reflects what is actually
+there. The label is dulled by the same air, the same distance and the same
+haze as everything else at that depth.
+
+The bottle sits in the same plane of focus as whatever surrounds it, and its
+far edge falls away into exactly the same softness. A bottle that is sharper
+than its surroundings is the giveaway.
+
+Something in the scene overlaps or touches the bottle so the eye reads real
+depth and real contact.
+
+The same film grain, the same warm cast and the same loss of contrast lie
+across the bottle as across the rest of the frame. The bottle is not cleaner,
+sharper or better exposed than the picture it is in.
+
+The glass is not showroom clean: a thumbprint on the side, a speck of dust,
+one corner of the label very slightly scuffed, a highlight that has blown out
+rather than rolled off politely.
+
+Shot from the same eye level and the same lens as the rest of the frame — not
+straight on, not centred, slightly turned, as it happened to be sitting.
+
+Imagine the photographer noticed the bottle was already there and took one
+frame, handheld, without moving it or cleaning it.
+
 3:2 landscape, 1536 × 1024.
 ```
 
-**Caption:** The wrist, twenty minutes after
+**Caption for the page:** The wrist, twenty minutes after
 
 ---
 
-## 3 — SYNOR Aqua Chill · the bag in the boot
+## 3 — SYNOR Aqua Chill
 
-Attach: https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-chill-3ml-1_9edc363b-53a5-48c8-9a70-3770fb55d0db.jpg
+**Attach photograph:**
+
+- **Aqua Chill 3ml** — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-chill-3ml-1_9edc363b-53a5-48c8-9a70-3770fb55d0db.jpg
 
 ```
 A documentary photograph looking down into the open boot of a small Indian
@@ -135,16 +222,57 @@ around f/4 so most of the bag is sharp. Natural light only, no flash. Muted
 warm colour with slightly crushed shadows, visible grain, real contrast
 between the sunlit boot lid and the dark interior.
 
+The hard overhead sun throws a short sharp shadow of the bottle down the mesh pocket and onto the bag fabric. The mesh presses against the glass and slightly distorts in front of it, so the weave crosses the bottle's edge. Fine grey dust sits on the shoulder of the bottle just as it does on the boot sill.
+
+IMPORTANT — the bottle was photographed here, in this light, in this same
+frame. It is not a product shot composited into a scene. Make that literally
+true:
+
+Only the light already described in this scene falls on the bottle, from the
+same direction and the same colour. No studio softbox, no second light, no rim
+light that nothing in this room could cast.
+
+It casts a real contact shadow where the glass meets the surface it stands on
+— darkest and tightest exactly at the point of contact, spreading and
+softening outward. Without that shadow it floats, and floating is the failure.
+
+The glass takes colour from the room around it and reflects what is actually
+there. The label is dulled by the same air, the same distance and the same
+haze as everything else at that depth.
+
+The bottle sits in the same plane of focus as whatever surrounds it, and its
+far edge falls away into exactly the same softness. A bottle that is sharper
+than its surroundings is the giveaway.
+
+Something in the scene overlaps or touches the bottle so the eye reads real
+depth and real contact.
+
+The same film grain, the same warm cast and the same loss of contrast lie
+across the bottle as across the rest of the frame. The bottle is not cleaner,
+sharper or better exposed than the picture it is in.
+
+The glass is not showroom clean: a thumbprint on the side, a speck of dust,
+one corner of the label very slightly scuffed, a highlight that has blown out
+rather than rolled off politely.
+
+Shot from the same eye level and the same lens as the rest of the frame — not
+straight on, not centred, slightly turned, as it happened to be sitting.
+
+Imagine the photographer noticed the bottle was already there and took one
+frame, handheld, without moving it or cleaning it.
+
 3:2 landscape, 1536 × 1024.
 ```
 
-**Caption:** The bag lives in the boot
+**Caption for the page:** The bag lives in the boot
 
 ---
 
-## 4 — SYNOR Urban Hero · the crushed stem
+## 4 — SYNOR Urban Hero
 
-Attach: https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-urban-hero-15ml-1.jpg
+**Attach photograph:**
+
+- **Urban Hero 15ml** — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-urban-hero-15ml-1.jpg
 
 ```
 A very close documentary photograph of a hand in shade against a plain,
@@ -168,16 +296,57 @@ around f/2.8 so the break in the stem is sharp and the wall and bottle fall
 soft. Natural light only. Muted warm colour, visible grain, a shallow and
 slightly uneven plane of focus as with a handheld close-up.
 
+Flat open shade only — no highlight on the glass anywhere, just a dull even sheen picking up the grey-brown of the wall. A soft wide shadow pools under the bottle on the ledge. The bottle is behind the hand and well out of focus, its edges dissolving as much as the wall does.
+
+IMPORTANT — the bottle was photographed here, in this light, in this same
+frame. It is not a product shot composited into a scene. Make that literally
+true:
+
+Only the light already described in this scene falls on the bottle, from the
+same direction and the same colour. No studio softbox, no second light, no rim
+light that nothing in this room could cast.
+
+It casts a real contact shadow where the glass meets the surface it stands on
+— darkest and tightest exactly at the point of contact, spreading and
+softening outward. Without that shadow it floats, and floating is the failure.
+
+The glass takes colour from the room around it and reflects what is actually
+there. The label is dulled by the same air, the same distance and the same
+haze as everything else at that depth.
+
+The bottle sits in the same plane of focus as whatever surrounds it, and its
+far edge falls away into exactly the same softness. A bottle that is sharper
+than its surroundings is the giveaway.
+
+Something in the scene overlaps or touches the bottle so the eye reads real
+depth and real contact.
+
+The same film grain, the same warm cast and the same loss of contrast lie
+across the bottle as across the rest of the frame. The bottle is not cleaner,
+sharper or better exposed than the picture it is in.
+
+The glass is not showroom clean: a thumbprint on the side, a speck of dust,
+one corner of the label very slightly scuffed, a highlight that has blown out
+rather than rolled off politely.
+
+Shot from the same eye level and the same lens as the rest of the frame — not
+straight on, not centred, slightly turned, as it happened to be sitting.
+
+Imagine the photographer noticed the bottle was already there and took one
+frame, handheld, without moving it or cleaning it.
+
 3:2 landscape, 1536 × 1024.
 ```
 
-**Caption:** Green, and a little bitter
+**Caption for the page:** Green, and a little bitter
 
 ---
 
-## 5 — SYNOR Eros Flame · the car at dusk
+## 5 — SYNOR Eros Flame
 
-Attach: https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-eros-flame-3ml-1_7bd8e3b3-b893-4133-bc21-e0ae8181061e.jpg
+**Attach photograph:**
+
+- **Eros Flame 3ml** — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-eros-flame-3ml-1_7bd8e3b3-b893-4133-bc21-e0ae8181061e.jpg
 
 ```
 A documentary photograph taken from the back seat of a small Indian car at
@@ -201,16 +370,57 @@ slight motion blur in the background. Natural and street light only, no flash.
 Heavy warm colour cast, deep shadows with detail lost in them, strong visible
 grain as with pushed film.
 
+The orange sodium street light comes through the windscreen from behind the bottle, so it is backlit — a bright rim along one edge, the front face almost dark, the glass glowing where the light passes through it. A long soft shadow stretches towards the camera across the dashboard shelf. The fogged windscreen behind it is softer than the bottle by exactly one step.
+
+IMPORTANT — the bottle was photographed here, in this light, in this same
+frame. It is not a product shot composited into a scene. Make that literally
+true:
+
+Only the light already described in this scene falls on the bottle, from the
+same direction and the same colour. No studio softbox, no second light, no rim
+light that nothing in this room could cast.
+
+It casts a real contact shadow where the glass meets the surface it stands on
+— darkest and tightest exactly at the point of contact, spreading and
+softening outward. Without that shadow it floats, and floating is the failure.
+
+The glass takes colour from the room around it and reflects what is actually
+there. The label is dulled by the same air, the same distance and the same
+haze as everything else at that depth.
+
+The bottle sits in the same plane of focus as whatever surrounds it, and its
+far edge falls away into exactly the same softness. A bottle that is sharper
+than its surroundings is the giveaway.
+
+Something in the scene overlaps or touches the bottle so the eye reads real
+depth and real contact.
+
+The same film grain, the same warm cast and the same loss of contrast lie
+across the bottle as across the rest of the frame. The bottle is not cleaner,
+sharper or better exposed than the picture it is in.
+
+The glass is not showroom clean: a thumbprint on the side, a speck of dust,
+one corner of the label very slightly scuffed, a highlight that has blown out
+rather than rolled off politely.
+
+Shot from the same eye level and the same lens as the rest of the frame — not
+straight on, not centred, slightly turned, as it happened to be sitting.
+
+Imagine the photographer noticed the bottle was already there and took one
+frame, handheld, without moving it or cleaning it.
+
 3:2 landscape, 1536 × 1024.
 ```
 
-**Caption:** Where it went thick and syrupy
+**Caption for the page:** Where it went thick and syrupy
 
 ---
 
-## 6 — Closing · the lift
+## 6 — So what actually decides it
 
-Attach: https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg
+**Attach photograph:**
+
+- **Aqua Royale 3ml** — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg
 
 ```
 A documentary photograph taken from inside a small office-building lift in
@@ -232,22 +442,60 @@ slightly wide so the enclosure is obvious. Available fluorescent light only,
 which makes the interior faintly green next to the warm lobby beyond. Muted
 colour, visible grain, a hint of handheld tilt.
 
+Cold overhead fluorescent light only, falling straight down, so there is a hard little shadow directly under the bottle on the fingers holding it and a faint greenish cast on the glass. The fingers wrap around the bottle and press into it slightly. The mirrored back wall shows a dim doubled edge of the bottle and the hand.
+
+IMPORTANT — the bottle was photographed here, in this light, in this same
+frame. It is not a product shot composited into a scene. Make that literally
+true:
+
+Only the light already described in this scene falls on the bottle, from the
+same direction and the same colour. No studio softbox, no second light, no rim
+light that nothing in this room could cast.
+
+It casts a real contact shadow where the glass meets the surface it stands on
+— darkest and tightest exactly at the point of contact, spreading and
+softening outward. Without that shadow it floats, and floating is the failure.
+
+The glass takes colour from the room around it and reflects what is actually
+there. The label is dulled by the same air, the same distance and the same
+haze as everything else at that depth.
+
+The bottle sits in the same plane of focus as whatever surrounds it, and its
+far edge falls away into exactly the same softness. A bottle that is sharper
+than its surroundings is the giveaway.
+
+Something in the scene overlaps or touches the bottle so the eye reads real
+depth and real contact.
+
+The same film grain, the same warm cast and the same loss of contrast lie
+across the bottle as across the rest of the frame. The bottle is not cleaner,
+sharper or better exposed than the picture it is in.
+
+The glass is not showroom clean: a thumbprint on the side, a speck of dust,
+one corner of the label very slightly scuffed, a highlight that has blown out
+rather than rolled off politely.
+
+Shot from the same eye level and the same lens as the rest of the frame — not
+straight on, not centred, slightly turned, as it happened to be sitting.
+
+Imagine the photographer noticed the bottle was already there and took one
+frame, handheld, without moving it or cleaning it.
+
 3:2 landscape, 1536 × 1024.
 ```
 
-**Caption:** A closed cabin, cold air, eight hours
+**Caption for the page:** A closed cabin, cold air, eight hours
 
 ---
 
 ## After you upload
 
-Give me the six file URLs from Shopify Files, in order, and I will attach them
-to the entry so they land under the right headings — and in the Hinglish
+Copy each file's URL out of Shopify Files, in order, and run:
+
+```bash
+python bot/attach_shots.py --article gym-perfume-three-that-held-one-that-curdled \
+    --url <1> --url <2> --url <3> …
+```
+
+That puts them under the right headings, and in the Hinglish
 telling too.
-
-## A thing to fix in the shop, separately
-
-`SYNOR Aqua Royale` and `SYNOR Eros Flame` have other products' photographs
-sitting in their media: `synor-invicta-power-…` on both, and
-`synor-victory-crown-…` on Eros Flame. They are not references for these
-scents, and they are also showing on those product pages. Worth cleaning up.

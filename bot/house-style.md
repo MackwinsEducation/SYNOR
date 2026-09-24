@@ -246,6 +246,22 @@ is the actual SYNOR bottle with its actual label, not an invention.
   "Reproduce this bottle exactly as it appears in the attached reference
   photograph, including its label, cap and proportions." Without it the model
   redraws the label as nonsense.
+- **Then say how the bottle sits in the light**, in a `seating` line of
+  twenty words or more. This is the one that decides whether the picture
+  works. The model reproduces the bottle correctly and then leaves it looking
+  stuck on, because it carries the reference photograph's studio lighting in
+  with it — so the picture ends up with two light sources and the eye catches
+  it instantly. Name, for this picture only: **where the light falls on the
+  bottle from**, **the contact shadow** where the glass meets whatever it
+  stands on, and **what overlaps or touches it**. A mesh pocket pressing
+  across the glass, a towel's corner over its base, fingers wrapped round it.
+  A shadow is not optional and the check refuses a seating line without one:
+  an object with nothing under it floats, and a floating bottle is the whole
+  failure. Everything general — one grain, one focus plane, a thumbprint on
+  the glass, no showroom polish — is appended to every prompt automatically,
+  so the seating line carries only what is different here.
+- **More than one bottle in shot** is fine: `ref_handle` and `ref_size` both
+  take a comma-separated list, paired up in order.
 - **No faces.** Hands, wrists, backs, shoulders, figures at a distance. A
   face makes a drawn picture look like a claim about a person who was
   actually asked, and the nine people in a report are real even when the
@@ -259,7 +275,9 @@ is the actual SYNOR bottle with its actual label, not an invention.
 Give them as `shot_briefs`, a JSON list of
 `{"after": "<the exact heading it follows, or empty for the top>",
 "prompt": "<the full brief>", "caption": "<the words under it>",
-"ref_handle": "<product handle, or empty>", "ref_size": "<3ml|15ml|50ml|100ml, or empty>"}`.
+"ref_handle": "<product handle(s), comma separated, or empty>",
+"ref_size": "<3ml|15ml|50ml|100ml, one per product, or empty>",
+"seating": "<how the bottle sits in this light, or empty when no bottle>"}`.
 
 The `after` value has to match one of the entry's headings word for word, or
 the picture has nowhere to go.

@@ -121,6 +121,29 @@ caption in the paper's voice, and — the one that actually bites — that
 `after` matches one of the entry's own headings word for word, or the picture
 has nowhere to go.
 
+### Why the bottle looked stuck on
+
+The reference photograph fixes the label and creates a new problem: the model
+brings the reference's *studio lighting* in with it, so the picture ends up
+with two light sources and a bottle that reads as a cut-out laid on top.
+
+Two things fix it, and both are now automatic.
+
+Every prompt gets a shared block at its foot — one light, one plane of focus,
+one grain, no showroom polish, a thumbprint on the glass, the same loss of
+contrast across the bottle as across the rest of the frame. It ends by telling
+the model to imagine the photographer noticed the bottle was already there and
+took one frame without moving it, which makes it compose the room first and
+the bottle second rather than the other way round.
+
+And each brief carries a **seating line** of its own, because the general
+block cannot know where the light comes from in *this* picture. It names the
+direction of the light on the glass, what overlaps or touches the bottle, and
+the **contact shadow** where the glass meets what it stands on. That last one
+is the whole game: an object with no shadow underneath it floats, whatever
+else is right. A seating line without the word "shadow" in it is a failed
+check.
+
 ### What it costs
 
 About **$0.04–0.07 an image** on `gemini-3.1-flash-image`, so four to six

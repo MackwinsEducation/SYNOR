@@ -99,8 +99,10 @@ POST_SCHEMA = {
                     "caption": {"type": "string"},
                     "ref_handle": {"type": "string"},
                     "ref_size": {"type": "string"},
+                    "seating": {"type": "string"},
                 },
-                "required": ["after", "prompt", "caption", "ref_handle", "ref_size"],
+                "required": ["after", "prompt", "caption", "ref_handle",
+                             "ref_size", "seating"],
                 "additionalProperties": False,
             },
         },
@@ -352,10 +354,31 @@ def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str
                     "ref_handle. Say which product, so the real photograph can "
                     "be attached and the label comes out right."
                 )
-            if brief["ref_size"].strip() not in ("3ml", "15ml", "50ml", "100ml"):
+            sizes = [z.strip() for z in brief["ref_size"].split(",") if z.strip()]
+            bad_size = [z for z in sizes if z not in ("3ml", "15ml", "50ml", "100ml")]
+            if not sizes or bad_size:
                 problems.append(
                     f"Shot brief {i} has a bottle in frame but ref_size is "
-                    f"{brief['ref_size']!r}. One of 3ml, 15ml, 50ml, 100ml."
+                    f"{brief['ref_size']!r}. One of 3ml, 15ml, 50ml, 100ml — "
+                    "or one per product, comma separated, when more than one "
+                    "bottle is in shot."
+                )
+            # Where the light comes from and what touches the bottle. The
+            # shared block below it handles the rest, but those two facts are
+            # different in every picture and nothing generic can supply them.
+            seat = re.sub(r"\s+", " ", brief["seating"].lower())
+            if len(seat.split()) < 20:
+                problems.append(
+                    f"Shot brief {i} has a bottle in frame but no seating "
+                    "line. Say where the light falls on it from, and what it "
+                    "stands on or touches — otherwise it comes out looking "
+                    "stuck on."
+                )
+            elif "shadow" not in seat:
+                problems.append(
+                    f"Shot brief {i}'s seating line never mentions a shadow. "
+                    "A contact shadow where the glass meets the surface is "
+                    "the one thing that stops an object floating."
                 )
             copy_line = ("reproduce this bottle exactly" in low
                          or "reproduce these" in low and "bottles exactly" in low)
@@ -366,16 +389,22 @@ def check(post: dict[str, Any], products: list[dict[str, Any]], banned: list[str
                     "bottle exactly as it appears in the attached reference "
                     "photograph, including its label, cap and proportions.\""
                 )
+        elif brief["seating"].strip():
+            problems.append(
+                f"Shot brief {i} has a seating line but no bottle in frame. "
+                "Leave it empty."
+            )
         elif brief["ref_handle"].strip():
             problems.append(
                 f"Shot brief {i} names a reference product but has no bottle "
                 "in frame. Leave ref_handle and ref_size empty."
             )
-        if brief["ref_handle"].strip() and brief["ref_handle"] not in by_handle:
-            problems.append(
-                f"Shot brief {i} references {brief['ref_handle']!r}, which is "
-                "not in the catalogue."
-            )
+        for handle in [h.strip() for h in brief["ref_handle"].split(",") if h.strip()]:
+            if handle not in by_handle:
+                problems.append(
+                    f"Shot brief {i} references {handle!r}, which is not in "
+                    "the catalogue."
+                )
         # "no face, no watch" is the brief doing the right thing, so only a
         # face that is actually being asked for counts.
         for face_word in ("face", "portrait", "smiling", "looking at camera",
