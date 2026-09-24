@@ -9,7 +9,7 @@
   },
   "concept": {
     "format": "shop-visit",
-    "seconds": 60,
+    "seconds": 80,
     "where": "a multi-brand perfume shop in a busy market, Ahmedabad",
     "kit": [
       "3ml testers, twenty of them, in a bag he can keep",
@@ -17,7 +17,7 @@
       "Phone, and a collar mic if there is one; a market is loud",
       "A small notebook to write his shop name and handle down correctly"
     ],
-    "shoot_notes": "Go at a dead hour, not when customers are in. Praise only what is actually true about the shop, and ask him on camera whether he wants it named and tagged — his shop being seen is the only thing he gets out of this, so give it to him properly. If he says no to the camera, buy something small and leave; there is another shop."
+    "shoot_notes": "Go at a dead hour, not when customers are in. Praise only what is actually true about the shop, and ask him on camera whether he wants it named and tagged — his shop being seen is the only thing he gets out of this, so give it to him properly. If he says no to the camera, buy something small and leave; there is another shop. And record long: you will keep the phone running for five to ten minutes of him talking and use about thirty seconds of it. Shots 5, 8 and 9 are all cut out of that one recording, so do not stop and restart between questions."
   },
   "hook": {
     "spoken": "Is bhai ke paas sau brand hain. Aaj mera sunghega.",
@@ -53,7 +53,7 @@
     },
     {
       "n": 2,
-      "seconds": 6,
+      "seconds": 5,
       "visual": "The shelf wall, panning across it, no single brand held in frame",
       "spoken": "Is area mein ye dukaan sabse purani hai.",
       "on_screen": "His shop, not mine"
@@ -67,48 +67,62 @@
     },
     {
       "n": 4,
-      "seconds": 8,
+      "seconds": 7,
       "visual": "A paper strip sprayed and handed across the counter",
       "spoken": "SYNOR Ocean Verve. Tees percent oil hai ismein.",
-      "on_screen": "SYNOR Ocean Verve"
+      "on_screen": "SYNOR Ocean Verve · 30% oil"
     },
     {
       "n": 5,
       "seconds": 10,
-      "visual": "His face while he smells it. Do not cut away, do not talk over him",
+      "visual": "His face while he smells it, and his first answer. Do not cut away and do not talk over him",
       "spoken": "",
       "on_screen": "No script. His words."
     },
     {
       "n": 6,
-      "seconds": 8,
+      "seconds": 6,
       "visual": "Second strip, his hand taking it",
       "spoken": "Ye SYNOR Royal Oud hai. Sardi ke liye.",
       "on_screen": "SYNOR Royal Oud"
     },
     {
       "n": 7,
-      "seconds": 7,
+      "seconds": 6,
       "visual": "Third strip, and him holding all three fanned out",
       "spoken": "SYNOR Velvet Heels. Ye ladies ke liye hai.",
       "on_screen": "SYNOR Velvet Heels"
     },
     {
       "n": 8,
+      "seconds": 10,
+      "visual": "Him answering the price question, hands still holding the strips",
+      "spoken": "",
+      "on_screen": "His guess. Not ours."
+    },
+    {
+      "n": 9,
+      "seconds": 10,
+      "visual": "Him answering what he does not like. Hold on him even if it is uncomfortable",
+      "spoken": "",
+      "on_screen": "What he didn't like"
+    },
+    {
+      "n": 10,
       "seconds": 6,
       "visual": "The bag of testers going down on his counter, his hand reaching",
       "spoken": "Maine unhe sirf testers diye, review unka apna hai.",
       "on_screen": "Testers left with him"
     },
     {
-      "n": 9,
+      "n": 11,
       "seconds": 7,
       "visual": "Outside on the street, selfie camera, shop still behind the shoulder",
       "spoken": "Sabko pasand nahi aayega, Royal Oud bahut bhaari hai.",
       "on_screen": "Not for everyone"
     },
     {
-      "n": 10,
+      "n": 12,
       "seconds": 4,
       "visual": "A 3ml tester held up between two fingers, nothing else in frame",
       "spoken": "Tester sirf ₹49, aur wahi ₹49 bottle par wapas.",

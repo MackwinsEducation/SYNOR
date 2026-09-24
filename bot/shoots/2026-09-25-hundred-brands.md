@@ -1,6 +1,6 @@
 # The shop that sells a hundred brands
 
-`hundred-brands` · shop-visit · about 60s · planned 2026-09-25
+`hundred-brands` · shop-visit · about 80s · planned 2026-09-25
 
 **A multi-brand shop owner smells SYNOR cold, on camera, with his own shelf behind him.**
 
@@ -20,7 +20,7 @@ Why it works: He has a hundred reasons to be unimpressed and nothing to gain by 
 
 **Scents:** SYNOR Ocean Verve, SYNOR Royal Oud, SYNOR Velvet Heels
 
-**Notes:** Go at a dead hour, not when customers are in. Praise only what is actually true about the shop, and ask him on camera whether he wants it named and tagged — his shop being seen is the only thing he gets out of this, so give it to him properly. If he says no to the camera, buy something small and leave; there is another shop.
+**Notes:** Go at a dead hour, not when customers are in. Praise only what is actually true about the shop, and ask him on camera whether he wants it named and tagged — his shop being seen is the only thing he gets out of this, so give it to him properly. If he says no to the camera, buy something small and leave; there is another shop. And record long: you will keep the phone running for five to ten minutes of him talking and use about thirty seconds of it. Shots 5, 8 and 9 are all cut out of that one recording, so do not stop and restart between questions.
 
 ## First three seconds
 
@@ -61,17 +61,19 @@ Do not put words in their mouth, do not ask again for a better answer, and do no
 | # | Sec | Camera sees | Say | On screen |
 | --- | --- | --- | --- | --- |
 | 1 | 4s | Walking towards the shop, phone low, the board coming into frame | Is bhai ke paas sau brand hain. Aaj mera sunghega. | 100 brands |
-| 2 | 6s | The shelf wall, panning across it, no single brand held in frame | Is area mein ye dukaan sabse purani hai. | His shop, not mine |
+| 2 | 5s | The shelf wall, panning across it, no single brand held in frame | Is area mein ye dukaan sabse purani hai. | His shop, not mine |
 | 3 | 5s | Him behind the counter, looking at the camera, being asked | Bhai ek minute, aapka honest opinion chahiye. Theek hai? | Asked first. On camera. |
-| 4 | 8s | A paper strip sprayed and handed across the counter | SYNOR Ocean Verve. Tees percent oil hai ismein. | SYNOR Ocean Verve |
-| 5 | 10s | His face while he smells it. Do not cut away, do not talk over him | — | No script. His words. |
-| 6 | 8s | Second strip, his hand taking it | Ye SYNOR Royal Oud hai. Sardi ke liye. | SYNOR Royal Oud |
-| 7 | 7s | Third strip, and him holding all three fanned out | SYNOR Velvet Heels. Ye ladies ke liye hai. | SYNOR Velvet Heels |
-| 8 | 6s | The bag of testers going down on his counter, his hand reaching | Maine unhe sirf testers diye, review unka apna hai. | Testers left with him |
-| 9 | 7s | Outside on the street, selfie camera, shop still behind the shoulder | Sabko pasand nahi aayega, Royal Oud bahut bhaari hai. | Not for everyone |
-| 10 | 4s | A 3ml tester held up between two fingers, nothing else in frame | Tester sirf ₹49, aur wahi ₹49 bottle par wapas. | ₹49 to try |
+| 4 | 7s | A paper strip sprayed and handed across the counter | SYNOR Ocean Verve. Tees percent oil hai ismein. | SYNOR Ocean Verve · 30% oil |
+| 5 | 10s | His face while he smells it, and his first answer. Do not cut away and do not talk over him | — | No script. His words. |
+| 6 | 6s | Second strip, his hand taking it | Ye SYNOR Royal Oud hai. Sardi ke liye. | SYNOR Royal Oud |
+| 7 | 6s | Third strip, and him holding all three fanned out | SYNOR Velvet Heels. Ye ladies ke liye hai. | SYNOR Velvet Heels |
+| 8 | 10s | Him answering the price question, hands still holding the strips | — | His guess. Not ours. |
+| 9 | 10s | Him answering what he does not like. Hold on him even if it is uncomfortable | — | What he didn't like |
+| 10 | 6s | The bag of testers going down on his counter, his hand reaching | Maine unhe sirf testers diye, review unka apna hai. | Testers left with him |
+| 11 | 7s | Outside on the street, selfie camera, shop still behind the shoulder | Sabko pasand nahi aayega, Royal Oud bahut bhaari hai. | Not for everyone |
+| 12 | 4s | A 3ml tester held up between two fingers, nothing else in frame | Tester sirf ₹49, aur wahi ₹49 bottle par wapas. | ₹49 to try |
 
-Total: **65s**
+Total: **80s**
 
 The honest line: *Sabko pasand nahi aayega, Royal Oud bahut bhaari hai.*
 
