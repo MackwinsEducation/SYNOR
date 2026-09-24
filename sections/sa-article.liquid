@@ -431,6 +431,19 @@
   var root = document.getElementById('shopify-section-{{ sid }}');
   if (!root) return;
 
+  /* Matthaa no English kram, koi pan bhasha aave e pehla j.
+
+     Pachho aavelo vaanchnar ni pasand Hinglish hoy to niche body badlai
+     jaay chhe, ane tyaar pachhi English na naam thi kai j na bethaay. Etle
+     kram ahiya, hamna, ane ek j var. */
+  var enHeads = [];
+  var bodyAtLoad = document.getElementById('nd-body-{{ sid }}');
+  if (bodyAtLoad) {
+    bodyAtLoad.querySelectorAll('h2').forEach(function (h) {
+      enHeads.push(h.textContent.trim().toLowerCase());
+    });
+  }
+
   /* Film: click thay tyare j YouTube andar aave. */
   root.addEventListener('click', function (e) {
     var box = e.target.closest('.ncut-film');
@@ -499,14 +512,31 @@
   if (drawnTag) { try { drawn = JSON.parse(drawnTag.textContent); } catch (e) {} }
 
   /* Jagya na chitro — headline na naam thi bethaay chhe, ane 'after' khali
-     hoy to sauthi pehla fakra pehla. */
+     hoy to sauthi pehla fakra pehla.
+
+     Jagya ek j var text thi nakki thaay chhe, pachhi ank thi. Karan:
+     Hinglish ma matthu bija shabdo ma likhelu chhe, etle text fari na
+     bethaay — pan matthaa no kram be bhasha ma ek j chhe (lakhnaar no
+     checker e j joue chhe). Nahi to bhasha badlo tyare chitra gayab. */
+  var drawnAt = null;
+
   var addDrawn = function () {
     if (!drawn.length) return;
     var body = root.querySelector('.nd-body');
     if (!body) return;
     var heads = body.querySelectorAll('h2');
-    drawn.forEach(function (d) {
+    if (drawnAt === null) {
+      drawnAt = drawn.map(function (d) {
+        var where = (d.after || '').trim().toLowerCase();
+        if (!where) return -1;
+        var k = enHeads.indexOf(where);
+        return k === -1 ? null : k;
+      });
+    }
+    drawn.forEach(function (d, n) {
       if (!d.url) return;
+      var at = drawnAt[n];
+      if (at === null) return;
       var fig = document.createElement('figure');
       fig.className = 'nd-drawn';
       var im = document.createElement('img');
@@ -523,18 +553,12 @@
       fig.appendChild(im);
       fig.appendChild(cap);
 
-      var where = (d.after || '').trim().toLowerCase();
-      if (!where) {
+      if (at === -1) {
         var lead = body.querySelector('p');
         if (lead) lead.insertAdjacentElement('beforebegin', fig);
         return;
       }
-      for (var i = 0; i < heads.length; i++) {
-        if (heads[i].textContent.trim().toLowerCase() === where) {
-          heads[i].insertAdjacentElement('afterend', fig);
-          return;
-        }
-      }
+      if (heads[at]) heads[at].insertAdjacentElement('afterend', fig);
     });
   };
 
