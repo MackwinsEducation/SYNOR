@@ -6,9 +6,11 @@ Everything on this sheet is **3:2 landscape, 1536 × 1024 px**. That is not a
 preference — the article page crops in-body pictures to exactly 3:2, so
 anything else loses its top and bottom.
 
-**How to make each one:** attach the reference photo linked below so the model
-copies the real bottle and the real label, paste the prompt, generate at
-1536 × 1024, then upload.
+**How to make each one:** open the reference link below, save the photograph,
+attach it so the model copies the real bottle and the real label, paste the
+prompt, generate at 1536 × 1024, then upload.
+
+Five photographs cover all six pictures — the same ones come round again.
 
 **Where the files go:** Shopify admin → Content → Files. Name them
 `gym-1-hero.jpg`, `gym-2-royale.jpg` and so on, so the order is obvious later.
@@ -40,10 +42,10 @@ flare, no vignette, no beauty retouching, not clean, not tidy
 **Also set this one as the article's featured image in Shopify.**
 Attach all four 3ml photos:
 
-- Aqua Royale 3ml — `synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg`
-- Aqua Chill 3ml — `synor-aqua-chill-3ml-1_9edc363b-53a5-48c8-9a70-3770fb55d0db.jpg`
-- Urban Hero 3ml — `synor-urban-hero-3ml-1_fc3e1fc1-f253-4a03-b93e-21aeffcc808e.jpg`
-- Eros Flame 3ml — `synor-eros-flame-3ml-1_7bd8e3b3-b893-4133-bc21-e0ae8181061e.jpg`
+- Aqua Royale 3ml — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg
+- Aqua Chill 3ml — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-chill-3ml-1_9edc363b-53a5-48c8-9a70-3770fb55d0db.jpg
+- Urban Hero 3ml — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-urban-hero-3ml-1_fc3e1fc1-f253-4a03-b93e-21aeffcc808e.jpg
+- Eros Flame 3ml — https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-eros-flame-3ml-1_7bd8e3b3-b893-4133-bc21-e0ae8181061e.jpg
 
 ```
 A documentary photograph taken inside an ordinary Indian gym in Ahmedabad at
@@ -76,7 +78,7 @@ off-centre and unposed, as if grabbed between sets.
 
 ## 2 — SYNOR Aqua Royale · the wrist, in the car
 
-Attach: `synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg`
+Attach: https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg
 
 ```
 A documentary photograph taken from the driver's seat of a small Indian
@@ -109,7 +111,7 @@ Handheld, slightly tilted, unposed.
 
 ## 3 — SYNOR Aqua Chill · the bag in the boot
 
-Attach: `synor-aqua-chill-3ml-1_9edc363b-53a5-48c8-9a70-3770fb55d0db.jpg`
+Attach: https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-chill-3ml-1_9edc363b-53a5-48c8-9a70-3770fb55d0db.jpg
 
 ```
 A documentary photograph looking down into the open boot of a small Indian
@@ -142,7 +144,7 @@ between the sunlit boot lid and the dark interior.
 
 ## 4 — SYNOR Urban Hero · the crushed stem
 
-Attach: `synor-urban-hero-15ml-1.jpg`
+Attach: https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-urban-hero-15ml-1.jpg
 
 ```
 A very close documentary photograph of a hand in shade against a plain,
@@ -175,7 +177,7 @@ slightly uneven plane of focus as with a handheld close-up.
 
 ## 5 — SYNOR Eros Flame · the car at dusk
 
-Attach: `synor-eros-flame-3ml-1_7bd8e3b3-b893-4133-bc21-e0ae8181061e.jpg`
+Attach: https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-eros-flame-3ml-1_7bd8e3b3-b893-4133-bc21-e0ae8181061e.jpg
 
 ```
 A documentary photograph taken from the back seat of a small Indian car at
@@ -208,7 +210,7 @@ grain as with pushed film.
 
 ## 6 — Closing · the lift
 
-Attach: `synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg`
+Attach: https://cdn.shopify.com/s/files/1/0973/3708/2151/files/synor-aqua-royale-3ml-1_50575ec8-2e52-4c87-ac17-85496a8d085e.jpg
 
 ```
 A documentary photograph taken from inside a small office-building lift in
