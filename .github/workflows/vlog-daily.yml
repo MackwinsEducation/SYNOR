@@ -1,0 +1,88 @@
+name: Vlog · today's idea
+
+# One idea and one full sheet, every morning. The sheet is printed into the
+# run summary as well as committed, so it can be read on a phone from the
+# Actions tab without opening the repo.
+#
+# It takes the next shoot out of bot/vlog_queue.json first — a brief somebody
+# wrote beats an invented one — and only invents when the queue is empty. So
+# adding ideas to the queue steers tomorrow without changing anything here.
+on:
+  schedule:
+    - cron: "30 2 * * *"   # 08:00 IST
+  workflow_dispatch:
+    inputs:
+      format:
+        description: "Force a format (blank = rotate by date)"
+        required: false
+        type: choice
+        default: ""
+        options:
+          - ""
+          - shop-visit
+          - street-test
+          - counter-swap
+          - blind-guess
+          - one-question-nine
+          - wear-test-return
+          - complaint-desk
+          - two-bottle-face-off
+          - day-in-scent
+          - hands-only
+          - talking-head
+          - unboxing
+          - question-answer
+      dry_run:
+        description: "Print it here, commit nothing"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vlog-daily
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -r bot/requirements.txt
+
+      - name: Plan today's shoot
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          # Read as shell variables, never interpolated into the command, so
+          # nothing typed in the Actions form can become a command.
+          FMT: ${{ inputs.format }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        working-directory: bot
+        run: |
+          args=(--daily)
+          if [ -n "$FMT" ]; then args+=(--format "$FMT"); fi
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          python write_shoot.py "${args[@]}"
+
+      - name: Commit the sheet
+        if: ${{ !inputs.dry_run }}
+        run: |
+          if [ -z "$(git status --porcelain bot/shoots bot/vlog_queue.json)" ]; then
+            echo "nothing written"
+            exit 0
+          fi
+          git config user.name "synor-diaries-bot"
+          git config user.email "noreply@synorperfume.com"
+          git add bot/shoots bot/vlog_queue.json
+          git commit -m "Vlog: today's shoot sheet"
+          git push

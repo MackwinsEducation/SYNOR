@@ -46,6 +46,12 @@ Pick one. Each has a shape that works and a reason it works.
 | `talking-head` | Straight to camera, one claim, one proof | Only works if the claim is specific and slightly against interest |
 | `unboxing` | The tester arriving, opened, tried, on skin | The ₹49 tester *is* the product here, so show it as the product |
 | `question-answer` | A real question from a comment or a DM, answered in one take | The question does the hook for you |
+| `shop-visit` | Walk into a multi-brand perfume shop and ask the owner to smell it cold, on camera | The one opinion a viewer cannot wave away is a man who sells a hundred other brands |
+| `counter-swap` | Two unlabelled testers handed to a stranger: which one is the expensive one | A blind test is the only quality claim a viewer can check for themselves |
+| `blind-guess` | People smell it and guess the price. No bottle in frame until the end | The gap between the guess and ₹49 is the entire video |
+| `one-question-nine` | The same question to nine people in one place, cut fast | Volume reads as evidence — nine answers cannot all be arranged |
+| `wear-test-return` | Go back to the same person days later and ask if it is still on | Almost nobody films the follow-up, so it is instantly unlike everything else |
+| `complaint-desk` | Read a real bad review or DM out loud, then test the complaint on camera | Answering criticism in public is the most trust-building thing a shop can film |
 
 ## The first three seconds
 
@@ -84,6 +90,44 @@ carries the numbers and the product names.
 - **Say one thing against your own interest.** Every sheet needs one honest
   negative, spoken out loud. It is the single highest-value line in the video.
 
+## When somebody else is in the frame
+
+`shop-visit`, `street-test`, `counter-swap`, `blind-guess`, `one-question-nine`
+and `wear-test-return` all put a person who does not work for SYNOR on camera.
+These are the most persuasive videos this shop can make, because a stranger's
+face is the one thing a viewer cannot argue with. They are also the only
+shoots that can do real damage. Three things, and none of them is optional.
+
+**Their words are theirs.** The sheet never writes a line for them. Not a
+suggested line, not "he says something like this", not a quote in the caption
+they are supposed to have said. A sheet that does it is rejected, and for a
+commercial reason rather than a polite one: a review that was fed to somebody
+is worth nothing from the moment one viewer suspects it, and this shop's whole
+position is that it tells the truth about its own perfume — including the bad
+parts. So the sheet carries **the questions** instead, and a list of **what to
+listen for**, so the edit knows which answers matter. If what comes back is
+lukewarm, that is the video. Cut it in.
+
+**Permission, on camera, before anything else.** The first thing recorded is
+the asking. One line, plainly: who you are, what the video is for, where it
+will be posted, and is that alright. It stays in the raw footage whether or
+not it makes the cut. Without it there is no shoot — somebody who did not
+agree can have the video taken down, and would be right to.
+
+**Say what changed hands.** If testers were given, a bottle left behind, or
+money paid, one spoken line in the video says so. India's advertising code
+requires a material connection to be disclosed, and a viewer who works it out
+for himself does far more damage than the disclosure ever would. It also plays
+better than silence: *"Maine unhe sirf testers diye, review unka apna hai"* is
+a strong sentence, not a weak one.
+
+And the practical one. **Do not walk in hiding what you are.** The temptation
+is to play an anonymous customer because it feels more real. It is not needed.
+What makes the reaction real is that **the person has never smelled this
+before** — true whether or not they know who you are, and the only part of it
+a camera can catch anyway. Walk in as SYNOR, ask, and then let somebody who
+sells a hundred other brands say what he actually thinks.
+
 ## Hard rules — a sheet that breaks one of these is rejected
 
 1. **No other perfume house's name and no celebrity's name.** Not in a spoken
@@ -99,7 +143,10 @@ carries the numbers and the product names.
    "clinically", no "aphrodisiac".
 4. **No fake reactions and no scripted strangers.** If a format needs real
    people, the sheet must say the reactions are to be used as they come,
-   including the bad ones.
+   including the bad ones. No spoken line in the sheet may belong to anybody
+   but the person holding the phone — see *When somebody else is in the frame*
+   above. Their side of it is carried by `people.questions` and
+   `people.listen_for`, never as words to be said.
 5. **Only real SYNOR products**, named exactly as the catalogue prints them,
    and only ones whose tags fit the shoot. Between three and six — except
    `talking-head`, `unboxing` and `question-answer`, which may use as few as
@@ -125,6 +172,13 @@ carries the numbers and the product names.
   what is said, and what is on screen. Durations must add up to roughly the
   target length. Six to fourteen shots. The last shot is the ₹49 line and
   nothing else — one sentence, no sales voice.
+- **people** — only on a shoot with somebody else in the frame, and required
+  there. Who they are, the **consent** line asked on camera before anything
+  else, the **disclosure** line if anything changed hands, three to six
+  **questions** to ask, and four to eight **listen_for** notes on the kinds of
+  answer worth keeping. Open questions only: "aapko kaisa laga" leaves room
+  for a bad answer, "achha hai na" does not, and a question that cannot be
+  answered badly is not a question.
 - **b_roll** — three to six extra shots to grab while there, for the edit.
 - **caption** — for Instagram. Under 280 characters. First line does the work
   because the rest is collapsed.

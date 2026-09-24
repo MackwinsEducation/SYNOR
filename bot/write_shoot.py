@@ -32,9 +32,17 @@ from synor_shopify import ShopifyError, forbidden_phrases
 SHOOTS_DIR = HERE / "shoots"
 
 FORMATS = ("street-test", "hands-only", "two-bottle-face-off", "day-in-scent",
-           "talking-head", "unboxing", "question-answer")
+           "talking-head", "unboxing", "question-answer", "shop-visit",
+           "counter-swap", "blind-guess", "one-question-nine",
+           "wear-test-return", "complaint-desk")
 # Formats where one product is a complete video; the rest need a comparison.
-SINGLE_OK = ("talking-head", "unboxing", "question-answer")
+SINGLE_OK = ("talking-head", "unboxing", "question-answer", "complaint-desk")
+# Formats that put somebody who does not work here on camera. These carry the
+# most weight with a viewer and are the only ones that can do real damage, so
+# they need consent asked on camera, questions instead of lines, and a spoken
+# disclosure of anything that changed hands.
+WITH_PEOPLE = ("street-test", "shop-visit", "counter-swap", "blind-guess",
+               "one-question-nine", "wear-test-return")
 
 _STR = {"type": "string"}
 
@@ -83,6 +91,19 @@ SHOOT_SCHEMA = {
                 "additionalProperties": False,
             },
         },
+        "people": {
+            "type": "object",
+            "properties": {
+                "who": _STR,
+                "consent": _STR,
+                "disclosure": _STR,
+                "questions": {"type": "array", "items": _STR},
+                "listen_for": {"type": "array", "items": _STR},
+            },
+            "required": ["who", "consent", "disclosure", "questions",
+                         "listen_for"],
+            "additionalProperties": False,
+        },
         "honest_negative": _STR,
         "b_roll": {"type": "array", "items": _STR},
         "product_handles": {"type": "array", "items": _STR},
@@ -97,7 +118,7 @@ SHOOT_SCHEMA = {
         "family": {"type": "array", "items": {"type": "string", "enum": list(FAMILIES)}},
     },
     "required": [
-        "idea", "concept", "hook", "shots", "honest_negative", "b_roll",
+        "idea", "concept", "hook", "shots", "people", "honest_negative", "b_roll",
         "product_handles", "caption", "hashtags", "youtube_title",
         "youtube_description", "thumbnail", "diaries_tie_in",
         "gender", "occasion", "family",
@@ -124,7 +145,90 @@ def pick_shoot(queue: dict[str, Any], wanted: str | None) -> dict[str, Any]:
     )
 
 
-def brief_block(shoot: dict[str, Any], defaults: dict[str, Any], today: date) -> str:
+def already_done() -> list[dict[str, str]]:
+    """What has been planned before, so the day's idea is not yesterday's.
+
+    Read off the sidecars rather than the queue, because the queue only knows
+    about shoots somebody typed in, and an invented one never goes there.
+    """
+    done: list[dict[str, str]] = []
+    if not SHOOTS_DIR.exists():
+        return done
+    for path in sorted(SHOOTS_DIR.glob("*.json")):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        done.append({
+            "planned": str(data.get("planned", "")),
+            "format": str((data.get("concept") or {}).get("format", "")),
+            "title": str((data.get("idea") or {}).get("title", "")),
+            "one_line": str((data.get("idea") or {}).get("one_line", "")),
+        })
+    return done
+
+
+def invent(defaults: dict[str, Any], today: date,
+           fmt: str | None) -> tuple[dict[str, Any], str]:
+    """A shoot for today that nobody typed into the queue.
+
+    Daily is the point of this: a hand-written queue is a few weeks of ideas
+    and then an empty afternoon. So the format rotates on the date, the last
+    thirty sheets are handed over as a do-not-repeat list, and the brief asks
+    for the idea itself rather than supplying one.
+    """
+    recent = already_done()[-30:]
+    if not fmt:
+        # Rotate rather than choose at random: a random pick repeats a format
+        # two days running often enough to be noticed, and the person filming
+        # is the one who pays for that.
+        fmt = FORMATS[(today.toordinal()) % len(FORMATS)]
+        used_lately = [r["format"] for r in recent[-3:]]
+        step = 0
+        while fmt in used_lately and step < len(FORMATS):
+            step += 1
+            fmt = FORMATS[(today.toordinal() + step) % len(FORMATS)]
+
+    shoot = {
+        "id": f"daily-{today.isoformat()}",
+        "status": "todo",
+        "format": fmt,
+        "seconds": 45,
+        "where": defaults.get("city") or "Ahmedabad",
+        "brief": "",
+        "invented": True,
+    }
+    lines = [
+        "",
+        "## Today you are choosing the idea as well",
+        "",
+        "Nobody has written a brief for this one. Invent it, and hold it to "
+        "the same bar as everything else here: one person, one phone, one "
+        "hour, no money spent, and a reason for a stranger to stop scrolling "
+        "that is not the bottle.",
+        "",
+        "Two tests before you commit to an idea. **Could this be filmed "
+        "tomorrow, in this city, by somebody with no crew and no permission "
+        "from anybody?** And **is there anything in it a viewer could check "
+        "for themselves?** An idea that fails the first is a fantasy; one "
+        "that fails the second is an advert.",
+    ]
+    if recent:
+        lines += [
+            "",
+            "These have already been made. Do not repeat the idea, and do not "
+            "repeat the shape of it with different scents:",
+            "",
+        ]
+        lines += [
+            f"- {r['planned']} · {r['format']} · {r['title']} — {r['one_line']}"
+            for r in recent
+        ]
+    return shoot, "\n".join(lines)
+
+
+def brief_block(shoot: dict[str, Any], defaults: dict[str, Any], today: date,
+                extra: str = "") -> str:
     language = shoot.get("language") or defaults.get("language") or "hinglish"
     city = shoot.get("city") or defaults.get("city") or "Ahmedabad"
     spoken = {
@@ -152,6 +256,8 @@ def brief_block(shoot: dict[str, Any], defaults: dict[str, Any], today: date) ->
         "the shoot contract, especially the ones about names, prices and what "
         "one person can film alone in an hour.",
     ]
+    if extra:
+        lines.append(extra)
     return "\n".join(lines)
 
 
@@ -321,6 +427,99 @@ def check(sheet: dict[str, Any], shoot: dict[str, Any],
             "The last shot should be the ₹49 tester line and nothing else."
         )
 
+    # 6b. Somebody else in the frame. These are the shoots that carry the
+    # most weight with a viewer, and the only ones that can do real damage.
+    people = sheet["people"]
+    if fmt in WITH_PEOPLE:
+        if not people["who"].strip():
+            problems.append(
+                f"A {fmt} puts somebody else on camera, so the sheet has to "
+                "say who they are."
+            )
+        consent = people["consent"].strip()
+        if len(consent.split()) < 8:
+            problems.append(
+                "The consent line is missing or too short. It is the first "
+                "thing recorded, and it says who you are, what the video is "
+                "for, where it goes, and asks if that is alright."
+            )
+        elif not ("?" in consent or any(
+                w in consent.lower() for w in
+                ("thik hai", "theek hai", "chalega", "ok hai", "permission",
+                 "alright", "is that ok", "koi problem"))):
+            problems.append(
+                "The consent line never actually asks. It has to be a "
+                "question they can say no to."
+            )
+        if not 3 <= len(people["questions"]) <= 6:
+            problems.append(
+                f"There are {len(people['questions'])} questions; a {fmt} "
+                "needs 3 to 6. Their answers are the video, so the questions "
+                "are the part that has to be right."
+            )
+        # A question that cannot be answered badly is not a question — it is
+        # a line being put in somebody's mouth with a question mark on it.
+        for q in people["questions"]:
+            ql = q.lower().strip().rstrip("?").strip()
+            for leading in ("hai na", "na", "right", "isn't it", "correct",
+                            "sahi hai", "accha hai", "achha hai", "theek hai"):
+                if ql.endswith(" " + leading):
+                    problems.append(
+                        f"The question {q!r} supplies its own answer. Ask it "
+                        "so that a disappointing answer is a possible one."
+                    )
+                    break
+        if not 4 <= len(people["listen_for"]) <= 8:
+            problems.append(
+                f"There are {len(people['listen_for'])} listen-for notes; it "
+                "needs 4 to 8. These are what the edit keeps — the kinds of "
+                "answer worth having, never words for anybody to say."
+            )
+        # Anything handed over has to be said out loud, in the video.
+        gave = any(
+            w in in_cut for w in
+            ("tester de", "testers de", "dete hain", "de raha hoon", "gave",
+             "giving", "chhod", "hand over", "handing", "de aaya", "de diya")
+        )
+        disclosure = people["disclosure"].strip()
+        if gave and not disclosure:
+            problems.append(
+                "Something changes hands in this shoot and nothing discloses "
+                "it. One spoken line says what was given. The code requires "
+                "it, and a viewer who works it out later costs far more than "
+                "the line does."
+            )
+        if disclosure and disclosure.lower() not in in_cut:
+            problems.append(
+                "The disclosure is written at the top of the sheet but is in "
+                "no shot. It only counts if it is said in the video, word for "
+                "word."
+            )
+    elif people["who"].strip():
+        problems.append(
+            f"A {fmt} has nobody else in the frame, but the sheet names "
+            f"{people['who']!r}. Either change the format or drop the person."
+        )
+
+    # 6c. Nobody else's words, ever. The sheet carries our questions; their
+    # answers arrive on the day or they do not arrive at all. A fed review is
+    # worthless the moment one viewer suspects it, and suspicion is cheap.
+    for shot in shots:
+        line = shot["spoken"].lower()
+        for tell in ("he says", "he will say", "he'll say", "she says",
+                     "they say", "woh kahega", "wo kahega", "woh bolega",
+                     "wo bolega", "unhone kaha", "woh kehta", "wo kehta",
+                     "dukaandar:", "shopkeeper:", "owner:", "customer:",
+                     "he replies", "bolwana", "bulwana", "unse kehna ki bole"):
+            if tell in line:
+                problems.append(
+                    f"Shot {shot['n']} writes what somebody else says "
+                    f"({tell!r}). A spoken line in this sheet is only ever "
+                    "yours. Put it in people.questions and let the answer be "
+                    "whatever it turns out to be."
+                )
+                break
+
     # 7. Kit list — the part that saves a shoot.
     if len(sheet["concept"]["kit"]) < 2:
         problems.append(
@@ -394,6 +593,45 @@ def to_markdown(sheet: dict[str, Any], shoot: dict[str, Any],
         f"> **Say:** {sheet['hook']['spoken']}",
         f"> **On screen:** {sheet['hook']['on_screen']}",
         "",
+    ]
+
+    # The person in the frame, printed before the shot list, because the
+    # consent line is recorded before any of it and the questions are what
+    # the shoot actually runs on.
+    people = sheet.get("people") or {}
+    if people.get("who", "").strip():
+        out += [
+            f"## The person in this: {people['who']}",
+            "",
+            "**Record this first, before anything else:**",
+            "",
+            f"> {people['consent']}",
+            "",
+        ]
+        if people.get("disclosure", "").strip():
+            out += [
+                "**Say this in the video, word for word:**",
+                "",
+                f"> {people['disclosure']}",
+                "",
+            ]
+        out += ["**Ask — and then stop talking:**", ""]
+        out += [f"{i}. {q}" for i, q in enumerate(people["questions"], 1)]
+        out += [
+            "",
+            "**Keep these in the edit if they come:**",
+            "",
+        ]
+        out += [f"- {x}" for x in people["listen_for"]]
+        out += [
+            "",
+            "Do not put words in their mouth, do not ask again for a better "
+            "answer, and do not cut the lukewarm one. A flat answer, left in, "
+            "is worth more than a warm one that had to be fished for.",
+            "",
+        ]
+
+    out += [
         "## Shot list",
         "",
         "| # | Sec | Camera sees | Say | On screen |",
@@ -462,6 +700,12 @@ def to_markdown(sheet: dict[str, Any], shoot: dict[str, Any],
 def main() -> int:
     parser = argparse.ArgumentParser(description="Plan one SYNOR shoot.")
     parser.add_argument("--shoot", help="shoot id from bot/vlog_queue.json")
+    parser.add_argument("--daily", action="store_true",
+                        help="one idea for today: take the next queued shoot, "
+                             "or invent one when the queue is empty")
+    parser.add_argument("--format", dest="fmt", choices=FORMATS,
+                        help="with --daily, force the format instead of "
+                             "rotating it")
     parser.add_argument("--dry-run", action="store_true",
                         help="print the sheet; write no files")
     parser.add_argument("--max-rounds", type=int, default=3)
@@ -469,7 +713,25 @@ def main() -> int:
 
     queue_path = HERE / "vlog_queue.json"
     queue = json.loads(queue_path.read_text(encoding="utf-8"))
-    shoot = pick_shoot(queue, args.shoot)
+    today = date.today()
+    extra = ""
+
+    if args.daily and not args.shoot:
+        # Prefer a brief somebody wrote — a person's idea beats an invented
+        # one — and only invent once there are none left.
+        try:
+            shoot = pick_shoot(queue, None)
+        except SystemExit:
+            shoot, extra = invent(queue.get("defaults") or {}, today, args.fmt)
+            print("→ queue empty; inventing today's idea", flush=True)
+        else:
+            if args.fmt and shoot.get("format") != args.fmt:
+                shoot, extra = invent(queue.get("defaults") or {}, today,
+                                      args.fmt)
+                print(f"→ queue has no {args.fmt}; inventing one",
+                      flush=True)
+    else:
+        shoot = pick_shoot(queue, args.shoot)
     print(f"→ shoot: {shoot['id']} ({shoot.get('format')})", flush=True)
 
     shop = shop_from_env()
@@ -477,11 +739,10 @@ def main() -> int:
     banned = forbidden_phrases(products)
     print(f"→ {len(products)} products in the catalogue", flush=True)
 
-    today = date.today()
     sheet = run_rounds(
         anthropic.Anthropic(),
         cached_system("vlog-style.md", products),
-        brief_block(shoot, queue.get("defaults") or {}, today),
+        brief_block(shoot, queue.get("defaults") or {}, today, extra),
         SHOOT_SCHEMA,
         lambda candidate: check(candidate, shoot, products, banned),
         args.max_rounds,
@@ -509,11 +770,13 @@ def main() -> int:
         encoding="utf-8",
     )
 
-    shoot["status"] = "planned"
-    shoot["sheet"] = f"bot/shoots/{stem}.md"
-    shoot["planned_on"] = today.isoformat()
-    queue_path.write_text(
-        json.dumps(queue, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if not shoot.get("invented"):
+        shoot["status"] = "planned"
+        shoot["sheet"] = f"bot/shoots/{stem}.md"
+        shoot["planned_on"] = today.isoformat()
+        queue_path.write_text(
+            json.dumps(queue, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8")
 
     print(f"\n✓ Sheet written: bot/shoots/{stem}.md")
     print(f"  {sheet['idea']['title']} — {sum(s['seconds'] for s in sheet['shots'])}s, "

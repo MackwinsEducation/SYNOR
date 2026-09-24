@@ -1,5 +1,5 @@
 {
-  "_readme": "The shoot queue. The agent takes the first entry whose status is 'todo' and writes a full shoot sheet into bot/shoots/. 'brief' is what the planner is told; 'format' and 'seconds' steer the shape; 'language' is the spoken language ('hinglish', 'english' or 'gujarati'). Add ideas at the bottom.",
+  "_readme": "The shoot queue. The agent takes the first entry whose status is 'todo' and writes a full shoot sheet into bot/shoots/. 'brief' is what the planner is told; 'format' and 'seconds' steer the shape; 'language' is the spoken language ('hinglish', 'english' or 'gujarati'). Add ideas at the bottom. The daily run empties this first and only invents an idea of its own once nothing is left, so anything added here is what gets filmed next.",
   "defaults": {
     "language": "hinglish",
     "city": "Ahmedabad"
@@ -68,6 +68,56 @@
       "seconds": 35,
       "brief": "Answer the question that actually arrives in the DMs: 'ek hi bottle lena hai, kaunsi lu?' Work out on camera what one bottle has to do — 10am office and 9pm dinner — and name the few that genuinely cross over. Say which popular choice does not.",
       "where": "anywhere, phone in hand"
+    },
+    {
+      "id": "hundred-brands",
+      "status": "planned",
+      "format": "shop-visit",
+      "seconds": 60,
+      "where": "a multi-brand perfume shop in a busy market, Ahmedabad",
+      "brief": "Take SYNOR into a shop that sells a hundred other brands and ask the owner to smell it cold, on camera. He is the one person whose opinion a viewer cannot wave away, because he has every reason to be unimpressed and a shelf full of alternatives behind him. Go in openly as SYNOR — not as a pretend customer — and record the asking first. Praise the shop honestly and by name if he is happy to be named, because his shop being seen is the only thing he gets out of this and he should get it. Then hand over paper strips, ask the questions, and stop talking. If he asks for testers to keep, that is the ending; if he does not, the video ends on whatever he actually said, and that is fine. Close outside on the selfie camera with what it felt like — including if it stung.",
+      "sheet": "bot/shoots/2026-09-25-hundred-brands.md",
+      "planned_on": "2026-09-25"
+    },
+    {
+      "id": "guess-the-price",
+      "status": "todo",
+      "format": "blind-guess",
+      "seconds": 45,
+      "where": "a tea stall and the shops either side of it, Ahmedabad",
+      "brief": "No bottle on camera until the last shot. Strangers smell a paper strip and say what they think it costs. The whole video is the distance between the number they say and ₹49 to try. Ask for the number before anything else is said about it, and keep the low guesses in — a guess of two hundred rupees is a more interesting video than five people saying three thousand."
+    },
+    {
+      "id": "which-is-costly",
+      "status": "todo",
+      "format": "counter-swap",
+      "seconds": 45,
+      "where": "outside a college gate, Ahmedabad",
+      "brief": "Two unlabelled strips, one SYNOR and one an expensive bottle the person already owns or the shop already stocks. Which one is the costly one. Never name the other bottle, on camera or in the caption — describe it as 'the expensive one they brought'. Whatever they pick, that is the video. If SYNOR loses, the video still goes out; losing one on camera buys more trust than winning five."
+    },
+    {
+      "id": "still-wearing-it",
+      "status": "todo",
+      "format": "wear-test-return",
+      "seconds": 40,
+      "where": "back at the same place as a previous shoot",
+      "brief": "Go back to somebody who was in an earlier video, days later, and ask if they still have the tester, whether they used it, and whether they would spend on the bottle. Nobody films the follow-up, which is exactly why it reads as true. The interesting answer is the one where they lost it in a drawer — keep that one."
+    },
+    {
+      "id": "the-bad-review",
+      "status": "todo",
+      "format": "complaint-desk",
+      "seconds": 45,
+      "where": "at the desk, one take",
+      "brief": "Read a real complaint out loud — a DM, a review, a comment — the whole thing, not the soft part of it, and then test it on camera. If somebody said a scent vanished in two hours, wear it and check the clock. If the complaint turns out to be right, say so and say what will change. A shop that answers its worst review in public is doing the single most persuasive thing available to it."
+    },
+    {
+      "id": "nine-people-one-question",
+      "status": "todo",
+      "format": "one-question-nine",
+      "seconds": 50,
+      "where": "one street, one hour, Ahmedabad",
+      "brief": "One question, nine strangers, cut fast: 'aapke perfume ka naam kya hai' — and then, after they answer, hand them a strip and ask whether they would switch for ₹49. Nine answers in fifty seconds reads as evidence in a way that one long interview never does. Keep the ones who say no."
     }
   ]
 }
