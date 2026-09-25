@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from datetime import date
 from typing import Any
@@ -99,10 +100,35 @@ SHOOT_SCHEMA = {
                 "disclosure": _STR,
                 "questions": {"type": "array", "items": _STR},
                 "listen_for": {"type": "array", "items": _STR},
+                # Nobody knows what they will say, so both endings are
+                # written before anyone walks in. The cold one is the video
+                # worth more, and it is the one that never gets written
+                # unless a sheet demands it in advance.
+                "closing_if_warm": _STR,
+                "closing_if_cold": _STR,
             },
             "required": ["who", "consent", "disclosure", "questions",
-                         "listen_for"],
+                         "listen_for", "closing_if_warm", "closing_if_cold"],
             "additionalProperties": False,
+        },
+        # The shot list is the edit. This is the performance: everything said
+        # from walking in to walking out, most of which is cut. Without it the
+        # person filming has twelve disconnected sentences and no idea how to
+        # get somebody talking between them.
+        "script": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "scene": _STR,
+                    "camera": _STR,
+                    "lines": {"type": "array", "items": _STR},
+                    "their_turn": _STR,
+                    "note": _STR,
+                },
+                "required": ["scene", "camera", "lines", "their_turn", "note"],
+                "additionalProperties": False,
+            },
         },
         "honest_negative": _STR,
         "b_roll": {"type": "array", "items": _STR},
@@ -118,7 +144,8 @@ SHOOT_SCHEMA = {
         "family": {"type": "array", "items": {"type": "string", "enum": list(FAMILIES)}},
     },
     "required": [
-        "idea", "concept", "hook", "shots", "people", "honest_negative", "b_roll",
+        "idea", "concept", "hook", "shots", "script", "people",
+        "honest_negative", "b_roll",
         "product_handles", "caption", "hashtags", "youtube_title",
         "youtube_description", "thumbnail", "diaries_tie_in",
         "gender", "occasion", "family",
@@ -262,6 +289,16 @@ def brief_block(shoot: dict[str, Any], defaults: dict[str, Any], today: date,
 
 
 # ------------------------------------------------------------ validation
+
+def flat(text: str) -> str:
+    """Lower case, no punctuation, single spaces — for comparing two lines.
+
+    A line written in the shot list and the same line written in the script
+    will differ by a comma or a dash often enough that a literal comparison
+    would reject correct sheets and teach the next reader to ignore the check.
+    """
+    return " ".join(re.sub(r"[^\w\s]", " ", text.lower()).split())
+
 
 def in_the_video(sheet: dict[str, Any]) -> str:
     """Only what ends up in the cut: the hook and the shots.
@@ -501,6 +538,53 @@ def check(sheet: dict[str, Any], shoot: dict[str, Any],
             f"{people['who']!r}. Either change the format or drop the person."
         )
 
+    # 6b2. The performance script. The shot list is what survives the edit;
+    # this is what is actually said in the room, and a sheet without it hands
+    # somebody twelve disconnected sentences and no way to get a stranger
+    # talking between them.
+    script = sheet["script"]
+    if not 5 <= len(script) <= 12:
+        problems.append(
+            f"The script has {len(script)} scenes; it needs 5 to 12 — walking "
+            "in, the asking, the scents, the real question, whatever changes "
+            "hands, and walking out."
+        )
+    for i, scene in enumerate(script, 1):
+        if not scene["lines"]:
+            problems.append(
+                f"Scene {i} ({scene['scene']!r}) has no lines. A scene with "
+                "nothing said in it is not a scene."
+            )
+    # The cut has to be a subset of what was performed, or the two halves of
+    # the sheet are describing different afternoons.
+    said = flat(" ".join(l for s in script for l in s["lines"]))
+    for label, line in ([("the hook", sheet["hook"]["spoken"])]
+                        + [(f"shot {s['n']}", s["spoken"]) for s in shots]):
+        bare = flat(line)
+        if bare and bare not in said:
+            problems.append(
+                f"The line in {label} — {line!r} — is nowhere in the script. "
+                "Every line in the cut has to be a line somebody actually "
+                "says, so put it in the scene where it is said."
+            )
+
+    if fmt in WITH_PEOPLE:
+        warm = people["closing_if_warm"].strip()
+        cold = people["closing_if_cold"].strip()
+        for name, text in (("closing_if_warm", warm), ("closing_if_cold", cold)):
+            if len(text.split()) < 15:
+                problems.append(
+                    f"{name} is missing or too short. Nobody knows what they "
+                    "will say, so both endings are written before anyone walks "
+                    "in — otherwise the cold one never gets filmed, and the "
+                    "cold one is the video worth more."
+                )
+        if warm and cold and flat(warm) == flat(cold):
+            problems.append(
+                "The two closings are the same words. If a bad review and a "
+                "good one end the video identically, one of them is a lie."
+            )
+
     # 6c. Nobody else's words, ever. The sheet carries our questions; their
     # answers arrive on the day or they do not arrive at all. A fed review is
     # worthless the moment one viewer suspects it, and suspicion is cheap.
@@ -628,6 +712,60 @@ def to_markdown(sheet: dict[str, Any], shoot: dict[str, Any],
             "Do not put words in their mouth, do not ask again for a better "
             "answer, and do not cut the lukewarm one. A flat answer, left in, "
             "is worth more than a warm one that had to be fished for.",
+            "",
+        ]
+
+    # The whole thing said out loud, in order. Printed before the shot list,
+    # because this is what happens on the day and the shot list is what
+    # happens afterwards at a laptop.
+    script = sheet.get("script") or []
+    if script:
+        out += [
+            "## The script — everything you say, in order",
+            "",
+            "This is not the shot list. This is walking in to walking out, "
+            "eight to twelve minutes of it, and about eighty seconds will "
+            "survive. Half of these lines never reach the video: they are "
+            "there to get somebody talking, not to be watched.",
+            "",
+            "Where it says *their turn* — stop talking. The most valuable part "
+            "of the video arrives after that silence, and filling it is the "
+            "commonest way to lose it.",
+            "",
+        ]
+        for i, scene in enumerate(script, 1):
+            out += [f"### {i}. {scene['scene']}", ""]
+            if scene.get("camera", "").strip():
+                out += [f"*Camera: {scene['camera']}*", ""]
+            for line in scene["lines"]:
+                out += [f"> **{line}**", ">"]
+            if out[-1] == ">":
+                out.pop()
+            out.append("")
+            if scene.get("their_turn", "").strip():
+                out += [f"**Their turn —** {scene['their_turn']}", ""]
+            if scene.get("note", "").strip():
+                out += [f"{scene['note']}", ""]
+
+    if people.get("closing_if_warm", "").strip():
+        out += [
+            "## Two endings, because you do not know which one you will get",
+            "",
+            "Have both in your head before you walk in. Whichever happens, "
+            "the video goes out.",
+            "",
+            "**If it went well:**",
+            "",
+            f"> {people['closing_if_warm']}",
+            "",
+            "**If it went badly or flat:**",
+            "",
+            f"> {people['closing_if_cold']}",
+            "",
+            "The second one will be the better video. Every brand posts the "
+            "warm review, so a warm review is worth nothing now. Nobody posts "
+            "the cold one — which is the only reason a stranger would believe "
+            "anything else said on this account.",
             "",
         ]
 

@@ -56,13 +56,137 @@ Why it works: He has a hundred reasons to be unimpressed and nothing to gain by 
 
 Do not put words in their mouth, do not ask again for a better answer, and do not cut the lukewarm one. A flat answer, left in, is worth more than a warm one that had to be fished for.
 
+## The script — everything you say, in order
+
+This is not the shot list. This is walking in to walking out, eight to twelve minutes of it, and about eighty seconds will survive. Half of these lines never reach the video: they are there to get somebody talking, not to be watched.
+
+Where it says *their turn* — stop talking. The most valuable part of the video arrives after that silence, and filling it is the commonest way to lose it.
+
+### 1. Walking towards the shop
+
+*Camera: selfie, phone low*
+
+> **Is bhai ke paas sau brand hain. Aaj mera sunghega.**
+>
+> **Main andar ja raha hoon. Pata nahi kya bolega.**
+
+Two lines and no more. Anything else here kills the hook.
+
+### 2. Inside, at the counter — the asking
+
+*Camera: low, not on his face yet*
+
+> **Namaste bhai.**
+>
+> **Bhai, main SYNOR se hoon, apna perfume banata hoon. Ek video bana raha hoon Instagram ke liye aur aapka sach-sach review chahiye, achha ho ya kharaab. Aapki dukaan ka naam bhi daal doonga. Theek hai?**
+>
+> **Thank you bhai. Do minute lagenge, bas.**
+
+**Their turn —** Yes or no. Only go on after a yes — a no means buy something small and leave, there is another shop.
+
+Recorded whether or not it reaches the cut. Shot 3 is clipped out of the middle of the long line.
+
+### 3. His shop, honestly
+
+*Camera: panning the shelf, no single label held in frame*
+
+> **Is area mein ye dukaan sabse purani hai.**
+>
+> **Bhai aapki dukaan kitne saal se hai?**
+>
+> **Sau se zyada brand rakhte ho na aap?**
+>
+> **Isi liye aapke paas aaya hoon. Aap din bhar perfume sunghte ho, aapko turant pata chal jaata hai.**
+
+**Their turn —** How old the shop is, how many brands he carries.
+
+Say only what is true. If it is not the oldest, say what it is — most variety, people come from far. False praise is heard as false.
+
+### 4. The first one
+
+*Camera: the strip, then his hands*
+
+> **Ye dekho. SYNOR Ocean Verve. Tees percent oil hai ismein.**
+>
+> **Strip pe daal raha hoon, aapke stock pe nahi.**
+>
+> **Sungh ke sabse pehle kya laga aapko?**
+
+**Their turn —** His first reaction, unprompted. This is shot 5.
+
+The line about not spraying his stock matters more than it looks — he is guarding his shelf until he hears it.
+
+### 5. The other two
+
+*Camera: the strips, him holding all three*
+
+> **Ye SYNOR Royal Oud hai. Sardi ke liye.**
+>
+> **SYNOR Velvet Heels. Ye ladies ke liye hai.**
+>
+> **Aapke counter par is type ka kya chalta hai aaj kal?**
+
+**Their turn —** What sells at his counter now. Let him talk about his own shop; he is more honest about ours afterwards.
+
+### 6. The real question
+
+*Camera: his face, still, no cutting away*
+
+> **Bhai ek baat sach batao. Ismein aapko kya kharaab lagta hai?**
+>
+> **Nahi bhai, sach bolo. Mujhe wahi sunna hai. Tareef to sab karte hain.**
+>
+> **Aapke hisaab se ye kitne ka hona chahiye?**
+>
+> **Aur aap ise apne customer ko dena chahenge ya nahi? Kyun?**
+
+**Their turn —** The criticism (shot 9), the price guess (shot 8), and whether he would stock it.
+
+Ask the second line only if the first gets 'sab achha hai'. Ask it once. A third time is fishing, and the camera shows it.
+
+### 7. The testers
+
+*Camera: the counter, the bag, his hand*
+
+> **Bhai, ye bees tester chhod raha hoon aapke paas. Customer ko sungha dena, koi paisa nahi.**
+>
+> **Maine unhe sirf testers diye, review unka apna hai.**
+
+**Their turn —** He may ask how many he can have. If he asks first, that is the better ending — use it.
+
+The second line stays in the cut. Not optional.
+
+### 8. Outside, on the street
+
+*Camera: selfie, the shop over your shoulder*
+
+> **Sabko pasand nahi aayega, Royal Oud bahut bhaari hai.**
+>
+> **Tester sirf ₹49, aur wahi ₹49 bottle par wapas.**
+
+Which closing you speak depends on what he said; both are below. Film it while still outside his shop, before the feeling wears off.
+
+## Two endings, because you do not know which one you will get
+
+Have both in your head before you walk in. Whichever happens, the video goes out.
+
+**If it went well:**
+
+> Bahar aa gaya. Sach kahoon to andar jaate waqt dhadkan tez thi. Ek aadmi jo sau brand bechta hai, usne mera perfume sungha aur khud bola ki ______. Mujhe andar se shaanti mili. Aur unhone tester bhi rakh liye, maine mange nahi the — unka confidence dekh ke mera bhi aa gaya.
+
+**If it went badly or flat:**
+
+> Bahar aa gaya. Sach bataun, jo socha tha wo nahi hua. Unhone kaha ki ______, aur wo galat nahi hai. Sunna achha nahi laga, par isi liye to pucha tha. Ye video main isliye daal raha hoon ki agar main sirf tareef wale video daalunga, to aap kabhi yakeen nahi karoge. Aap khud sungh ke batao.
+
+The second one will be the better video. Every brand posts the warm review, so a warm review is worth nothing now. Nobody posts the cold one — which is the only reason a stranger would believe anything else said on this account.
+
 ## Shot list
 
 | # | Sec | Camera sees | Say | On screen |
 | --- | --- | --- | --- | --- |
 | 1 | 4s | Walking towards the shop, phone low, the board coming into frame | Is bhai ke paas sau brand hain. Aaj mera sunghega. | 100 brands |
 | 2 | 5s | The shelf wall, panning across it, no single brand held in frame | Is area mein ye dukaan sabse purani hai. | His shop, not mine |
-| 3 | 5s | Him behind the counter, looking at the camera, being asked | Bhai ek minute, aapka honest opinion chahiye. Theek hai? | Asked first. On camera. |
+| 3 | 5s | Him behind the counter, looking at the camera, being asked | Aapka sach-sach review chahiye, achha ho ya kharaab. | Asked first. On camera. |
 | 4 | 7s | A paper strip sprayed and handed across the counter | SYNOR Ocean Verve. Tees percent oil hai ismein. | SYNOR Ocean Verve · 30% oil |
 | 5 | 10s | His face while he smells it, and his first answer. Do not cut away and do not talk over him | — | No script. His words. |
 | 6 | 6s | Second strip, his hand taking it | Ye SYNOR Royal Oud hai. Sardi ke liye. | SYNOR Royal Oud |

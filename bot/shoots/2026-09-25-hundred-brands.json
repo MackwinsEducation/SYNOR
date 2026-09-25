@@ -41,7 +41,9 @@
       "A flat, bored or unimpressed answer — keep it in, it is worth more than a warm one",
       "Whether he asks for testers himself, unprompted",
       "Anything he says about the 30% oil once he has smelled it on skin"
-    ]
+    ],
+    "closing_if_warm": "Bahar aa gaya. Sach kahoon to andar jaate waqt dhadkan tez thi. Ek aadmi jo sau brand bechta hai, usne mera perfume sungha aur khud bola ki ______. Mujhe andar se shaanti mili. Aur unhone tester bhi rakh liye, maine mange nahi the — unka confidence dekh ke mera bhi aa gaya.",
+    "closing_if_cold": "Bahar aa gaya. Sach bataun, jo socha tha wo nahi hua. Unhone kaha ki ______, aur wo galat nahi hai. Sunna achha nahi laga, par isi liye to pucha tha. Ye video main isliye daal raha hoon ki agar main sirf tareef wale video daalunga, to aap kabhi yakeen nahi karoge. Aap khud sungh ke batao."
   },
   "shots": [
     {
@@ -62,7 +64,7 @@
       "n": 3,
       "seconds": 5,
       "visual": "Him behind the counter, looking at the camera, being asked",
-      "spoken": "Bhai ek minute, aapka honest opinion chahiye. Theek hai?",
+      "spoken": "Aapka sach-sach review chahiye, achha ho ya kharaab.",
       "on_screen": "Asked first. On camera."
     },
     {
@@ -169,5 +171,94 @@
     "fresh-aquatic",
     "woody-oud",
     "amber-sweet"
+  ],
+  "script": [
+    {
+      "scene": "Walking towards the shop",
+      "camera": "selfie, phone low",
+      "lines": [
+        "Is bhai ke paas sau brand hain. Aaj mera sunghega.",
+        "Main andar ja raha hoon. Pata nahi kya bolega."
+      ],
+      "their_turn": "",
+      "note": "Two lines and no more. Anything else here kills the hook."
+    },
+    {
+      "scene": "Inside, at the counter — the asking",
+      "camera": "low, not on his face yet",
+      "lines": [
+        "Namaste bhai.",
+        "Bhai, main SYNOR se hoon, apna perfume banata hoon. Ek video bana raha hoon Instagram ke liye aur aapka sach-sach review chahiye, achha ho ya kharaab. Aapki dukaan ka naam bhi daal doonga. Theek hai?",
+        "Thank you bhai. Do minute lagenge, bas."
+      ],
+      "their_turn": "Yes or no. Only go on after a yes — a no means buy something small and leave, there is another shop.",
+      "note": "Recorded whether or not it reaches the cut. Shot 3 is clipped out of the middle of the long line."
+    },
+    {
+      "scene": "His shop, honestly",
+      "camera": "panning the shelf, no single label held in frame",
+      "lines": [
+        "Is area mein ye dukaan sabse purani hai.",
+        "Bhai aapki dukaan kitne saal se hai?",
+        "Sau se zyada brand rakhte ho na aap?",
+        "Isi liye aapke paas aaya hoon. Aap din bhar perfume sunghte ho, aapko turant pata chal jaata hai."
+      ],
+      "their_turn": "How old the shop is, how many brands he carries.",
+      "note": "Say only what is true. If it is not the oldest, say what it is — most variety, people come from far. False praise is heard as false."
+    },
+    {
+      "scene": "The first one",
+      "camera": "the strip, then his hands",
+      "lines": [
+        "Ye dekho. SYNOR Ocean Verve. Tees percent oil hai ismein.",
+        "Strip pe daal raha hoon, aapke stock pe nahi.",
+        "Sungh ke sabse pehle kya laga aapko?"
+      ],
+      "their_turn": "His first reaction, unprompted. This is shot 5.",
+      "note": "The line about not spraying his stock matters more than it looks — he is guarding his shelf until he hears it."
+    },
+    {
+      "scene": "The other two",
+      "camera": "the strips, him holding all three",
+      "lines": [
+        "Ye SYNOR Royal Oud hai. Sardi ke liye.",
+        "SYNOR Velvet Heels. Ye ladies ke liye hai.",
+        "Aapke counter par is type ka kya chalta hai aaj kal?"
+      ],
+      "their_turn": "What sells at his counter now. Let him talk about his own shop; he is more honest about ours afterwards.",
+      "note": ""
+    },
+    {
+      "scene": "The real question",
+      "camera": "his face, still, no cutting away",
+      "lines": [
+        "Bhai ek baat sach batao. Ismein aapko kya kharaab lagta hai?",
+        "Nahi bhai, sach bolo. Mujhe wahi sunna hai. Tareef to sab karte hain.",
+        "Aapke hisaab se ye kitne ka hona chahiye?",
+        "Aur aap ise apne customer ko dena chahenge ya nahi? Kyun?"
+      ],
+      "their_turn": "The criticism (shot 9), the price guess (shot 8), and whether he would stock it.",
+      "note": "Ask the second line only if the first gets 'sab achha hai'. Ask it once. A third time is fishing, and the camera shows it."
+    },
+    {
+      "scene": "The testers",
+      "camera": "the counter, the bag, his hand",
+      "lines": [
+        "Bhai, ye bees tester chhod raha hoon aapke paas. Customer ko sungha dena, koi paisa nahi.",
+        "Maine unhe sirf testers diye, review unka apna hai."
+      ],
+      "their_turn": "He may ask how many he can have. If he asks first, that is the better ending — use it.",
+      "note": "The second line stays in the cut. Not optional."
+    },
+    {
+      "scene": "Outside, on the street",
+      "camera": "selfie, the shop over your shoulder",
+      "lines": [
+        "Sabko pasand nahi aayega, Royal Oud bahut bhaari hai.",
+        "Tester sirf ₹49, aur wahi ₹49 bottle par wapas."
+      ],
+      "their_turn": "",
+      "note": "Which closing you speak depends on what he said; both are below. Film it while still outside his shop, before the feeling wears off."
+    }
   ]
 }

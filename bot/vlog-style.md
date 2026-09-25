@@ -168,6 +168,15 @@ sells a hundred other brands say what he actually thinks.
   shot.
 - **hook** — the spoken line and the on-screen text for the first three
   seconds.
+- **script** — everything said out loud, from walking in to walking out, in
+  order, in five to twelve scenes. This is not the shot list. The shot list is
+  what survives the edit; this is what happens in the room, and most of it is
+  cut. Half these lines exist to get somebody talking rather than to be
+  watched, and a sheet without them hands a person twelve disconnected
+  sentences and no way to get from one to the next. Each scene says where the
+  camera is, the lines in order, what happens on **their turn**, and one note.
+  **Every line in the hook and the shots has to appear here** — a line in the
+  cut that nobody actually says is a line being invented at a laptop.
 - **shots** — numbered, in order, each with seconds, what the camera sees,
   what is said, and what is on screen. Durations must add up to roughly the
   target length. Six to fourteen shots. The last shot is the ₹49 line and
@@ -178,7 +187,13 @@ sells a hundred other brands say what he actually thinks.
   **questions** to ask, and four to eight **listen_for** notes on the kinds of
   answer worth keeping. Open questions only: "aapko kaisa laga" leaves room
   for a bad answer, "achha hai na" does not, and a question that cannot be
-  answered badly is not a question.
+  answered badly is not a question. Also **two closings**, written before
+  anybody walks in, because nobody knows what will be said:
+  `closing_if_warm` and `closing_if_cold`. The cold one is the harder video to
+  post and the better one to have posted — every brand publishes the warm
+  review, so a warm review now proves nothing, and a shop that publishes the
+  bad one is the only kind a stranger has any reason to believe. A sheet with
+  one ending gets a video that only exists if the answer was flattering.
 - **b_roll** — three to six extra shots to grab while there, for the edit.
 - **caption** — for Instagram. Under 280 characters. First line does the work
   because the rest is collapsed.

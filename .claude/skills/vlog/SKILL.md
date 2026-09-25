@@ -51,6 +51,15 @@ write has to survive that.
   and what to listen for — never a line for them to say. A review that was fed
   to somebody is worth nothing the moment one viewer suspects it.
 - **The last shot is the ₹49 line and nothing else.**
+- **Write the script, not only the shot list.** The person asking is going to
+  stand in a shop and talk; twelve ten-word fragments are not something anyone
+  can perform. Give them every line from walking in to walking out, in scenes,
+  and mark where they stop talking and let the other person answer. Every line
+  in the shot list must be a line that appears in the script.
+- **Two endings** on any shoot with somebody else in it, written before they
+  leave the house: one for a warm answer and one for a cold or flat one. The
+  cold one is the better video and the one nobody writes unless it was asked
+  for in advance.
 
 ## How to hand it over
 
