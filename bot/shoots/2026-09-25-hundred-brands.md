@@ -2,10 +2,10 @@
 
 `hundred-brands` · shop-visit · about 80s · planned 2026-09-25
 
-**A multi-brand shop owner smells SYNOR cold, on camera, with his own shelf behind him.**
+**A shop owner who stocks 100 plus brands is asked for his honest feedback on ours, on camera, with his own shelf behind him.**
 
 For: Anyone who assumes a ₹49 tester means a cheap perfume  
-Why it works: He has a hundred reasons to be unimpressed and nothing to gain by being kind, so whatever he says lands harder than anything we could say about ourselves.
+Why it works: He has a hundred alternatives on the wall and nothing to gain by being kind, so his opinion carries weight ours never could. And the asking is the whole tone: somebody who knows more is being consulted, not tested.
 
 ## Before you leave
 
@@ -24,14 +24,20 @@ Why it works: He has a hundred reasons to be unimpressed and nothing to gain by 
 
 ## First three seconds
 
-> **Say:** Is bhai ke paas sau brand hain. Aaj mera sunghega.
-> **On screen:** 100 brands. One verdict.
+> **Say:** 100 plus brand bechne wale se apna feedback lene aaya hoon.
+> **On screen:** 100+ brands. His feedback.
 
 ## The person in this: the owner of the shop, who sells a hundred other brands
 
+**Why them — say this, do not just know it:**
+
+> Ye bhai din bhar perfume sunghte hain, 100 plus brand rozana bechte hain. Mujhe laga unka opinion sabse kaam ka hoga, mere se to zyada hi hoga.
+
+You are asking a favour of somebody who knows more than you do about one thing. A shoot that forgets to say so gets a guarded answer, and a guarded answer is the only kind this format cannot use.
+
 **Record this first, before anything else:**
 
-> Bhai, main SYNOR se hoon, apna perfume banata hoon. Ek video bana raha hoon Instagram ke liye aur aapka sach-sach review chahiye, achha ho ya kharaab. Aapki dukaan ka naam bhi daal doonga. Theek hai?
+> Bhai, main SYNOR se hoon, apna perfume banata hoon. Ek video bana raha hoon aur aapka opinion lena chahta hoon. Jo sach mein lage wahi boliye, achha ho ya kharaab. Aapki dukaan ka naam bhi daal doonga. Theek hai?
 
 **Say this in the video, word for word:**
 
@@ -41,9 +47,9 @@ Why it works: He has a hundred reasons to be unimpressed and nothing to gain by 
 
 1. Sungh ke sabse pehle kya laga aapko
 2. Aapke counter par is type ka kya chalta hai aaj kal
-3. Ismein aapko kya kharaab lagta hai
-4. Aapke hisaab se ye kitne ka hona chahiye
-5. Aap ise apne customer ko dena chahenge ya nahi, aur kyun
+3. Ismein aapko kya kami lagti hai
+4. Aapke hisaab se iski kimat kitni honi chahiye
+5. Aap ise apne customer ko dena chahenge, ya nahi, aur kyun
 
 **Keep these in the edit if they come:**
 
@@ -66,11 +72,13 @@ Where it says *their turn* — stop talking. The most valuable part of the video
 
 *Camera: selfie, phone low*
 
-> **Is bhai ke paas sau brand hain. Aaj mera sunghega.**
+> **100 plus brand bechne wale se apna feedback lene aaya hoon.**
 >
-> **Main andar ja raha hoon. Pata nahi kya bolega.**
+> **Mujhe laga jo itni saari brand rozana bechta hai, unka opinion sabse kaam ka hoga.**
+>
+> **To chalo, try karte hain. Pata nahi haan bolenge ya nahi.**
 
-Two lines and no more. Anything else here kills the hook.
+Three lines. The reason comes before the ask — that is the whole difference between this and walking in to test somebody.
 
 ### 2. Inside, at the counter — the asking
 
@@ -78,35 +86,35 @@ Two lines and no more. Anything else here kills the hook.
 
 > **Namaste bhai.**
 >
-> **Bhai, main SYNOR se hoon, apna perfume banata hoon. Ek video bana raha hoon Instagram ke liye aur aapka sach-sach review chahiye, achha ho ya kharaab. Aapki dukaan ka naam bhi daal doonga. Theek hai?**
+> **Bhai, main SYNOR se hoon, apna perfume banata hoon. Ek video bana raha hoon aur aapka opinion lena chahta hoon. Jo sach mein lage wahi boliye, achha ho ya kharaab. Aapki dukaan ka naam bhi daal doonga. Theek hai?**
 >
-> **Thank you bhai. Do minute lagenge, bas.**
+> **Do minute lagenge bhai, bas itna hi.**
 
 **Their turn —** Yes or no. Only go on after a yes — a no means buy something small and leave, there is another shop.
 
-Recorded whether or not it reaches the cut. Shot 3 is clipped out of the middle of the long line.
+Give him an easy way out. A line that makes refusing awkward buys a dishonest yes, and a dishonest yes is visible on camera.
 
-### 3. His shop, honestly
+### 3. Why him
 
 *Camera: panning the shelf, no single label held in frame*
 
-> **Is area mein ye dukaan sabse purani hai.**
->
 > **Bhai aapki dukaan kitne saal se hai?**
 >
-> **Sau se zyada brand rakhte ho na aap?**
+> **100 plus brand rakhte ho aap, sahi hai na?**
 >
-> **Isi liye aapke paas aaya hoon. Aap din bhar perfume sunghte ho, aapko turant pata chal jaata hai.**
+> **Ye bhai din bhar perfume sunghte hain, 100 plus brand rozana bechte hain. Mujhe laga unka opinion sabse kaam ka hoga, mere se to zyada hi hoga.**
+>
+> **Mujhe to apne hi perfume ki aadat pad gayi hai, ab mujhe farak hi nahi pata chalta.**
 
 **Their turn —** How old the shop is, how many brands he carries.
 
-Say only what is true. If it is not the oldest, say what it is — most variety, people come from far. False praise is heard as false.
+The third line is said to camera while he is busy, or as voice-over in the edit. The fourth is the one that puts him above you, and it happens to be true.
 
 ### 4. The first one
 
 *Camera: the strip, then his hands*
 
-> **Ye dekho. SYNOR Ocean Verve. Tees percent oil hai ismein.**
+> **Ye dekhiye. SYNOR Ocean Verve. Tees percent oil hai ismein.**
 >
 > **Strip pe daal raha hoon, aapke stock pe nahi.**
 >
@@ -120,37 +128,37 @@ The line about not spraying his stock matters more than it looks — he is guard
 
 *Camera: the strips, him holding all three*
 
-> **Ye SYNOR Royal Oud hai. Sardi ke liye.**
+> **Ye SYNOR Royal Oud hai. Sardi ke liye banaya hai.**
 >
-> **SYNOR Velvet Heels. Ye ladies ke liye hai.**
+> **Aur ye SYNOR Velvet Heels, ladies ke liye.**
 >
 > **Aapke counter par is type ka kya chalta hai aaj kal?**
 
-**Their turn —** What sells at his counter now. Let him talk about his own shop; he is more honest about ours afterwards.
+**Their turn —** What sells at his counter now. Let him talk about his own shop; he is more open about ours afterwards.
 
 ### 6. The real question
 
 *Camera: his face, still, no cutting away*
 
-> **Bhai ek baat sach batao. Ismein aapko kya kharaab lagta hai?**
+> **Bhai ek baat sach batayiye. Ismein aapko kya kami lagti hai?**
 >
-> **Nahi bhai, sach bolo. Mujhe wahi sunna hai. Tareef to sab karte hain.**
+> **Nahi bhai, khul ke boliye. Tareef to sab kar dete hain, mujhe kami janni hai.**
 >
-> **Aapke hisaab se ye kitne ka hona chahiye?**
+> **Aapke hisaab se iski kimat kitni honi chahiye?**
 >
-> **Aur aap ise apne customer ko dena chahenge ya nahi? Kyun?**
+> **Aur aap ise apne customer ko dena chahenge, ya nahi? Kyun?**
 
 **Their turn —** The criticism (shot 9), the price guess (shot 8), and whether he would stock it.
 
-Ask the second line only if the first gets 'sab achha hai'. Ask it once. A third time is fishing, and the camera shows it.
+Ask the second line only if the first gets 'sab achha hai'. Once. A third time is fishing, and the camera shows it.
 
 ### 7. The testers
 
 *Camera: the counter, the bag, his hand*
 
-> **Bhai, ye bees tester chhod raha hoon aapke paas. Customer ko sungha dena, koi paisa nahi.**
+> **Bhai, ye bees tester chhod raha hoon aapke paas. Customer ko sungha dijiye, koi paisa nahi.**
 >
-> **Maine unhe sirf testers diye, review unka apna hai.**
+> **Ek baat bata doon. Maine unhe sirf testers diye, review unka apna hai.**
 
 **Their turn —** He may ask how many he can have. If he asks first, that is the better ending — use it.
 
@@ -172,11 +180,11 @@ Have both in your head before you walk in. Whichever happens, the video goes out
 
 **If it went well:**
 
-> Bahar aa gaya. Sach kahoon to andar jaate waqt dhadkan tez thi. Ek aadmi jo sau brand bechta hai, usne mera perfume sungha aur khud bola ki ______. Mujhe andar se shaanti mili. Aur unhone tester bhi rakh liye, maine mange nahi the — unka confidence dekh ke mera bhi aa gaya.
+> Bahar aa gaya. Sach kahun to andar jaate waqt thodi ghabrahat thi. Jo aadmi 100 plus brand bechta hai, unhone khud bola ki ______. Ye sun ke andar se shaanti mili. Aur tester bhi rakh liye unhone, maine kaha bhi nahi tha.
 
 **If it went badly or flat:**
 
-> Bahar aa gaya. Sach bataun, jo socha tha wo nahi hua. Unhone kaha ki ______, aur wo galat nahi hai. Sunna achha nahi laga, par isi liye to pucha tha. Ye video main isliye daal raha hoon ki agar main sirf tareef wale video daalunga, to aap kabhi yakeen nahi karoge. Aap khud sungh ke batao.
+> Bahar aa gaya. Sach bataun, jo socha tha wo nahi hua. Unhone kaha ki ______, aur baat galat bhi nahi hai. Sunne mein achha nahi laga, par isi liye to pucha tha. Agar main sirf tareef wale video daalunga to aap kabhi yakeen nahi karoge. Aap khud sungh ke batayiye.
 
 The second one will be the better video. Every brand posts the warm review, so a warm review is worth nothing now. Nobody posts the cold one — which is the only reason a stranger would believe anything else said on this account.
 
@@ -184,20 +192,20 @@ The second one will be the better video. Every brand posts the warm review, so a
 
 | # | Sec | Camera sees | Say | On screen |
 | --- | --- | --- | --- | --- |
-| 1 | 4s | Walking towards the shop, phone low, the board coming into frame | Is bhai ke paas sau brand hain. Aaj mera sunghega. | 100 brands |
-| 2 | 5s | The shelf wall, panning across it, no single brand held in frame | Is area mein ye dukaan sabse purani hai. | His shop, not mine |
-| 3 | 5s | Him behind the counter, looking at the camera, being asked | Aapka sach-sach review chahiye, achha ho ya kharaab. | Asked first. On camera. |
+| 1 | 4s | Walking towards the shop, phone low, the board coming into frame | 100 plus brand bechne wale se apna feedback lene aaya hoon. | 100+ brands |
+| 2 | 6s | The shelf wall, panning across it, no single brand held in frame | Mujhe laga unka opinion sabse kaam ka hoga, mere se to zyada hi hoga. | He sells 100+. I sell one. |
+| 3 | 5s | Him behind the counter, being asked, still free to say no | Jo sach mein lage wahi boliye, achha ho ya kharaab. | Asked first. On camera. |
 | 4 | 7s | A paper strip sprayed and handed across the counter | SYNOR Ocean Verve. Tees percent oil hai ismein. | SYNOR Ocean Verve · 30% oil |
 | 5 | 10s | His face while he smells it, and his first answer. Do not cut away and do not talk over him | — | No script. His words. |
-| 6 | 6s | Second strip, his hand taking it | Ye SYNOR Royal Oud hai. Sardi ke liye. | SYNOR Royal Oud |
-| 7 | 6s | Third strip, and him holding all three fanned out | SYNOR Velvet Heels. Ye ladies ke liye hai. | SYNOR Velvet Heels |
+| 6 | 6s | Second strip, his hand taking it | Ye SYNOR Royal Oud hai. Sardi ke liye banaya hai. | SYNOR Royal Oud |
+| 7 | 6s | Third strip, and him holding all three fanned out | Aur ye SYNOR Velvet Heels, ladies ke liye. | SYNOR Velvet Heels |
 | 8 | 10s | Him answering the price question, hands still holding the strips | — | His guess. Not ours. |
-| 9 | 10s | Him answering what he does not like. Hold on him even if it is uncomfortable | — | What he didn't like |
+| 9 | 10s | Him answering what he finds lacking. Hold on him even if it is uncomfortable | — | What he found lacking |
 | 10 | 6s | The bag of testers going down on his counter, his hand reaching | Maine unhe sirf testers diye, review unka apna hai. | Testers left with him |
-| 11 | 7s | Outside on the street, selfie camera, shop still behind the shoulder | Sabko pasand nahi aayega, Royal Oud bahut bhaari hai. | Not for everyone |
+| 11 | 7s | Outside on the street, selfie camera, shop still over the shoulder | Sabko pasand nahi aayega, Royal Oud bahut bhaari hai. | Not for everyone |
 | 12 | 4s | A 3ml tester held up between two fingers, nothing else in frame | Tester sirf ₹49, aur wahi ₹49 bottle par wapas. | ₹49 to try |
 
-Total: **80s**
+Total: **81s**
 
 The honest line: *Sabko pasand nahi aayega, Royal Oud bahut bhaari hai.*
 
@@ -212,17 +220,17 @@ The honest line: *Sabko pasand nahi aayega, Royal Oud bahut bhaari hai.*
 
 ### Instagram
 
-Ek dukaan jahan sau brand bikte hain. Wahan apna perfume le gaya aur pucha ki sach bataiye. Jo unhone kaha, bina kaanchi ke daala hai.
+Jo bhai 100 plus brand bechte hain, unse apne perfume ka feedback maanga. Jo unhone kaha, bina kaanchi ke daala hai.
 
 #perfume #fragrance #ahmedabad #india #extraitdeparfum #smallbusiness #blindtest #honestreview
 
 ### YouTube
 
-**Title:** I took my perfume to a shop that sells 100 brands
+**Title:** I asked a shop with 100+ brands what they think of mine
 
 A shop owner with a hundred brands on his shelf smelled ours cold, on camera, and said what he thought. Nothing was scripted and nothing was cut for being unkind. He kept some testers; that is said in the video. synorperfume.com/products/synor-ocean-verve-extrait-de-parfum-copy synorperfume.com/products/synor-royal-oud-extrait-de-parfum synorperfume.com/products/synor-velvet-heels-extrait-de-parfum
 
-**Thumbnail:** His face mid-smell, strip at his nose, shelf blurred behind. Text: HUNDRED BRANDS, ONE VERDICT
+**Thumbnail:** His face mid-smell, strip at his nose, shelf blurred behind. Text: 100+ BRANDS, HIS FEEDBACK
 
 ### Then the paper
 

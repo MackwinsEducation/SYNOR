@@ -56,6 +56,13 @@ write has to survive that.
   can perform. Give them every line from walking in to walking out, in scenes,
   and mark where they stop talking and let the other person answer. Every line
   in the shot list must be a line that appears in the script.
+- **Asking, not challenging.** A line like "aaj mera sunghega" makes the other
+  person the one being tested and us the one testing. They hear it, the viewer
+  hears it, and a guarded answer is the only thing that format cannot use.
+  Say **why this person** before asking them anything, use the `aap` form, give
+  the number ("100 plus brand", not "sau brand" — precision is what makes a
+  line sound unwritten), and leave them a way to refuse that costs them
+  nothing.
 - **Two endings** on any shoot with somebody else in it, written before they
   leave the house: one for a warm answer and one for a cold or flat one. The
   cold one is the better video and the one nobody writes unless it was asked

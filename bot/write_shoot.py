@@ -38,6 +38,21 @@ FORMATS = ("street-test", "hands-only", "two-bottle-face-off", "day-in-scent",
            "wear-test-return", "complaint-desk")
 # Formats where one product is a complete video; the rest need a comparison.
 SINGLE_OK = ("talking-head", "unboxing", "question-answer", "complaint-desk")
+# Lines that turn the shoot into a contest. Every one of these makes the other
+# person the examinee and the camera the examiner, which buys a guarded answer
+# — and a guarded answer is the one thing the format cannot use. Kept as a
+# list rather than left to judgement because the phrasing arrives naturally
+# while writing a hook and reads fine until somebody says it out loud.
+CHALLENGE_TELLS = (
+    "mera sunghega", "meri sunghega", "mera sungh ke",
+    "dekhte hain kya bolta", "dekhte hain kya kehta", "dekhte hai kya bolta",
+    "pata chal jayega usko", "unko pata chalega", "usko pata chalega",
+    "challenge", "muqabla", "hara ke", "haraake", "haraana",
+    "jhoot pakad", "expose kar",
+)
+# Too familiar for somebody standing behind his own counter.
+TOO_FAMILIAR = (" tu ", " tu.", " tu,", "tera ", "tere ", "tujhe ", "tujhko ")
+
 # Formats that put somebody who does not work here on camera. These carry the
 # most weight with a viewer and are the only ones that can do real damage, so
 # they need consent asked on camera, questions instead of lines, and a spoken
@@ -96,6 +111,10 @@ SHOOT_SCHEMA = {
             "type": "object",
             "properties": {
                 "who": _STR,
+                # Why this person and not a passer-by. Said out loud, not
+                # only written down — it is the line that turns the shoot
+                # from a test into a favour being asked.
+                "why_them": _STR,
                 "consent": _STR,
                 "disclosure": _STR,
                 "questions": {"type": "array", "items": _STR},
@@ -107,8 +126,9 @@ SHOOT_SCHEMA = {
                 "closing_if_warm": _STR,
                 "closing_if_cold": _STR,
             },
-            "required": ["who", "consent", "disclosure", "questions",
-                         "listen_for", "closing_if_warm", "closing_if_cold"],
+            "required": ["who", "why_them", "consent", "disclosure",
+                         "questions", "listen_for", "closing_if_warm",
+                         "closing_if_cold"],
             "additionalProperties": False,
         },
         # The shot list is the edit. This is the performance: everything said
@@ -315,7 +335,15 @@ def in_the_video(sheet: dict[str, Any]) -> str:
 
 
 def all_text(sheet: dict[str, Any]) -> str:
-    """Every string a viewer could ever see or hear, in one blob."""
+    """Every string a viewer could ever see or hear, in one blob.
+
+    The script belongs in here even though most of it is cut, and so do the
+    lines in the people block. They are the largest body of spoken words in
+    the sheet: the shot list is what survives an edit, but every one of these
+    is said out loud in a room with a camera running, and a rival house's
+    name said on the day is a name that can end up in the video.
+    """
+    people = sheet.get("people") or {}
     parts = [
         sheet["idea"]["title"], sheet["idea"]["one_line"],
         sheet["honest_negative"], sheet["caption"],
@@ -323,7 +351,15 @@ def all_text(sheet: dict[str, Any]) -> str:
         sheet["thumbnail"], sheet["concept"]["shoot_notes"],
         " ".join(sheet["hashtags"]), " ".join(sheet["b_roll"]),
         in_the_video(sheet),
+        people.get("why_them", ""), people.get("consent", ""),
+        people.get("disclosure", ""),
+        people.get("closing_if_warm", ""), people.get("closing_if_cold", ""),
+        " ".join(people.get("questions") or []),
     ]
+    for scene in sheet.get("script") or []:
+        parts += [scene.get("scene", ""), scene.get("their_turn", ""),
+                  scene.get("note", "")]
+        parts += scene.get("lines") or []
     return " ".join(parts)
 
 
@@ -569,6 +605,23 @@ def check(sheet: dict[str, Any], shoot: dict[str, Any],
             )
 
     if fmt in WITH_PEOPLE:
+        # Why this person, said out loud. Without it the shoot has no idea in
+        # it beyond "somebody was standing there".
+        why = people["why_them"].strip()
+        if len(why.split()) < 8:
+            problems.append(
+                "people.why_them is missing or too short. Say why this person "
+                "and not a passer-by — it is what turns the shoot from a test "
+                "into a favour being asked, and it is the difference between "
+                "a guarded answer and a real one."
+            )
+        elif flat(why) not in said:
+            problems.append(
+                "people.why_them is written in the sheet but never said in "
+                "the script. It has to be spoken — to them or to camera — "
+                "because the reason is what makes the asking land."
+            )
+
         warm = people["closing_if_warm"].strip()
         cold = people["closing_if_cold"].strip()
         for name, text in (("closing_if_warm", warm), ("closing_if_cold", cold)):
@@ -584,6 +637,27 @@ def check(sheet: dict[str, Any], shoot: dict[str, Any],
                 "The two closings are the same words. If a bad review and a "
                 "good one end the video identically, one of them is a lie."
             )
+
+    # 6b3. Asking, not challenging. A favour framed as a contest reads as a
+    # contest, and the person doing the favour hears it first.
+    everything = flat(all_text(sheet))
+    for tell in CHALLENGE_TELLS:
+        if flat(tell) in everything:
+            problems.append(
+                f"The sheet says {tell!r}. That makes the other person the "
+                "one being tested and us the one testing, which buys a "
+                "guarded answer. Ask for their opinion because it is worth "
+                "more than ours on this question, and say why."
+            )
+    if fmt in WITH_PEOPLE:
+        padded = " " + everything + " "
+        for word in TOO_FAMILIAR:
+            if flat(word) and " " + flat(word) + " " in padded:
+                problems.append(
+                    f"The sheet uses {word.strip()!r}. Somebody standing "
+                    "behind his own counter is `aap`, whatever his age."
+                )
+                break
 
     # 6c. Nobody else's words, ever. The sheet carries our questions; their
     # answers arrive on the day or they do not arrive at all. A fed review is
@@ -687,6 +761,20 @@ def to_markdown(sheet: dict[str, Any], shoot: dict[str, Any],
         out += [
             f"## The person in this: {people['who']}",
             "",
+        ]
+        if people.get("why_them", "").strip():
+            out += [
+                "**Why them — say this, do not just know it:**",
+                "",
+                f"> {people['why_them']}",
+                "",
+                "You are asking a favour of somebody who knows more than you "
+                "do about one thing. A shoot that forgets to say so gets a "
+                "guarded answer, and a guarded answer is the only kind this "
+                "format cannot use.",
+                "",
+            ]
+        out += [
             "**Record this first, before anything else:**",
             "",
             f"> {people['consent']}",

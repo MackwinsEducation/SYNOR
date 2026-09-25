@@ -128,6 +128,41 @@ before** — true whether or not they know who you are, and the only part of it
 a camera can catch anyway. Walk in as SYNOR, ask, and then let somebody who
 sells a hundred other brands say what he actually thinks.
 
+## Asking, not challenging
+
+A shoot with somebody else in it can be framed two ways, and only one of them
+works.
+
+*"Aaj mera sunghega"* makes him the one being tested and you the one running
+the test. He can hear it. The viewer can hear it. And it costs exactly the
+thing the video was made to earn, because a man being examined gives you a
+guarded answer and a guarded answer is worth nothing.
+
+The frame that works is **feedback**. You went to him because on this one
+question his opinion is worth more than yours — he smells perfume all day and
+you do not — and you say that out loud, to him and to the camera. Then you
+bring the viewer along rather than daring them: *"mujhe laga jo itni saari
+brand bechta hai, unka opinion sabse kaam ka hoga. To chalo, try karte
+hain."*
+
+So, on any shoot with somebody else in it:
+
+- **Say why this person**, before asking them anything. It goes in
+  `people.why_them` and it has to be said in the script, not just written in
+  the sheet. If there is no reason beyond "they were there", the shoot has no
+  idea in it.
+- **The `aap` form, always.** Not `tu`, not `tera`. A stranger behind his own
+  counter is `aap` even if he is younger than you.
+- **Give the number, not a rounded-off word.** "100 plus brand" is heard as a
+  fact; "sau brand" is heard as a figure of speech. Precision is what makes a
+  line sound like it was not written.
+- **Nothing that sets up a contest.** No line that puts you above them, tests
+  them, or invites the viewer to watch them fail. You are not proving anybody
+  wrong; you are asking somebody who knows more than you do.
+- **Leave them a way out that costs them nothing.** They are doing you a
+  favour on camera, and a line that makes refusing awkward is a line that gets
+  you a dishonest yes.
+
 ## Hard rules — a sheet that breaks one of these is rejected
 
 1. **No other perfume house's name and no celebrity's name.** Not in a spoken
@@ -184,6 +219,8 @@ sells a hundred other brands say what he actually thinks.
 - **people** — only on a shoot with somebody else in the frame, and required
   there. Who they are, the **consent** line asked on camera before anything
   else, the **disclosure** line if anything changed hands, three to six
+  **why_them** — the reason this particular person and not a passer-by,
+  which is said out loud in the script —
   **questions** to ask, and four to eight **listen_for** notes on the kinds of
   answer worth keeping. Open questions only: "aapko kaisa laga" leaves room
   for a bad answer, "achha hai na" does not, and a question that cannot be

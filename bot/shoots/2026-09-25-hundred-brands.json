@@ -3,8 +3,8 @@
   "planned": "2026-09-25",
   "idea": {
     "title": "The shop that sells a hundred brands",
-    "one_line": "A multi-brand shop owner smells SYNOR cold, on camera, with his own shelf behind him.",
-    "why_it_works": "He has a hundred reasons to be unimpressed and nothing to gain by being kind, so whatever he says lands harder than anything we could say about ourselves.",
+    "one_line": "A shop owner who stocks 100 plus brands is asked for his honest feedback on ours, on camera, with his own shelf behind him.",
+    "why_it_works": "He has a hundred alternatives on the wall and nothing to gain by being kind, so his opinion carries weight ours never could. And the asking is the whole tone: somebody who knows more is being consulted, not tested.",
     "who_for": "Anyone who assumes a ₹49 tester means a cheap perfume"
   },
   "concept": {
@@ -20,19 +20,19 @@
     "shoot_notes": "Go at a dead hour, not when customers are in. Praise only what is actually true about the shop, and ask him on camera whether he wants it named and tagged — his shop being seen is the only thing he gets out of this, so give it to him properly. If he says no to the camera, buy something small and leave; there is another shop. And record long: you will keep the phone running for five to ten minutes of him talking and use about thirty seconds of it. Shots 5, 8 and 9 are all cut out of that one recording, so do not stop and restart between questions."
   },
   "hook": {
-    "spoken": "Is bhai ke paas sau brand hain. Aaj mera sunghega.",
-    "on_screen": "100 brands. One verdict."
+    "spoken": "100 plus brand bechne wale se apna feedback lene aaya hoon.",
+    "on_screen": "100+ brands. His feedback."
   },
   "people": {
     "who": "the owner of the shop, who sells a hundred other brands",
-    "consent": "Bhai, main SYNOR se hoon, apna perfume banata hoon. Ek video bana raha hoon Instagram ke liye aur aapka sach-sach review chahiye, achha ho ya kharaab. Aapki dukaan ka naam bhi daal doonga. Theek hai?",
+    "consent": "Bhai, main SYNOR se hoon, apna perfume banata hoon. Ek video bana raha hoon aur aapka opinion lena chahta hoon. Jo sach mein lage wahi boliye, achha ho ya kharaab. Aapki dukaan ka naam bhi daal doonga. Theek hai?",
     "disclosure": "Maine unhe sirf testers diye, review unka apna hai.",
     "questions": [
       "Sungh ke sabse pehle kya laga aapko",
       "Aapke counter par is type ka kya chalta hai aaj kal",
-      "Ismein aapko kya kharaab lagta hai",
-      "Aapke hisaab se ye kitne ka hona chahiye",
-      "Aap ise apne customer ko dena chahenge ya nahi, aur kyun"
+      "Ismein aapko kya kami lagti hai",
+      "Aapke hisaab se iski kimat kitni honi chahiye",
+      "Aap ise apne customer ko dena chahenge, ya nahi, aur kyun"
     ],
     "listen_for": [
       "Whatever number he says when he guesses the price — that is the video, high or low",
@@ -42,29 +42,30 @@
       "Whether he asks for testers himself, unprompted",
       "Anything he says about the 30% oil once he has smelled it on skin"
     ],
-    "closing_if_warm": "Bahar aa gaya. Sach kahoon to andar jaate waqt dhadkan tez thi. Ek aadmi jo sau brand bechta hai, usne mera perfume sungha aur khud bola ki ______. Mujhe andar se shaanti mili. Aur unhone tester bhi rakh liye, maine mange nahi the — unka confidence dekh ke mera bhi aa gaya.",
-    "closing_if_cold": "Bahar aa gaya. Sach bataun, jo socha tha wo nahi hua. Unhone kaha ki ______, aur wo galat nahi hai. Sunna achha nahi laga, par isi liye to pucha tha. Ye video main isliye daal raha hoon ki agar main sirf tareef wale video daalunga, to aap kabhi yakeen nahi karoge. Aap khud sungh ke batao."
+    "closing_if_warm": "Bahar aa gaya. Sach kahun to andar jaate waqt thodi ghabrahat thi. Jo aadmi 100 plus brand bechta hai, unhone khud bola ki ______. Ye sun ke andar se shaanti mili. Aur tester bhi rakh liye unhone, maine kaha bhi nahi tha.",
+    "closing_if_cold": "Bahar aa gaya. Sach bataun, jo socha tha wo nahi hua. Unhone kaha ki ______, aur baat galat bhi nahi hai. Sunne mein achha nahi laga, par isi liye to pucha tha. Agar main sirf tareef wale video daalunga to aap kabhi yakeen nahi karoge. Aap khud sungh ke batayiye.",
+    "why_them": "Ye bhai din bhar perfume sunghte hain, 100 plus brand rozana bechte hain. Mujhe laga unka opinion sabse kaam ka hoga, mere se to zyada hi hoga."
   },
   "shots": [
     {
       "n": 1,
       "seconds": 4,
       "visual": "Walking towards the shop, phone low, the board coming into frame",
-      "spoken": "Is bhai ke paas sau brand hain. Aaj mera sunghega.",
-      "on_screen": "100 brands"
+      "spoken": "100 plus brand bechne wale se apna feedback lene aaya hoon.",
+      "on_screen": "100+ brands"
     },
     {
       "n": 2,
-      "seconds": 5,
+      "seconds": 6,
       "visual": "The shelf wall, panning across it, no single brand held in frame",
-      "spoken": "Is area mein ye dukaan sabse purani hai.",
-      "on_screen": "His shop, not mine"
+      "spoken": "Mujhe laga unka opinion sabse kaam ka hoga, mere se to zyada hi hoga.",
+      "on_screen": "He sells 100+. I sell one."
     },
     {
       "n": 3,
       "seconds": 5,
-      "visual": "Him behind the counter, looking at the camera, being asked",
-      "spoken": "Aapka sach-sach review chahiye, achha ho ya kharaab.",
+      "visual": "Him behind the counter, being asked, still free to say no",
+      "spoken": "Jo sach mein lage wahi boliye, achha ho ya kharaab.",
       "on_screen": "Asked first. On camera."
     },
     {
@@ -85,14 +86,14 @@
       "n": 6,
       "seconds": 6,
       "visual": "Second strip, his hand taking it",
-      "spoken": "Ye SYNOR Royal Oud hai. Sardi ke liye.",
+      "spoken": "Ye SYNOR Royal Oud hai. Sardi ke liye banaya hai.",
       "on_screen": "SYNOR Royal Oud"
     },
     {
       "n": 7,
       "seconds": 6,
       "visual": "Third strip, and him holding all three fanned out",
-      "spoken": "SYNOR Velvet Heels. Ye ladies ke liye hai.",
+      "spoken": "Aur ye SYNOR Velvet Heels, ladies ke liye.",
       "on_screen": "SYNOR Velvet Heels"
     },
     {
@@ -105,9 +106,9 @@
     {
       "n": 9,
       "seconds": 10,
-      "visual": "Him answering what he does not like. Hold on him even if it is uncomfortable",
+      "visual": "Him answering what he finds lacking. Hold on him even if it is uncomfortable",
       "spoken": "",
-      "on_screen": "What he didn't like"
+      "on_screen": "What he found lacking"
     },
     {
       "n": 10,
@@ -119,7 +120,7 @@
     {
       "n": 11,
       "seconds": 7,
-      "visual": "Outside on the street, selfie camera, shop still behind the shoulder",
+      "visual": "Outside on the street, selfie camera, shop still over the shoulder",
       "spoken": "Sabko pasand nahi aayega, Royal Oud bahut bhaari hai.",
       "on_screen": "Not for everyone"
     },
@@ -143,7 +144,7 @@
     "synor-royal-oud-extrait-de-parfum",
     "synor-velvet-heels-extrait-de-parfum"
   ],
-  "caption": "Ek dukaan jahan sau brand bikte hain. Wahan apna perfume le gaya aur pucha ki sach bataiye. Jo unhone kaha, bina kaanchi ke daala hai.",
+  "caption": "Jo bhai 100 plus brand bechte hain, unse apne perfume ka feedback maanga. Jo unhone kaha, bina kaanchi ke daala hai.",
   "hashtags": [
     "perfume",
     "fragrance",
@@ -154,9 +155,9 @@
     "blindtest",
     "honestreview"
   ],
-  "youtube_title": "I took my perfume to a shop that sells 100 brands",
+  "youtube_title": "I asked a shop with 100+ brands what they think of mine",
   "youtube_description": "A shop owner with a hundred brands on his shelf smelled ours cold, on camera, and said what he thought. Nothing was scripted and nothing was cut for being unkind. He kept some testers; that is said in the video. synorperfume.com/products/synor-ocean-verve-extrait-de-parfum-copy synorperfume.com/products/synor-royal-oud-extrait-de-parfum synorperfume.com/products/synor-velvet-heels-extrait-de-parfum",
-  "thumbnail": "His face mid-smell, strip at his nose, shelf blurred behind. Text: HUNDRED BRANDS, ONE VERDICT",
+  "thumbnail": "His face mid-smell, strip at his nose, shelf blurred behind. Text: 100+ BRANDS, HIS FEEDBACK",
   "diaries_tie_in": "Becomes a Diaries entry on what somebody who sells perfume all day notices in the first four seconds, and what he does not care about at all.",
   "gender": [
     "him",
@@ -177,40 +178,41 @@
       "scene": "Walking towards the shop",
       "camera": "selfie, phone low",
       "lines": [
-        "Is bhai ke paas sau brand hain. Aaj mera sunghega.",
-        "Main andar ja raha hoon. Pata nahi kya bolega."
+        "100 plus brand bechne wale se apna feedback lene aaya hoon.",
+        "Mujhe laga jo itni saari brand rozana bechta hai, unka opinion sabse kaam ka hoga.",
+        "To chalo, try karte hain. Pata nahi haan bolenge ya nahi."
       ],
       "their_turn": "",
-      "note": "Two lines and no more. Anything else here kills the hook."
+      "note": "Three lines. The reason comes before the ask — that is the whole difference between this and walking in to test somebody."
     },
     {
       "scene": "Inside, at the counter — the asking",
       "camera": "low, not on his face yet",
       "lines": [
         "Namaste bhai.",
-        "Bhai, main SYNOR se hoon, apna perfume banata hoon. Ek video bana raha hoon Instagram ke liye aur aapka sach-sach review chahiye, achha ho ya kharaab. Aapki dukaan ka naam bhi daal doonga. Theek hai?",
-        "Thank you bhai. Do minute lagenge, bas."
+        "Bhai, main SYNOR se hoon, apna perfume banata hoon. Ek video bana raha hoon aur aapka opinion lena chahta hoon. Jo sach mein lage wahi boliye, achha ho ya kharaab. Aapki dukaan ka naam bhi daal doonga. Theek hai?",
+        "Do minute lagenge bhai, bas itna hi."
       ],
       "their_turn": "Yes or no. Only go on after a yes — a no means buy something small and leave, there is another shop.",
-      "note": "Recorded whether or not it reaches the cut. Shot 3 is clipped out of the middle of the long line."
+      "note": "Give him an easy way out. A line that makes refusing awkward buys a dishonest yes, and a dishonest yes is visible on camera."
     },
     {
-      "scene": "His shop, honestly",
+      "scene": "Why him",
       "camera": "panning the shelf, no single label held in frame",
       "lines": [
-        "Is area mein ye dukaan sabse purani hai.",
         "Bhai aapki dukaan kitne saal se hai?",
-        "Sau se zyada brand rakhte ho na aap?",
-        "Isi liye aapke paas aaya hoon. Aap din bhar perfume sunghte ho, aapko turant pata chal jaata hai."
+        "100 plus brand rakhte ho aap, sahi hai na?",
+        "Ye bhai din bhar perfume sunghte hain, 100 plus brand rozana bechte hain. Mujhe laga unka opinion sabse kaam ka hoga, mere se to zyada hi hoga.",
+        "Mujhe to apne hi perfume ki aadat pad gayi hai, ab mujhe farak hi nahi pata chalta."
       ],
       "their_turn": "How old the shop is, how many brands he carries.",
-      "note": "Say only what is true. If it is not the oldest, say what it is — most variety, people come from far. False praise is heard as false."
+      "note": "The third line is said to camera while he is busy, or as voice-over in the edit. The fourth is the one that puts him above you, and it happens to be true."
     },
     {
       "scene": "The first one",
       "camera": "the strip, then his hands",
       "lines": [
-        "Ye dekho. SYNOR Ocean Verve. Tees percent oil hai ismein.",
+        "Ye dekhiye. SYNOR Ocean Verve. Tees percent oil hai ismein.",
         "Strip pe daal raha hoon, aapke stock pe nahi.",
         "Sungh ke sabse pehle kya laga aapko?"
       ],
@@ -221,31 +223,31 @@
       "scene": "The other two",
       "camera": "the strips, him holding all three",
       "lines": [
-        "Ye SYNOR Royal Oud hai. Sardi ke liye.",
-        "SYNOR Velvet Heels. Ye ladies ke liye hai.",
+        "Ye SYNOR Royal Oud hai. Sardi ke liye banaya hai.",
+        "Aur ye SYNOR Velvet Heels, ladies ke liye.",
         "Aapke counter par is type ka kya chalta hai aaj kal?"
       ],
-      "their_turn": "What sells at his counter now. Let him talk about his own shop; he is more honest about ours afterwards.",
+      "their_turn": "What sells at his counter now. Let him talk about his own shop; he is more open about ours afterwards.",
       "note": ""
     },
     {
       "scene": "The real question",
       "camera": "his face, still, no cutting away",
       "lines": [
-        "Bhai ek baat sach batao. Ismein aapko kya kharaab lagta hai?",
-        "Nahi bhai, sach bolo. Mujhe wahi sunna hai. Tareef to sab karte hain.",
-        "Aapke hisaab se ye kitne ka hona chahiye?",
-        "Aur aap ise apne customer ko dena chahenge ya nahi? Kyun?"
+        "Bhai ek baat sach batayiye. Ismein aapko kya kami lagti hai?",
+        "Nahi bhai, khul ke boliye. Tareef to sab kar dete hain, mujhe kami janni hai.",
+        "Aapke hisaab se iski kimat kitni honi chahiye?",
+        "Aur aap ise apne customer ko dena chahenge, ya nahi? Kyun?"
       ],
       "their_turn": "The criticism (shot 9), the price guess (shot 8), and whether he would stock it.",
-      "note": "Ask the second line only if the first gets 'sab achha hai'. Ask it once. A third time is fishing, and the camera shows it."
+      "note": "Ask the second line only if the first gets 'sab achha hai'. Once. A third time is fishing, and the camera shows it."
     },
     {
       "scene": "The testers",
       "camera": "the counter, the bag, his hand",
       "lines": [
-        "Bhai, ye bees tester chhod raha hoon aapke paas. Customer ko sungha dena, koi paisa nahi.",
-        "Maine unhe sirf testers diye, review unka apna hai."
+        "Bhai, ye bees tester chhod raha hoon aapke paas. Customer ko sungha dijiye, koi paisa nahi.",
+        "Ek baat bata doon. Maine unhe sirf testers diye, review unka apna hai."
       ],
       "their_turn": "He may ask how many he can have. If he asks first, that is the better ending — use it.",
       "note": "The second line stays in the cut. Not optional."
