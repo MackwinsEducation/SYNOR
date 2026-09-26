@@ -40,7 +40,11 @@
 -%}
 
 {%- if shown > 0 -%}
-  {%- if s.show_plate -%}
+  {%- comment -%}
+    Patti fakt tyare, jyare upar film ke hero photo na hoy — e jagya ek j chhe.
+    Baki nu badhu (andar na photo, chitro, CSS) dar post par niche jaay chhe.
+  {%- endcomment -%}
+  {%- if s.show_plate and plate_ok -%}
     <figure class="nd-plate" data-count="{{ shown }}">
       <div class="nd-plate-in">
         {%- for h in picks limit: 6 -%}

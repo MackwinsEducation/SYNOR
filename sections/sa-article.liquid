@@ -277,6 +277,20 @@
     {%- endif -%}
   </header>
 
+  {%- liquid
+    comment
+      Upar shu aave — film, hero photo, ke kai nahi.
+    endcomment
+    assign has_hero = false
+    if article.image
+      assign has_hero = true
+    endif
+    assign plate_ok = false
+    if lead_yt == blank and has_hero == false
+      assign plate_ok = true
+    endif
+  -%}
+
   {%- if lead_yt != blank -%}
     {%- render 'sa-blog-video', id: lead_yt, title: article.title, credit: s.film_note -%}
   {%- elsif article.image -%}
@@ -285,13 +299,22 @@
            widths: '480,720,1000,1400', sizes: '(min-width: 900px) 760px, 100vw',
            loading: 'eager', fetchpriority: 'high', alt: article.title | escape }}
     </figure>
-  {%- else -%}
-    {%- comment -%}
-      Na film, na photo — tya sudhi paanu khali lagtu hatu. Post na product
-      j e jagya bhare chhe, ane e jagya j chhapa ma photo ni patti ni chhe.
-    {%- endcomment -%}
-    {%- render 'sa-blog-pics', picks: picks, s: s, sid: sid -%}
   {%- endif -%}
+
+  {%- comment -%}
+    Aa render if/else ni BAHAR chhe, ane e jaani joine chhe.
+
+    Pehle aa `else` ma hato — "na film, na photo hoy tyare product na photo
+    mukvana". Bhul e hati ke aa snippet ma fakt e patti nathi: andar na
+    product photo ni yaadi, dorela chitro ni yaadi, ane aakha picture nu
+    aakhu CSS — badhu aa ek j snippet ma chhe. Etle jyare post ne hero photo
+    maLyo, tyare aakhu picture nu thar band thai gayu: chitro gayab, andar na
+    photo gayab, ane niche na classified ad no nano photo pan besadyo nahi.
+
+    Hero jode takrav fakt PATTI no chhe — biju badhu dar post par joiye.
+    Etle snippet hamesha aave chhe, ane patti ne alag thi `plate_ok` kahe chhe.
+  {%- endcomment -%}
+  {%- render 'sa-blog-pics', picks: picks, s: s, sid: sid, plate_ok: plate_ok -%}
 
   {%- render 'sa-blog-field', article: article -%}
 
